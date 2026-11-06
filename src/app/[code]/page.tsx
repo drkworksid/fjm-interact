@@ -453,26 +453,24 @@ export default function ParticipantPage() {
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col max-w-lg mx-auto shadow-xl border-x border-slate-200">
       {/* Top Header */}
-      <header className="bg-indigo-900 text-white px-4 py-3 sticky top-0 z-30 shadow-md">
-        <div className="flex items-center justify-between gap-2 mb-1.5">
+      <header className="bg-white text-slate-900 border-b border-slate-200 px-4 py-3 sticky top-0 z-30 shadow-xs">
+        <div className="flex items-center justify-between gap-2 mb-2">
           <div className="flex items-center gap-2 overflow-hidden">
-            <span className="px-1.5 py-0.5 rounded bg-indigo-700 font-black text-[10px] text-white tracking-tight shrink-0">
-              FJM
-            </span>
-            <span className="px-2 py-0.5 rounded-md bg-indigo-700/80 text-emerald-300 font-mono text-xs font-bold tracking-wider shrink-0">
+            <img src="/fjm-logo.png" alt="FJM Logo" className="h-7 w-auto object-contain shrink-0" />
+            <span className="px-2 py-0.5 rounded-md bg-red-600 text-white font-mono text-xs font-black tracking-wider shrink-0">
               #{event.code}
             </span>
-            <h1 className="font-bold text-sm text-white truncate">{event.title}</h1>
+            <h1 className="font-extrabold text-sm text-slate-900 truncate">{event.title}</h1>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             {isConnected ? (
-              <span className="flex items-center gap-1 text-[11px] text-emerald-300 font-medium bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="flex items-center gap-1 text-[11px] text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
                 Live
               </span>
             ) : (
-              <span className="flex items-center gap-1 text-[11px] text-amber-300 font-medium bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-500/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              <span className="flex items-center gap-1 text-[11px] text-amber-700 font-medium bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                 Offline
               </span>
             )}
@@ -480,29 +478,29 @@ export default function ParticipantPage() {
         </div>
 
         {/* User Profile Bar (Zero-Login / Name Switcher) */}
-        <div className="flex items-center justify-between text-xs text-indigo-200 pt-1 border-t border-indigo-800/60">
+        <div className="flex items-center justify-between text-xs text-slate-600 pt-1.5 border-t border-slate-100">
           <div className="flex items-center gap-1.5">
             {isAnonymous ? (
-              <div className="flex items-center gap-1 bg-indigo-800/80 px-2 py-0.5 rounded-md text-indigo-300">
-                <EyeOff className="w-3 h-3 text-indigo-300" />
+              <div className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md text-slate-600 font-medium">
+                <EyeOff className="w-3 h-3 text-slate-500" />
                 <span>Anonim</span>
               </div>
             ) : (
-              <div className="flex items-center gap-1 bg-indigo-800/80 px-2 py-0.5 rounded-md text-white font-medium">
-                <User className="w-3 h-3 text-emerald-400" />
+              <div className="flex items-center gap-1 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md text-blue-800 font-bold">
+                <User className="w-3 h-3 text-blue-600" />
                 <span className="truncate max-w-[140px]">{authorName}</span>
               </div>
             )}
             <button
               onClick={() => setIsEditingName(true)}
-              className="text-[11px] text-indigo-300 hover:text-white underline decoration-dotted flex items-center gap-0.5 ml-1"
+              className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold underline decoration-dotted flex items-center gap-0.5 ml-1"
             >
               <Edit2 className="w-2.5 h-2.5" />
               <span>Ganti</span>
             </button>
           </div>
 
-          <span className="text-[11px] text-indigo-300/80">
+          <span className="text-[11px] text-slate-500 font-medium">
             {visibleQuestions.length} Pertanyaan
           </span>
         </div>
@@ -547,34 +545,34 @@ export default function ParticipantPage() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => setActiveTab("qa")}
-            className={`py-3 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all ${
+            className={`py-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${
               activeTab === "qa"
-                ? "border-indigo-600 text-indigo-600"
+                ? "border-blue-600 text-blue-600"
                 : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <MessageSquare className="w-4 h-4" />
             <span>Tanya Jawab (Q&A)</span>
-            <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold">
+            <span className="text-xs px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold">
               {visibleQuestions.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("polls")}
-            className={`py-3 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all relative ${
+            className={`py-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all relative ${
               activeTab === "polls"
-                ? "border-indigo-600 text-indigo-600"
+                ? "border-blue-600 text-blue-600"
                 : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
             <BarChart2 className="w-4 h-4" />
             <span>Live Polling</span>
             {activePoll && (
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping absolute -top-1 -right-1" />
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping absolute -top-1 -right-1" />
             )}
             {activePoll && (
-              <span className="w-2 h-2 rounded-full bg-emerald-500 absolute -top-1 -right-1" />
+              <span className="w-2 h-2 rounded-full bg-red-500 absolute -top-1 -right-1" />
             )}
           </button>
         </div>
@@ -659,7 +657,7 @@ export default function ParticipantPage() {
                     <button
                       type="submit"
                       disabled={!questionText.trim() || isSubmitting}
-                      className="ml-auto px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white font-medium text-xs flex items-center gap-1.5 transition shadow-sm"
+                      className="ml-auto px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-slate-300 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm"
                     >
                       <Send className="w-3.5 h-3.5" />
                       <span>{isSubmitting ? "Mengirim..." : "Kirim"}</span>
@@ -763,8 +761,8 @@ export default function ParticipantPage() {
                           onClick={() => handleToggleVote(q.id)}
                           className={`flex flex-col items-center justify-center min-w-[48px] px-2 py-2 rounded-xl border transition-all ${
                             hasVoted
-                              ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20"
-                              : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-600"
+                              ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20"
+                              : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 font-medium"
                           }`}
                         >
                           <ThumbsUp className={`w-4 h-4 mb-0.5 ${hasVoted ? "stroke-[2.5]" : ""}`} />

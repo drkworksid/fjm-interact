@@ -448,13 +448,18 @@ export default function ModeratorPage() {
           >
             ← Dashboard
           </Link>
+          <img
+            src="/fjm-logo.png"
+            alt="FJM Logo"
+            className="h-8 w-auto object-contain hidden sm:block bg-white rounded-md p-1"
+          />
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-black text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2 py-0.5 rounded">
+              <span className="font-mono text-xs font-black text-red-400 bg-red-950/70 border border-red-500/30 px-2 py-0.5 rounded">
                 #{event.code}
               </span>
               <h1 className="font-bold text-base text-white">{event.title}</h1>
-              <span className="text-[10px] font-bold text-white bg-indigo-600 px-2 py-0.5 rounded ml-1">
+              <span className="text-[10px] font-black text-white bg-blue-600 px-2 py-0.5 rounded ml-1">
                 FJM InterAct
               </span>
             </div>

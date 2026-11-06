@@ -83,7 +83,7 @@ export default function PresenterPage() {
   const [joinUrl, setJoinUrl] = useState<string>("");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [stageTheme, setStageTheme] = useState<"indigo" | "light" | "oled">("indigo");
+  const [stageTheme, setStageTheme] = useState<"indigo" | "light" | "oled">("light");
 
   useEffect(() => {
     const saved = localStorage.getItem("fjm_presenter_theme") as "indigo" | "light" | "oled";
@@ -294,15 +294,20 @@ export default function PresenterPage() {
         }`}
       >
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-black tracking-wider uppercase text-white bg-indigo-600 px-2.5 py-0.5 rounded-lg shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <img
+              src="/fjm-logo.png"
+              alt="FJM Logo"
+              className="h-9 w-auto object-contain bg-white rounded-lg p-1 shadow-sm border border-slate-200"
+            />
+            <span className="text-xs font-black tracking-wider uppercase text-white bg-blue-700 px-2.5 py-1 rounded-lg shadow-sm">
               FJM InterAct
             </span>
             <span
-              className={`text-xs font-mono font-bold tracking-wider uppercase px-3 py-0.5 rounded-full ${
+              className={`text-xs font-mono font-bold tracking-wider uppercase px-3 py-1 rounded-full ${
                 stageTheme === "light"
-                  ? "text-emerald-700 bg-emerald-100 border border-emerald-300"
-                  : "text-emerald-400 bg-emerald-950/60 border border-emerald-500/30"
+                  ? "text-red-700 bg-red-100 border border-red-300 font-extrabold"
+                  : "text-red-400 bg-red-950/60 border border-red-500/30"
               }`}
             >
               Layar Proyektor • Live
