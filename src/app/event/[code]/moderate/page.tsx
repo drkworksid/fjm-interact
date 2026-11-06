@@ -25,7 +25,10 @@ import {
   Flame,
   Clock,
   Check,
-  Trophy
+  Trophy,
+  Lock,
+  Unlock,
+  Megaphone
 } from "lucide-react";
 import Link from "next/link";
 
@@ -77,6 +80,7 @@ interface EventData {
   isAnonymousAllowed: boolean;
   status: string;
   highlightedQuestionId: string | null;
+  announcement?: string | null;
 }
 
 export default function ModeratorPage() {
@@ -101,6 +105,52 @@ export default function ModeratorPage() {
   const [newPollOptions, setNewPollOptions] = useState<string[]>(["Opsi 1", "Opsi 2"]);
   const [newQuizCorrectIndex, setNewQuizCorrectIndex] = useState<number>(0);
   const [newQuizTimer, setNewQuizTimer] = useState<number>(20);
+
+  // Announcement State
+  const [announcementInput, setAnnouncementInput] = useState("");
+  const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
+
+  const handleToggleEventStatus = async () => {
+    if (!event) return;
+    const nextStatus = event.status === "ACTIVE" ? "CLOSED" : "ACTIVE";
+    try {
+      await fetch(`/api/events/${eventCode}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleBroadcastAnnouncement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!announcementInput.trim()) return;
+    try {
+      await fetch(`/api/events/${eventCode}/announcement`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ announcement: announcementInput.trim() }),
+      });
+      setIsAnnouncementModalOpen(false);
+      fetchEventData();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleClearAnnouncement = async () => {
+    try {
+      await fetch(`/api/events/${eventCode}/announcement`, {
+        method: "DELETE",
+      });
+      setAnnouncementInput("");
+      fetchEventData();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   // Fetch Event Data & QR
   const fetchEventData = async () => {
@@ -504,8 +554,44 @@ export default function ModeratorPage() {
           </button>
         </div>
 
-        {/* Moderation Toggle */}
-        <div className="flex items-center gap-3">
+        {/* Action Toggles: Moderation, Lock Q&A, Announcement */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Announcement Button */}
+          <button
+            onClick={() => {
+              setAnnouncementInput(event.announcement || "");
+              setIsAnnouncementModalOpen(true);
+            }}
+            className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-indigo-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition"
+          >
+            <Megaphone className="w-3.5 h-3.5 text-amber-400" />
+            <span>Siarkan Pengumuman</span>
+          </button>
+
+          {/* Lock / Close Q&A Button */}
+          <button
+            onClick={handleToggleEventStatus}
+            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${
+              event.status === "CLOSED"
+                ? "bg-rose-950/80 border-rose-500/50 text-rose-300 ring-1 ring-rose-500/30"
+                : "bg-slate-800/80 border-slate-700 text-slate-300 hover:text-white"
+            }`}
+            title="Kunci sesi agar peserta tidak bisa menambah pertanyaan baru"
+          >
+            {event.status === "CLOSED" ? (
+              <>
+                <Lock className="w-3.5 h-3.5 text-rose-400" />
+                <span>Q&A Ditutup (Kunci)</span>
+              </>
+            ) : (
+              <>
+                <Unlock className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Q&A Aktif Terbuka</span>
+              </>
+            )}
+          </button>
+
+          {/* Moderation Toggle */}
           <label className="flex items-center gap-2 cursor-pointer select-none bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
             <input
               type="checkbox"
@@ -514,9 +600,9 @@ export default function ModeratorPage() {
               className="w-4 h-4 rounded text-indigo-500 focus:ring-indigo-400"
             />
             <span className="text-xs font-semibold text-slate-300">
-              Moderasi Pertanyaan:{" "}
+              Moderasi:{" "}
               <strong className={event.isModerationEnabled ? "text-amber-400" : "text-slate-400"}>
-                {event.isModerationEnabled ? "Aktif (Review Dulu)" : "Langsung Tampil"}
+                {event.isModerationEnabled ? "Aktif" : "Non-aktif"}
               </strong>
             </span>
           </label>
@@ -525,6 +611,43 @@ export default function ModeratorPage() {
 
       {/* Main Container */}
       <main className="flex-1 p-6 max-w-6xl mx-auto w-full">
+        {/* Active Announcement Alert */}
+        {event.announcement && (
+          <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <Megaphone className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>
+                Pengumuman Aktif di HP Peserta:{" "}
+                <strong className="text-white">"{event.announcement}"</strong>
+              </span>
+            </div>
+            <button
+              onClick={handleClearAnnouncement}
+              className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-xs font-semibold shrink-0"
+            >
+              Hapus Pengumuman ✕
+            </button>
+          </div>
+        )}
+
+        {/* Closed Session Alert */}
+        {event.status === "CLOSED" && (
+          <div className="mb-6 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <Lock className="w-4 h-4 text-rose-400 shrink-0" />
+              <span>
+                <strong>Sesi Q&A Sedang Dikunci:</strong> Peserta tidak dapat mengirim pertanyaan baru atau upvote saat ini.
+              </span>
+            </div>
+            <button
+              onClick={handleToggleEventStatus}
+              className="px-3 py-1 rounded-lg bg-rose-500 text-white font-bold text-xs shrink-0"
+            >
+              Buka Kembali Sesi
+            </button>
+          </div>
+        )}
+
         {/* TAB 1: AUDIENCE Q&A MODERATION */}
         {activeTab === "qa" && (
           <div>
@@ -1147,6 +1270,73 @@ export default function ModeratorPage() {
                 >
                   Simpan Polling
                 </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* BROADCAST ANNOUNCEMENT MODAL */}
+      {isAnnouncementModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <div className="flex items-center gap-2 mb-1">
+              <Megaphone className="w-5 h-5 text-amber-400" />
+              <h3 className="text-lg font-bold text-white">Siarkan Pengumuman Langsung</h3>
+            </div>
+            <p className="text-xs text-slate-400 mb-5">
+              Pesan ini akan langsung muncul sebagai banner prioritas di bagian atas layar ponsel semua peserta training secara real-time.
+            </p>
+
+            <form onSubmit={handleBroadcastAnnouncement} className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                  Isi Pesan Pengumuman *
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Contoh: Sesi istirahat 15 menit. Silakan download materi sesi 2 di: bit.ly/materi-fjm"
+                  value={announcementInput}
+                  onChange={(e) => setAnnouncementInput(e.target.value)}
+                  required
+                  maxLength={160}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+                />
+                <div className="text-[11px] text-slate-500 text-right mt-1">
+                  {announcementInput.length}/160 karakter
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+                {event.announcement ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleClearAnnouncement();
+                      setIsAnnouncementModalOpen(false);
+                    }}
+                    className="text-xs font-semibold text-rose-400 hover:underline"
+                  >
+                    Hapus Pengumuman Aktif
+                  </button>
+                ) : (
+                  <div />
+                )}
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsAnnouncementModalOpen(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-500/25"
+                  >
+                    Siarkan Sekarang 📢
+                  </button>
+                </div>
               </div>
             </form>
           </div>

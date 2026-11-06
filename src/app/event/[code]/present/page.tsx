@@ -18,7 +18,8 @@ import {
   Award,
   Flame,
   Check,
-  Clock
+  Clock,
+  Palette
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import Link from "next/link";
@@ -82,6 +83,17 @@ export default function PresenterPage() {
   const [joinUrl, setJoinUrl] = useState<string>("");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [stageTheme, setStageTheme] = useState<"indigo" | "light" | "oled">("indigo");
+
+  useEffect(() => {
+    const saved = localStorage.getItem("fjm_presenter_theme") as "indigo" | "light" | "oled";
+    if (saved) setStageTheme(saved);
+  }, []);
+
+  const changeTheme = (th: "indigo" | "light" | "oled") => {
+    setStageTheme(th);
+    localStorage.setItem("fjm_presenter_theme", th);
+  };
 
   // Fetch Event Data & QR
   const fetchEventData = async () => {
@@ -266,45 +278,137 @@ export default function PresenterPage() {
   const sortedQuestions = [...approvedQuestions].sort((a, b) => b.upvotes - a.upvotes);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 flex flex-col justify-between p-6 lg:p-10 select-none">
+    <div
+      className={
+        stageTheme === "light"
+          ? "min-h-screen bg-slate-100 text-slate-900 flex flex-col justify-between p-6 lg:p-10 select-none"
+          : stageTheme === "oled"
+          ? "min-h-screen bg-black text-slate-100 flex flex-col justify-between p-6 lg:p-10 select-none"
+          : "min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 flex flex-col justify-between p-6 lg:p-10 select-none"
+      }
+    >
       {/* Top Bar for Presenter Mode */}
-      <header className="flex items-center justify-between gap-6 pb-6 border-b border-slate-800/80">
+      <header
+        className={`flex items-center justify-between gap-6 pb-6 border-b ${
+          stageTheme === "light" ? "border-slate-300" : "border-slate-800/80"
+        }`}
+      >
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xs font-black tracking-wider uppercase text-white bg-indigo-600 px-2.5 py-0.5 rounded-lg shadow-sm">
               FJM InterAct
             </span>
-            <span className="text-xs font-mono font-bold tracking-wider uppercase text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3 py-0.5 rounded-full">
+            <span
+              className={`text-xs font-mono font-bold tracking-wider uppercase px-3 py-0.5 rounded-full ${
+                stageTheme === "light"
+                  ? "text-emerald-700 bg-emerald-100 border border-emerald-300"
+                  : "text-emerald-400 bg-emerald-950/60 border border-emerald-500/30"
+              }`}
+            >
               Layar Proyektor • Live
             </span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
+          <h1
+            className={`text-2xl lg:text-3xl font-extrabold tracking-tight ${
+              stageTheme === "light" ? "text-slate-950" : "text-white"
+            }`}
+          >
             {event.title}
           </h1>
         </div>
 
         {/* Join Prompt & QR Box on Stage */}
-        <div className="flex items-center gap-4 bg-slate-900/90 border border-indigo-500/30 rounded-2xl p-3 shadow-xl backdrop-blur-md">
+        <div
+          className={`flex items-center gap-4 rounded-2xl p-3 shadow-xl backdrop-blur-md ${
+            stageTheme === "light"
+              ? "bg-white border border-slate-300"
+              : "bg-slate-900/90 border border-indigo-500/30"
+          }`}
+        >
           {qrDataUrl && (
             <img
               src={qrDataUrl}
               alt="QR Code"
-              className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl bg-white p-1"
+              className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl bg-white p-1 border border-slate-200"
             />
           )}
           <div className="text-left pr-2">
-            <p className="text-xs text-indigo-300 font-medium">Pindai QR atau buka tautan:</p>
-            <p className="text-sm lg:text-base font-bold text-white tracking-wide">
+            <p
+              className={`text-xs font-medium ${
+                stageTheme === "light" ? "text-slate-600" : "text-indigo-300"
+              }`}
+            >
+              Pindai QR atau buka tautan:
+            </p>
+            <p
+              className={`text-sm lg:text-base font-bold tracking-wide ${
+                stageTheme === "light" ? "text-slate-900" : "text-white"
+              }`}
+            >
               {joinUrl ? joinUrl.replace(/^https?:\/\//, "") : `/#${event.code}`}
             </p>
-            <p className="text-xs text-emerald-400 font-mono font-bold mt-0.5">
-              Kode: <span className="text-white text-base">#{event.code}</span>
+            <p className="text-xs text-emerald-500 font-mono font-bold mt-0.5">
+              Kode:{" "}
+              <span
+                className={`text-base font-black ${
+                  stageTheme === "light" ? "text-indigo-700" : "text-white"
+                }`}
+              >
+                #{event.code}
+              </span>
             </p>
+          </div>
+
+          {/* Theme Selector */}
+          <div
+            className={`flex items-center rounded-xl p-1 border text-xs ${
+              stageTheme === "light"
+                ? "bg-slate-100 border-slate-300"
+                : "bg-slate-800/80 border-slate-700"
+            }`}
+          >
+            <button
+              onClick={() => changeTheme("indigo")}
+              className={`px-2 py-1 rounded-lg font-bold transition ${
+                stageTheme === "indigo"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-slate-400 hover:text-white"
+              }`}
+              title="Tema Indigo Modern"
+            >
+              Indigo
+            </button>
+            <button
+              onClick={() => changeTheme("light")}
+              className={`px-2 py-1 rounded-lg font-bold transition ${
+                stageTheme === "light"
+                  ? "bg-white text-slate-900 shadow-sm"
+                  : "text-slate-400 hover:text-white"
+              }`}
+              title="Tema Terang (Untuk Proyektor Ruang Terang)"
+            >
+              Terang
+            </button>
+            <button
+              onClick={() => changeTheme("oled")}
+              className={`px-2 py-1 rounded-lg font-bold transition ${
+                stageTheme === "oled"
+                  ? "bg-slate-950 text-white border border-slate-700 shadow-sm"
+                  : "text-slate-400 hover:text-white"
+              }`}
+              title="Tema OLED Gelap Pekat"
+            >
+              OLED
+            </button>
           </div>
 
           <button
             onClick={toggleFullscreen}
-            className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+            className={`p-2.5 rounded-xl transition ${
+              stageTheme === "light"
+                ? "bg-slate-200 hover:bg-slate-300 text-slate-700"
+                : "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white"
+            }`}
             title="Fullscreen"
           >
             {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
