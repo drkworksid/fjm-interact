@@ -1251,7 +1251,7 @@ export default function PresenterPage() {
           </button>
         ) : (
           /* Expanded Floating Control Bar */
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-2xl px-3 py-2 shadow-2xl flex items-center gap-1.5 md:gap-2 text-white text-xs select-none max-w-[95vw] overflow-x-auto">
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-2xl px-3 py-2 shadow-2xl flex items-center gap-1.5 md:gap-2 text-white text-xs select-none max-w-[95vw] overflow-visible">
             {/* 1. Stop / Start Poll Button */}
             <div className="relative group shrink-0">
               <button
@@ -1355,11 +1355,13 @@ export default function PresenterPage() {
             {/* 6. List of Polls Dropdown Selector */}
             <div className="relative shrink-0">
               <button
-                onClick={() => {
-                  setIsPollListDropdownOpen(!isPollListDropdownOpen);
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsPollListDropdownOpen((prev) => !prev);
                   setIsSettingsOpen(false);
                 }}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold flex items-center gap-1.5 max-w-[140px] md:max-w-[210px] transition"
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold flex items-center gap-1.5 max-w-[140px] md:max-w-[210px] transition cursor-pointer"
               >
                 <span className="truncate">
                   {activePoll ? activePoll.title : "Daftar Polling"}
@@ -1368,33 +1370,55 @@ export default function PresenterPage() {
               </button>
 
               {isPollListDropdownOpen && (
-                <div className="absolute bottom-full left-0 mb-3 w-80 bg-slate-900 border border-slate-700 rounded-2xl p-2 shadow-2xl z-50 space-y-1">
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-80 sm:w-96 bg-slate-900 border border-slate-700 rounded-2xl p-2.5 shadow-2xl z-[100] space-y-1.5 animate-in fade-in slide-in-from-bottom-2 duration-150"
+                >
                   <div className="px-2.5 py-1.5 text-[11px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800 mb-1 flex items-center justify-between">
                     <span>Daftar Polling Sesi</span>
                     <span className="text-blue-400 font-bold">{polls.length} Total</span>
                   </div>
                   {polls.length === 0 ? (
-                    <div className="p-3 text-center text-xs text-slate-500 font-medium">
-                      Belum ada polling dibuat.
+                    <div className="p-4 text-center text-xs text-slate-400 font-medium">
+                      Belum ada polling dibuat di sesi ini.
                     </div>
                   ) : (
-                    <div className="max-h-60 overflow-y-auto space-y-1">
+                    <div className="max-h-72 overflow-y-auto space-y-1 pr-1">
                       {polls.map((p, idx) => (
                         <button
                           key={p.id}
+                          type="button"
                           onClick={() => handleSwitchPoll(p.id)}
-                          className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between gap-2 transition ${
+                          className={`w-full text-left px-3 py-2.5 rounded-xl text-xs flex items-center justify-between gap-2 transition cursor-pointer ${
                             p.id === activePoll?.id
-                              ? "bg-blue-600 text-white font-black shadow-xs"
-                              : "text-slate-300 hover:bg-slate-800"
+                              ? "bg-blue-600 text-white font-black shadow-md ring-1 ring-blue-400"
+                              : "text-slate-200 hover:bg-slate-800"
                           }`}
                         >
-                          <span className="truncate">
-                            {idx + 1}. {p.title}
-                          </span>
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold shrink-0 bg-slate-800 text-slate-300 border border-slate-700">
-                            {p.type === "QUIZ" ? "🏆 Kuis" : p.type === "WORD_CLOUD" ? "Word Cloud" : p.type === "RATING" ? "Rating" : "Pilihan"}
-                          </span>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span
+                              className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ${
+                                p.id === activePoll?.id ? "bg-white text-blue-700" : "bg-slate-800 text-slate-400"
+                              }`}
+                            >
+                              {idx + 1}
+                            </span>
+                            <span className="truncate font-semibold">{p.title}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {p.isActive && (
+                              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Sedang Aktif" />
+                            )}
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                              {p.type === "QUIZ"
+                                ? "🏆 Kuis"
+                                : p.type === "WORD_CLOUD"
+                                ? "☁️ Word Cloud"
+                                : p.type === "RATING"
+                                ? "⭐ Rating"
+                                : "📊 Pilihan"}
+                            </span>
+                          </div>
                         </button>
                       ))}
                     </div>
@@ -1453,7 +1477,10 @@ export default function PresenterPage() {
                 <Settings className="w-4 h-4" />
               </button>
               {isSettingsOpen && (
-                <div className="absolute bottom-full right-0 mb-3 w-48 bg-slate-900 border border-slate-700 rounded-2xl p-2.5 shadow-2xl z-50">
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute bottom-full right-0 mb-3 w-52 bg-slate-900 border border-slate-700 rounded-2xl p-2.5 shadow-2xl z-[100] animate-in fade-in slide-in-from-bottom-2 duration-150"
+                >
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Tema Layar</p>
                   <div className="space-y-1">
                     <button
