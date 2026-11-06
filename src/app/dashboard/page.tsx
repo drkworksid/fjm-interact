@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Calendar, MessageSquare, BarChart2, ExternalLink, Settings, Monitor, Smartphone, Trash2, Sparkles } from "lucide-react";
+import { Plus, Calendar, MessageSquare, BarChart2, ExternalLink, Settings, Monitor, Smartphone, Trash2, Sparkles, Building2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -95,12 +95,15 @@ export default function DashboardPage() {
       <header className="border-b border-slate-800 bg-slate-900/60 px-6 py-4 flex items-center justify-between sticky top-0 z-30 backdrop-blur-md">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-black text-white text-base">
-              S
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-black text-white text-xs tracking-tighter">
+              FJM
             </div>
-            <span className="font-bold text-white text-base">Slido Training</span>
+            <div>
+              <span className="font-bold text-white text-base leading-none block">FJM InterAct</span>
+              <span className="text-[10px] text-indigo-300 font-medium">PT Fiqry Jaya Manunggal</span>
+            </div>
           </Link>
-          <span className="text-slate-600">•</span>
+          <span className="text-slate-600 ml-2">•</span>
           <span className="text-xs font-semibold text-slate-400">Dashboard Trainer</span>
         </div>
 
@@ -115,11 +118,17 @@ export default function DashboardPage() {
 
       {/* Main Container */}
       <main className="flex-1 p-6 lg:p-10 max-w-6xl mx-auto w-full">
-        <div className="mb-8">
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Sesi Training Anda</h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Kelola ruang interaksi audience Q&A, moderasi pertanyaan, dan live polling real-time.
-          </p>
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-extrabold text-white tracking-tight">Sesi Training & Meeting</h1>
+            <p className="text-xs text-slate-400 mt-1">
+              Kelola ruang interaksi audience Q&A, moderasi pertanyaan, dan live polling real-time.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-indigo-300 bg-indigo-950/60 border border-indigo-500/30 px-3 py-1.5 rounded-xl">
+            <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span>FJM Training Hub System</span>
+          </div>
         </div>
 
         {isLoading ? (
@@ -249,7 +258,7 @@ export default function DashboardPage() {
                   <span className="absolute left-3 text-slate-500 font-bold select-none">#</span>
                   <input
                     type="text"
-                    placeholder="Contoh: LEAD2026 (Kosongkan untuk otomatis)"
+                    placeholder="Contoh: FJM2026 (Kosongkan untuk otomatis)"
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                     className="w-full pl-8 pr-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono uppercase text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -313,4 +322,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

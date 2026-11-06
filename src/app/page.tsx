@@ -25,14 +25,14 @@ export default function HomePage() {
       {/* Navbar */}
       <header className="border-b border-indigo-800/40 backdrop-blur-md bg-slate-950/40 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-emerald-400 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-indigo-500/25">
-            S
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-emerald-400 flex items-center justify-center font-black text-sm text-white shadow-lg shadow-indigo-500/25 tracking-tighter">
+            FJM
           </div>
           <div>
             <h1 className="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-indigo-200 to-emerald-300 bg-clip-text text-transparent">
-              Slido Training
+              FJM InterAct
             </h1>
-            <p className="text-xs text-indigo-300/70">Real-time Interaction Platform</p>
+            <p className="text-xs text-indigo-300/70">PT Fiqry Jaya Manunggal</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -50,7 +50,7 @@ export default function HomePage() {
       <main className="flex-1 max-w-5xl mx-auto w-full px-6 py-12 flex flex-col items-center justify-center text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-indigo-300 text-xs font-medium mb-6">
           <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Interaksi Langsung untuk Sesi Training & Meeting</span>
+          <span>Platform Interaksi Training & Meeting PT Fiqry Jaya Manunggal</span>
         </div>
 
         <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-4 max-w-3xl leading-tight">
@@ -60,7 +60,7 @@ export default function HomePage() {
           </span>
         </h2>
         <p className="text-slate-300 text-base md:text-lg max-w-2xl mb-10 leading-relaxed">
-          Platform interaktif tanpa download aplikasi. Peserta dapat bertanya secara anonim atau bernama, upvote pertanyaan terbaik, dan menjawab live polling secara real-time.
+          Platform interaksi audiens tanpa download aplikasi. Peserta dapat bertanya secara anonim atau bernama, upvote pertanyaan terbaik, dan menjawab live polling secara real-time.
         </p>
 
         {/* Join Box for Participants */}
@@ -94,12 +94,12 @@ export default function HomePage() {
 
           {/* Quick Demo Event */}
           <div className="mt-4 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-            <span>Ada sesi demo aktif:</span>
+            <span>Sesi training demo aktif:</span>
             <button
               onClick={() => router.push("/TRAIN26")}
               className="font-mono text-emerald-400 hover:text-emerald-300 font-semibold underline decoration-dotted"
             >
-              #TRAIN26 (Klik untuk Gabung)
+              #TRAIN26 (Klik untuk Masuk)
             </button>
           </div>
         </div>
@@ -112,7 +112,7 @@ export default function HomePage() {
             </div>
             <h3 className="font-semibold text-white text-sm mb-1">Peserta (Zero Login)</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Scan QR code atau buka link. Tanya pertanyaan, upvote, dan jawab polling langsung dari HP tanpa login.
+              Scan QR code atau buka link. Tanya pertanyaan, upvote, dan jawab polling langsung dari HP tanpa perlu akun.
             </p>
           </div>
 
@@ -139,10 +139,10 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-indigo-900/40 py-4 px-6 text-center text-xs text-indigo-300/50">
-        Slido Training App • Siap dideploy ke VPS / Cloud • Fullstack Real-time Architecture
+      <footer className="border-t border-indigo-900/40 py-4 px-6 text-center text-xs text-indigo-300/60 flex flex-col md:flex-row items-center justify-between gap-2 max-w-5xl mx-auto w-full">
+        <span>FJM InterAct • Aplikasi Interaksi Pelatihan & Rapat</span>
+        <span className="font-medium">Hak Cipta © PT Fiqry Jaya Manunggal (FJM)</span>
       </footer>
     </div>
   );
 }
-

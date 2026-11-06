@@ -17,6 +17,7 @@ model Event {
   isAnonymousAllowed  Boolean    @default(true)
   status              String     @default("ACTIVE") // ACTIVE, PAUSED, CLOSED
   highlightedQuestionId String?  // Active question projected on the big screen
+  announcement        String?    // Real-time pinned announcement banner for participants
   createdAt           DateTime   @default(now())
   updatedAt           DateTime   @updatedAt
 

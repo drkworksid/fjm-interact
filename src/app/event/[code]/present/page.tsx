@@ -227,10 +227,15 @@ export default function PresenterPage() {
       {/* Top Bar for Presenter Mode */}
       <header className="flex items-center justify-between gap-6 pb-6 border-b border-slate-800/80">
         <div>
-          <span className="text-xs font-mono font-bold tracking-wider uppercase text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full">
-            Layar Proyektor • Live
-          </span>
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-white mt-2 tracking-tight">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-black tracking-wider uppercase text-white bg-indigo-600 px-2.5 py-0.5 rounded-lg shadow-sm">
+              FJM InterAct
+            </span>
+            <span className="text-xs font-mono font-bold tracking-wider uppercase text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3 py-0.5 rounded-full">
+              Layar Proyektor • Live
+            </span>
+          </div>
+          <h1 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">
             {event.title}
           </h1>
         </div>
@@ -506,7 +511,9 @@ export default function PresenterPage() {
       <footer className="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span>Slido Training • Live Sync On</span>
+          <span className="font-semibold text-slate-400">FJM InterAct</span>
+          <span>•</span>
+          <span>PT Fiqry Jaya Manunggal</span>
         </div>
         <Link
           href={`/event/${event.code}/moderate`}

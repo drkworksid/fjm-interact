@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Slido Training - Real-time Audience Interaction",
-  description: "Platform interaksi Q&A dan Live Polling untuk sesi training dan meeting.",
+  title: "FJM InterAct - Real-time Audience Interaction Platform",
+  description: "Platform interaksi Q&A dan Live Polling untuk training & meeting by PT Fiqry Jaya Manunggal.",
 };
 
 export default function RootLayout({
@@ -17,4 +17,3 @@ export default function RootLayout({
     </html>
   );
 }
-

@@ -366,13 +366,39 @@ export default function ModeratorPage() {
                 #{event.code}
               </span>
               <h1 className="font-bold text-base text-white">{event.title}</h1>
+              <span className="text-[10px] font-bold text-white bg-indigo-600 px-2 py-0.5 rounded ml-1">
+                FJM InterAct
+              </span>
             </div>
-            <p className="text-xs text-slate-400">Panel Moderasi & Pengontrol Sesi Langsung</p>
+            <p className="text-xs text-slate-400">PT Fiqry Jaya Manunggal • Panel Moderasi Sesi</p>
           </div>
         </div>
 
-        {/* Action Buttons for Stage & Participant views */}
-        <div className="flex items-center gap-2.5">
+        {/* Action Buttons for Stage, Participant views, & Export */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Export Dropdown / Buttons */}
+          <div className="flex items-center bg-slate-800 rounded-xl border border-slate-700 p-0.5 text-xs">
+            <a
+              href={`/api/events/${event.code}/export?type=qa`}
+              download
+              className="px-2.5 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700/60 rounded-lg flex items-center gap-1 font-medium transition"
+              title="Unduh seluruh daftar pertanyaan & upvotes ke format Excel/CSV"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Ekspor Q&A</span>
+            </a>
+            <span className="text-slate-600">|</span>
+            <a
+              href={`/api/events/${event.code}/export?type=polls`}
+              download
+              className="px-2.5 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700/60 rounded-lg flex items-center gap-1 font-medium transition"
+              title="Unduh seluruh hasil rekap polling ke format Excel/CSV"
+            >
+              <Download className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Ekspor Polling</span>
+            </a>
+          </div>
+
           <Link
             href={`/event/${event.code}/present`}
             target="_blank"

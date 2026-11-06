@@ -424,6 +424,9 @@ export default function ParticipantPage() {
       <header className="bg-indigo-900 text-white px-4 py-3 sticky top-0 z-30 shadow-md">
         <div className="flex items-center justify-between gap-2 mb-1.5">
           <div className="flex items-center gap-2 overflow-hidden">
+            <span className="px-1.5 py-0.5 rounded bg-indigo-700 font-black text-[10px] text-white tracking-tight shrink-0">
+              FJM
+            </span>
             <span className="px-2 py-0.5 rounded-md bg-indigo-700/80 text-emerald-300 font-mono text-xs font-bold tracking-wider shrink-0">
               #{event.code}
             </span>
@@ -893,6 +896,11 @@ export default function ParticipantPage() {
           </div>
         )}
       </main>
+
+      {/* Participant Footer */}
+      <footer className="py-2.5 px-4 text-center border-t border-slate-200 bg-white text-[11px] text-slate-400">
+        <span>FJM InterAct • PT Fiqry Jaya Manunggal</span>
+      </footer>
     </div>
   );
 }
