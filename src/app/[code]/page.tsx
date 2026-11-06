@@ -19,7 +19,9 @@ import {
   ChevronRight,
   Star,
   Check,
-  Edit2
+  Edit2,
+  Megaphone,
+  X
 } from "lucide-react";
 
 interface Question {
@@ -68,6 +70,7 @@ interface EventData {
   isAnonymousAllowed: boolean;
   status: string;
   highlightedQuestionId: string | null;
+  announcement?: string | null;
 }
 
 export default function ParticipantPage() {
@@ -84,6 +87,8 @@ export default function ParticipantPage() {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [announcement, setAnnouncement] = useState<string | null>(null);
+  const [isAnnouncementDismissed, setIsAnnouncementDismissed] = useState(false);
 
   // Participant Identity (Zero-Login)
   const [voterToken, setVoterToken] = useState<string>("");
@@ -130,6 +135,9 @@ export default function ParticipantPage() {
       setEvent(data.event);
       setQuestions(data.event.questions || []);
       setPolls(data.event.polls || []);
+      if (data.event.announcement) {
+        setAnnouncement(data.event.announcement);
+      }
       setIsLoading(false);
     } catch (err: any) {
       setError("Gagal memuat event. Periksa koneksi Anda.");
@@ -220,6 +228,11 @@ export default function ParticipantPage() {
       setPolls((prev) => prev.map((p) => (p.id === updatedPoll.id ? updatedPoll : p)));
     });
 
+    socket.on("event:announcement", ({ announcement }: { announcement: string | null }) => {
+      setAnnouncement(announcement);
+      setIsAnnouncementDismissed(false);
+    });
+
     return () => {
       socket.emit("leave_event", eventCode);
       socket.off("connect", onConnect);
@@ -232,6 +245,7 @@ export default function ParticipantPage() {
       socket.off("event:updated");
       socket.off("poll:status_updated");
       socket.off("poll:voted");
+      socket.off("event:announcement");
     };
   }, [eventCode]);
 
