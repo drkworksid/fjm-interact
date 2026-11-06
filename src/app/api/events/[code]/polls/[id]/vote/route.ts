@@ -31,6 +31,14 @@ export async function POST(
       return NextResponse.json({ success: false, error: "Polling tidak ditemukan" }, { status: 404 });
     }
 
+    if (!poll.isActive) {
+      return NextResponse.json({ success: false, error: "Polling sedang tidak aktif" }, { status: 400 });
+    }
+
+    if (poll.isLocked) {
+      return NextResponse.json({ success: false, error: "Polling telah dikunci. Jawaban tidak dapat dikirim." }, { status: 400 });
+    }
+
     // Check if participant already responded to this poll
     const existing = await prisma.pollResponse.findFirst({
       where: {

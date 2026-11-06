@@ -59,6 +59,7 @@ interface Poll {
   title: string;
   type: string;
   isActive: boolean;
+  isLocked?: boolean;
   showResults: boolean;
   quizState?: string;
   timerSeconds?: number;
