@@ -233,7 +233,13 @@ export default function ParticipantPage() {
       setIsAnnouncementDismissed(false);
     });
 
+    // Auto-sync fallback (guarantees updates in Serverless / Vercel environments)
+    const fallbackSync = setInterval(() => {
+      fetchEventData();
+    }, 3000);
+
     return () => {
+      clearInterval(fallbackSync);
       socket.emit("leave_event", eventCode);
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);

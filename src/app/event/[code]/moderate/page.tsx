@@ -191,7 +191,13 @@ export default function ModeratorPage() {
       setPolls((prev) => prev.map((p) => (p.id === updatedPoll.id ? updatedPoll : p)));
     });
 
+    // Auto-sync fallback for Vercel Serverless
+    const fallbackSync = setInterval(() => {
+      fetchEventData();
+    }, 3000);
+
     return () => {
+      clearInterval(fallbackSync);
       socket.emit("leave_event", eventCode);
       socket.off("connect", onConnect);
       socket.off("question:created");

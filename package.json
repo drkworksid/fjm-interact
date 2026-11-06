@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "node server.js",
     "build": "next build",
+    "postinstall": "prisma generate",
     "start": "NODE_ENV=production node server.js",
     "lint": "next lint",
     "db:push": "npx prisma db push",
