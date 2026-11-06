@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id                  String     @id @default(uuid())
+  code                String     @unique // e.g. "TRAIN99" or "SLIDO26"
+  title               String
+  description         String?
+  passcode            String?    // Optional room passcode
+  isModerationEnabled Boolean    @default(false) // If true, questions start as PENDING
+  isAnonymousAllowed  Boolean    @default(true)
+  status              String     @default("ACTIVE") // ACTIVE, PAUSED, CLOSED
+  highlightedQuestionId String?  // Active question projected on the big screen
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  questions           Question[]
+  polls               Poll[]
+}
+
+model Question {
+  id          String         @id @default(uuid())
+  eventId     String
+  event       Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  authorName  String         @default("Peserta")
+  isAnonymous Boolean        @default(false)
+  content     String
+  upvotes     Int            @default(0)
+  status      String         @default("APPROVED") // PENDING, APPROVED, ANSWERED, ARCHIVED
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  votes       QuestionVote[]
+
+  @@index([eventId, status])
+}
+
+model QuestionVote {
+  id          String   @id @default(uuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  voterToken  String   // Anonymous device/browser fingerprint or cookie token
+  createdAt   DateTime @default(now())
+
+  @@unique([questionId, voterToken])
+  @@index([questionId])
+}
+
+model Poll {
+  id                   String         @id @default(uuid())
+  eventId              String
+  event                Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  title                String
+  type                 String         // MULTIPLE_CHOICE, WORD_CLOUD, RATING, OPEN_TEXT, QUIZ
+  isActive             Boolean        @default(false)
+  showResults          Boolean        @default(true)
+  timerSeconds         Int            @default(0)
+  orderIndex           Int            @default(0)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  options              PollOption[]
+  responses            PollResponse[]
+
+  @@index([eventId])
+}
+
+model PollOption {
+  id          String         @id @default(uuid())
+  pollId      String
+  poll        Poll           @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  optionText  String
+  isCorrect   Boolean        @default(false) // For quiz
+  orderIndex  Int            @default(0)
+
+  responses   PollResponse[]
+
+  @@index([pollId])
+}
+
+model PollResponse {
+  id               String      @id @default(uuid())
+  pollId           String
+  poll             Poll        @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  optionId         String?
+  option           PollOption? @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  textResponse     String?     // For Word Cloud & Open Text
+  ratingValue      Int?        // For Rating (1-5 or 1-10)
+  participantToken String      // Device/browser fingerprint
+  participantName  String?
+  createdAt        DateTime    @default(now())
+
+  @@index([pollId, participantToken])
+}
+

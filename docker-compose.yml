@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  slido-training:
+    build: .
+    container_name: slido-training-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=file:/app/data/prod.db
+    volumes:
+      - slido_data:/app/data
+
+volumes:
+  slido_data:
