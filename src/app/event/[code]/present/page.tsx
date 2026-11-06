@@ -13,8 +13,14 @@ import {
   QrCode,
   Users,
   CheckCircle2,
-  Star
+  Star,
+  Trophy,
+  Award,
+  Flame,
+  Check,
+  Clock
 } from "lucide-react";
+import confetti from "canvas-confetti";
 import Link from "next/link";
 
 interface Question {
@@ -30,6 +36,7 @@ interface Question {
 interface PollOption {
   id: string;
   optionText: string;
+  isCorrect?: boolean;
   orderIndex: number;
   _count?: { responses: number };
 }
@@ -49,6 +56,8 @@ interface Poll {
   type: string;
   isActive: boolean;
   showResults: boolean;
+  quizState?: string; // QUESTION, REVEALED, LEADERBOARD
+  timerSeconds?: number;
   options: PollOption[];
   responses: PollResponse[];
 }
@@ -154,6 +163,15 @@ export default function PresenterPage() {
     });
 
     socket.on("poll:status_updated", (updatedPoll: Poll) => {
+      if (updatedPoll.type === "QUIZ" && updatedPoll.quizState === "LEADERBOARD") {
+        try {
+          confetti({
+            particleCount: 120,
+            spread: 80,
+            origin: { y: 0.6 },
+          });
+        } catch (e) {}
+      }
       setPolls((prev) => {
         const exists = prev.some((p) => p.id === updatedPoll.id);
         if (!exists) return [...prev, updatedPoll];
@@ -221,6 +239,25 @@ export default function PresenterPage() {
 
   const activePoll = polls.find((p) => p.isActive);
   const highlightedQuestion = questions.find((q) => q.id === event.highlightedQuestionId);
+
+  // Calculate Leaderboard across all Quizzes
+  const getLeaderboard = () => {
+    const scoreMap: Record<string, { name: string; score: number }> = {};
+    polls.filter((p) => p.type === "QUIZ").forEach((quiz) => {
+      (quiz.responses || []).forEach((r) => {
+        const isCorrect = quiz.options.find((o) => o.id === r.optionId)?.isCorrect;
+        if (isCorrect) {
+          const token = r.participantToken;
+          const name = r.participantName || "Peserta";
+          if (!scoreMap[token]) {
+            scoreMap[token] = { name, score: 0 };
+          }
+          scoreMap[token].score += 100;
+        }
+      });
+    });
+    return Object.values(scoreMap).sort((a, b) => b.score - a.score);
+  };
 
   // Filter approved questions for stage view
   const approvedQuestions = questions.filter(
@@ -322,6 +359,210 @@ export default function PresenterPage() {
             <h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-8 leading-snug">
               {activePoll.title}
             </h2>
+
+            {/* LIVE QUIZ & LEADERBOARD MODE */}
+            {activePoll.type === "QUIZ" && (
+              <div>
+                {/* STAGE 3: LEADERBOARD */}
+                {activePoll.quizState === "LEADERBOARD" ? (
+                  <div className="py-4">
+                    <div className="text-center mb-8">
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-sm font-black mb-3">
+                        <Trophy className="w-5 h-5 text-amber-400" />
+                        <span>PAPAN PERINGKAT RESMI TRAINING (LEADERBOARD)</span>
+                      </div>
+                      <h2 className="text-4xl lg:text-5xl font-black text-white tracking-tight">
+                        Peringkat Juara Sesi
+                      </h2>
+                    </div>
+
+                    {/* Top 3 Podium */}
+                    {(() => {
+                      const leaders = getLeaderboard();
+                      const first = leaders[0];
+                      const second = leaders[1];
+                      const third = leaders[2];
+
+                      if (leaders.length === 0) {
+                        return (
+                          <div className="text-center py-12 text-slate-400 text-base">
+                            Belum ada skor tercatat. Pastikan peserta menjawab dengan benar!
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div>
+                          <div className="flex items-end justify-center gap-4 lg:gap-8 max-w-2xl mx-auto mb-10 pt-8">
+                            {/* #2 SILVER PODIUM (LEFT) */}
+                            {second ? (
+                              <div className="flex flex-col items-center flex-1">
+                                <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-slate-700 border-2 border-slate-400 flex items-center justify-center font-black text-white text-base lg:text-xl shadow-lg mb-2">
+                                  🥈
+                                </div>
+                                <span className="text-sm lg:text-base font-bold text-white truncate max-w-[140px] mb-0.5">
+                                  {second.name}
+                                </span>
+                                <span className="text-xs font-mono font-bold text-slate-300 mb-2">
+                                  {second.score} Poin
+                                </span>
+                                <div className="w-full h-32 lg:h-40 rounded-t-2xl bg-gradient-to-t from-slate-800 to-slate-700/80 border-t-2 border-slate-400 flex items-center justify-center font-black text-2xl lg:text-4xl text-slate-300 shadow-xl">
+                                  2
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex-1 opacity-20 h-28" />
+                            )}
+
+                            {/* #1 GOLD PODIUM (CENTER) */}
+                            {first && (
+                              <div className="flex flex-col items-center flex-1 -mt-8">
+                                <span className="text-2xl animate-bounce mb-1">👑</span>
+                                <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-amber-500 border-4 border-amber-300 flex items-center justify-center font-black text-slate-950 text-xl lg:text-2xl shadow-xl shadow-amber-500/40 mb-2">
+                                  🥇
+                                </div>
+                                <span className="text-base lg:text-lg font-black text-white truncate max-w-[160px] mb-0.5 drop-shadow">
+                                  {first.name}
+                                </span>
+                                <span className="text-sm font-mono font-black text-amber-300 mb-2">
+                                  {first.score} Poin
+                                </span>
+                                <div className="w-full h-44 lg:h-56 rounded-t-2xl bg-gradient-to-t from-amber-600 to-amber-500 border-t-4 border-amber-300 flex items-center justify-center font-black text-4xl lg:text-6xl text-slate-950 shadow-2xl shadow-amber-500/30">
+                                  1
+                                </div>
+                              </div>
+                            )}
+
+                            {/* #3 BRONZE PODIUM (RIGHT) */}
+                            {third ? (
+                              <div className="flex flex-col items-center flex-1">
+                                <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-amber-900 border-2 border-amber-600 flex items-center justify-center font-black text-white text-base lg:text-xl shadow-lg mb-2">
+                                  🥉
+                                </div>
+                                <span className="text-sm lg:text-base font-bold text-white truncate max-w-[140px] mb-0.5">
+                                  {third.name}
+                                </span>
+                                <span className="text-xs font-mono font-bold text-amber-400/90 mb-2">
+                                  {third.score} Poin
+                                </span>
+                                <div className="w-full h-24 lg:h-32 rounded-t-2xl bg-gradient-to-t from-amber-950 to-amber-900/80 border-t-2 border-amber-600 flex items-center justify-center font-black text-2xl lg:text-4xl text-amber-500 shadow-xl">
+                                  3
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex-1 opacity-20 h-20" />
+                            )}
+                          </div>
+
+                          {/* 4th & 5th Places List */}
+                          {leaders.length > 3 && (
+                            <div className="max-w-md mx-auto space-y-2 pt-4 border-t border-slate-800">
+                              {leaders.slice(3, 5).map((ldr, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center justify-between p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-sm"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className="font-mono font-bold text-slate-400 w-6">
+                                      #{idx + 4}
+                                    </span>
+                                    <span className="font-bold text-white">{ldr.name}</span>
+                                  </div>
+                                  <span className="font-mono font-bold text-amber-400">
+                                    {ldr.score} Poin
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                ) : (
+                  /* STAGE 1 (QUESTION) OR STAGE 2 (REVEALED) */
+                  <div>
+                    {activePoll.quizState === "REVEALED" && (
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold mb-4">
+                        <Check className="w-4 h-4 text-emerald-400" />
+                        <span>KUNCI JAWABAN RESMI TERBUKA</span>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+                      {(() => {
+                        const total = activePoll.responses?.length || 0;
+                        const isRevealed = activePoll.quizState === "REVEALED";
+                        const letters = ["A", "B", "C", "D", "E", "F"];
+                        const cardStyles = [
+                          "border-rose-500/60 bg-rose-950/30 text-rose-100",
+                          "border-sky-500/60 bg-sky-950/30 text-sky-100",
+                          "border-amber-500/60 bg-amber-950/30 text-amber-100",
+                          "border-emerald-500/60 bg-emerald-950/30 text-emerald-100",
+                        ];
+
+                        return activePoll.options.map((opt, idx) => {
+                          const optVotes =
+                            activePoll.responses?.filter((r) => r.optionId === opt.id).length || 0;
+                          const percent = total > 0 ? Math.round((optVotes / total) * 100) : 0;
+                          const style = cardStyles[idx % cardStyles.length];
+
+                          return (
+                            <div
+                              key={opt.id}
+                              className={`p-6 rounded-2xl border-2 transition-all relative overflow-hidden flex flex-col justify-between min-h-[110px] ${
+                                isRevealed
+                                  ? opt.isCorrect
+                                    ? "border-emerald-400 bg-emerald-950/80 ring-4 ring-emerald-400/40 shadow-2xl scale-[1.02]"
+                                    : "border-slate-800 bg-slate-900/40 opacity-40"
+                                  : style
+                              }`}
+                            >
+                              {/* Background percentage fill when revealed */}
+                              {isRevealed && (
+                                <div
+                                  className={`absolute left-0 top-0 bottom-0 transition-all duration-700 opacity-20 ${
+                                    opt.isCorrect ? "bg-emerald-400" : "bg-slate-700"
+                                  }`}
+                                  style={{ width: `${percent}%` }}
+                                />
+                              )}
+
+                              <div className="relative z-10 flex items-start justify-between gap-3 mb-2">
+                                <div className="flex items-center gap-3">
+                                  <span className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 font-black text-sm text-white flex items-center justify-center shrink-0">
+                                    {letters[idx]}
+                                  </span>
+                                  <span className="text-xl lg:text-2xl font-bold text-white leading-snug">
+                                    {opt.optionText}
+                                  </span>
+                                </div>
+
+                                {isRevealed && opt.isCorrect && (
+                                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow-md">
+                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                    <span>BENAR</span>
+                                  </span>
+                                )}
+                              </div>
+
+                              {isRevealed && (
+                                <div className="relative z-10 flex items-center justify-between text-xs font-semibold text-slate-300 pt-2 border-t border-white/10">
+                                  <span>{optVotes} peserta</span>
+                                  <span className="font-mono text-lg font-black text-white">
+                                    {percent}%
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Multiple Choice Chart */}
             {activePoll.type === "MULTIPLE_CHOICE" && (

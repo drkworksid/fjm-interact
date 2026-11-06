@@ -10,7 +10,7 @@ export async function PATCH(
     const code = params.code.toUpperCase();
     const pollId = params.id;
     const body = await req.json();
-    const { isActive, showResults } = body;
+    const { isActive, showResults, quizState, timerSeconds } = body;
 
     const event = await prisma.event.findUnique({ where: { code } });
     if (!event) {
@@ -30,6 +30,8 @@ export async function PATCH(
       data: {
         isActive: isActive !== undefined ? isActive : undefined,
         showResults: showResults !== undefined ? showResults : undefined,
+        quizState: quizState !== undefined ? quizState : undefined,
+        timerSeconds: timerSeconds !== undefined ? timerSeconds : undefined,
       },
       include: {
         options: {

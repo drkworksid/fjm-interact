@@ -47,7 +47,7 @@ export async function POST(
     }
 
     const body = await req.json();
-    const { title, type, options, isActive } = body;
+    const { title, type, options, isActive, timerSeconds } = body;
 
     if (!title || !title.trim()) {
       return NextResponse.json({ success: false, error: "Judul polling harus diisi" }, { status: 400 });
@@ -70,12 +70,18 @@ export async function POST(
         title: title.trim(),
         type: type || "MULTIPLE_CHOICE",
         isActive: Boolean(isActive),
+        timerSeconds: timerSeconds ? parseInt(timerSeconds, 10) : 0,
+        quizState: "QUESTION",
         orderIndex: pollCount,
         options: {
-          create: (options || []).map((optText: string, idx: number) => ({
-            optionText: optText,
-            orderIndex: idx,
-          })),
+          create: (options || []).map((opt: any, idx: number) => {
+            const isObj = typeof opt === "object" && opt !== null;
+            return {
+              optionText: isObj ? opt.text : String(opt),
+              isCorrect: isObj ? Boolean(opt.isCorrect) : false,
+              orderIndex: idx,
+            };
+          }),
         },
       },
       include: {

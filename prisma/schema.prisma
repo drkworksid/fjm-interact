@@ -61,6 +61,7 @@ model Poll {
   type                 String         // MULTIPLE_CHOICE, WORD_CLOUD, RATING, OPEN_TEXT, QUIZ
   isActive             Boolean        @default(false)
   showResults          Boolean        @default(true)
+  quizState            String         @default("QUESTION") // QUESTION, REVEALED, LEADERBOARD
   timerSeconds         Int            @default(0)
   orderIndex           Int            @default(0)
   createdAt            DateTime       @default(now())

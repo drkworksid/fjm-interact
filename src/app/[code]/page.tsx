@@ -38,6 +38,7 @@ interface Question {
 interface PollOption {
   id: string;
   optionText: string;
+  isCorrect?: boolean;
   orderIndex: number;
   _count?: { responses: number };
 }
@@ -57,6 +58,8 @@ interface Poll {
   type: string;
   isActive: boolean;
   showResults: boolean;
+  quizState?: string;
+  timerSeconds?: number;
   options: PollOption[];
   responses: PollResponse[];
 }
@@ -750,6 +753,7 @@ export default function ParticipantPage() {
                 <div className="flex items-center gap-2 mb-2">
                   <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[11px] font-bold uppercase tracking-wider">
                     {activePoll.type === "MULTIPLE_CHOICE" && "Pilihan Ganda"}
+                    {activePoll.type === "QUIZ" && "🏆 Kuis Interaktif"}
                     {activePoll.type === "WORD_CLOUD" && "Word Cloud"}
                     {activePoll.type === "RATING" && "Rating / Skala"}
                     {activePoll.type === "OPEN_TEXT" && "Pertanyaan Terbuka"}
@@ -762,6 +766,109 @@ export default function ParticipantPage() {
                 <h2 className="text-base font-bold text-slate-900 mb-5 leading-snug">
                   {activePoll.title}
                 </h2>
+
+                {/* QUIZ INTERACTIVE MODE */}
+                {activePoll.type === "QUIZ" && (
+                  <div>
+                    {/* Stage 3: LEADERBOARD NOTICE */}
+                    {activePoll.quizState === "LEADERBOARD" ? (
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-3 text-2xl shadow-md">
+                          🏆
+                        </div>
+                        <h3 className="font-bold text-slate-900 text-lg mb-1">
+                          Sesi Kuis Selesai!
+                        </h3>
+                        <p className="text-xs text-slate-500 mb-4 max-w-xs mx-auto">
+                          Lihat layar panggung proyektor utama untuk melihat podium 3 besar juara sesi ini!
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        {/* Revealed feedback banner */}
+                        {activePoll.quizState === "REVEALED" && (() => {
+                          const userResponse = activePoll.responses?.find((r) => r.participantToken === voterToken);
+                          const correctOpt = activePoll.options.find((o) => o.isCorrect);
+                          const isUserCorrect = userResponse?.optionId === correctOpt?.id;
+
+                          return isUserCorrect ? (
+                            <div className="p-3 mb-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2">
+                              <span className="text-lg">🎉</span>
+                              <div>
+                                <p className="font-extrabold text-sm">HORE! Jawaban Anda Benar</p>
+                                <p className="font-normal text-[11px] text-emerald-700">+100 Poin tercatat untuk Leaderboard!</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="p-3 mb-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2">
+                              <span className="text-lg">😅</span>
+                              <div>
+                                <p className="font-extrabold text-sm">Jawaban Kurang Tepat</p>
+                                <p className="font-normal text-[11px] text-rose-700">Kunci jawaban yang benar: <strong>{correctOpt?.optionText}</strong></p>
+                              </div>
+                            </div>
+                          );
+                        })()}
+
+                        <div className="space-y-3">
+                          {(() => {
+                            const userResponse = activePoll.responses?.find((r) => r.participantToken === voterToken);
+                            const isRevealed = activePoll.quizState === "REVEALED";
+                            const letters = ["A", "B", "C", "D", "E"];
+
+                            return activePoll.options.map((opt, idx) => {
+                              const isSelected = userResponse?.optionId === opt.id;
+
+                              return (
+                                <button
+                                  key={opt.id}
+                                  disabled={isRevealed || !!userResponse}
+                                  onClick={() => handleVotePollOption(activePoll.id, opt.id)}
+                                  className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between gap-3 ${
+                                    isRevealed
+                                      ? opt.isCorrect
+                                        ? "border-emerald-500 bg-emerald-50 text-emerald-950 font-bold ring-2 ring-emerald-500/30"
+                                        : isSelected
+                                        ? "border-rose-300 bg-rose-50/60 text-rose-900 opacity-70"
+                                        : "border-slate-200 bg-slate-50 opacity-50"
+                                      : isSelected
+                                      ? "border-indigo-600 bg-indigo-50/80 shadow-md ring-2 ring-indigo-500/30"
+                                      : "border-slate-200 hover:border-slate-300 bg-white"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <span className={`w-7 h-7 rounded-lg font-black text-xs flex items-center justify-center shrink-0 ${
+                                      isSelected
+                                        ? "bg-indigo-600 text-white"
+                                        : "bg-slate-100 text-slate-700 border border-slate-300"
+                                    }`}>
+                                      {letters[idx]}
+                                    </span>
+                                    <span className="text-sm font-semibold text-slate-800">
+                                      {opt.optionText}
+                                    </span>
+                                  </div>
+
+                                  {isRevealed && opt.isCorrect && (
+                                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black shrink-0">
+                                      ✓ BENAR
+                                    </span>
+                                  )}
+
+                                  {!isRevealed && isSelected && (
+                                    <span className="px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 text-[10px] font-bold shrink-0">
+                                      Terkunci 🔒
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            });
+                          })()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Multiple Choice Poll */}
                 {activePoll.type === "MULTIPLE_CHOICE" && (

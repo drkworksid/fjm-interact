@@ -24,7 +24,8 @@ import {
   Download,
   Flame,
   Clock,
-  Check
+  Check,
+  Trophy
 } from "lucide-react";
 import Link from "next/link";
 
@@ -41,6 +42,7 @@ interface Question {
 interface PollOption {
   id: string;
   optionText: string;
+  isCorrect?: boolean;
   orderIndex: number;
   _count?: { responses: number };
 }
@@ -60,6 +62,8 @@ interface Poll {
   type: string;
   isActive: boolean;
   showResults: boolean;
+  quizState?: string; // QUESTION, REVEALED, LEADERBOARD
+  timerSeconds?: number;
   options: PollOption[];
   responses: PollResponse[];
 }
@@ -93,8 +97,10 @@ export default function ModeratorPage() {
   // New Poll Modal Form
   const [isNewPollModalOpen, setIsNewPollModalOpen] = useState(false);
   const [newPollTitle, setNewPollTitle] = useState("");
-  const [newPollType, setNewPollType] = useState<"MULTIPLE_CHOICE" | "WORD_CLOUD" | "RATING">("MULTIPLE_CHOICE");
+  const [newPollType, setNewPollType] = useState<"MULTIPLE_CHOICE" | "WORD_CLOUD" | "RATING" | "QUIZ">("MULTIPLE_CHOICE");
   const [newPollOptions, setNewPollOptions] = useState<string[]>(["Opsi 1", "Opsi 2"]);
+  const [newQuizCorrectIndex, setNewQuizCorrectIndex] = useState<number>(0);
+  const [newQuizTimer, setNewQuizTimer] = useState<number>(20);
 
   // Fetch Event Data & QR
   const fetchEventData = async () => {
@@ -284,18 +290,43 @@ export default function ModeratorPage() {
     }
   };
 
+  const handleUpdateQuizState = async (pollId: string, quizState: string) => {
+    try {
+      await fetch(`/api/events/${eventCode}/polls/${pollId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quizState }),
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleCreatePoll = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPollTitle.trim()) return;
 
     try {
+      let preparedOptions: any[] = [];
+      if (newPollType === "MULTIPLE_CHOICE") {
+        preparedOptions = newPollOptions.filter((o) => o.trim());
+      } else if (newPollType === "QUIZ") {
+        preparedOptions = newPollOptions
+          .filter((o) => o.trim())
+          .map((text, idx) => ({
+            text,
+            isCorrect: idx === newQuizCorrectIndex,
+          }));
+      }
+
       const res = await fetch(`/api/events/${eventCode}/polls`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: newPollTitle.trim(),
           type: newPollType,
-          options: newPollType === "MULTIPLE_CHOICE" ? newPollOptions.filter((o) => o.trim()) : [],
+          options: preparedOptions,
+          timerSeconds: newPollType === "QUIZ" ? newQuizTimer : 0,
           isActive: false,
         }),
       });
@@ -305,6 +336,7 @@ export default function ModeratorPage() {
         setIsNewPollModalOpen(false);
         setNewPollTitle("");
         setNewPollOptions(["Opsi 1", "Opsi 2"]);
+        setNewQuizCorrectIndex(0);
       }
     } catch (e) {
       console.error(e);
@@ -737,6 +769,7 @@ export default function ModeratorPage() {
                             {poll.type === "MULTIPLE_CHOICE" && "Pilihan Ganda"}
                             {poll.type === "WORD_CLOUD" && "Word Cloud"}
                             {poll.type === "RATING" && "Rating / Skala"}
+                            {poll.type === "QUIZ" && "🏆 Kuis Live"}
                           </span>
                           {poll.isActive ? (
                             <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 flex items-center gap-1">
@@ -793,16 +826,72 @@ export default function ModeratorPage() {
                       </div>
                     </div>
 
-                    {/* Poll Summary Preview */}
-                    {poll.type === "MULTIPLE_CHOICE" && (
-                      <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
+                    {/* Quiz Stage Flow Controls */}
+                    {poll.type === "QUIZ" && poll.isActive && (
+                      <div className="mt-3 p-3 rounded-xl bg-slate-950/80 border border-indigo-500/30 flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-xs text-indigo-300 font-bold flex items-center gap-1.5">
+                          <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Alur Panggung Kuis:</span>
+                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <button
+                            onClick={() => handleUpdateQuizState(poll.id, "QUESTION")}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                              (poll.quizState || "QUESTION") === "QUESTION"
+                                ? "bg-indigo-600 text-white shadow-sm"
+                                : "bg-slate-800 text-slate-400 hover:text-white"
+                            }`}
+                          >
+                            1. Tampil Soal & Hitung Mundur
+                          </button>
+                          <button
+                            onClick={() => handleUpdateQuizState(poll.id, "REVEALED")}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                              poll.quizState === "REVEALED"
+                                ? "bg-emerald-600 text-white shadow-sm"
+                                : "bg-slate-800 text-slate-400 hover:text-white"
+                            }`}
+                          >
+                            2. Buka Kunci Jawaban
+                          </button>
+                          <button
+                            onClick={() => handleUpdateQuizState(poll.id, "LEADERBOARD")}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                              poll.quizState === "LEADERBOARD"
+                                ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/30"
+                                : "bg-slate-800 text-slate-400 hover:text-white"
+                            }`}
+                          >
+                            3. Tampilkan Leaderboard 🏆
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Poll & Quiz Summary Preview */}
+                    {(poll.type === "MULTIPLE_CHOICE" || poll.type === "QUIZ") && (
+                      <div className="space-y-1.5 pt-3 border-t border-slate-800/80">
                         {poll.options.map((opt) => {
                           const votes = poll.responses?.filter((r) => r.optionId === opt.id).length || 0;
                           const total = poll.responses?.length || 0;
                           const pct = total > 0 ? Math.round((votes / total) * 100) : 0;
                           return (
-                            <div key={opt.id} className="flex items-center justify-between text-xs text-slate-300 bg-slate-950/40 px-3 py-2 rounded-lg">
-                              <span>{opt.optionText}</span>
+                            <div
+                              key={opt.id}
+                              className={`flex items-center justify-between text-xs px-3 py-2 rounded-lg ${
+                                opt.isCorrect
+                                  ? "bg-emerald-950/40 text-emerald-200 border border-emerald-500/40"
+                                  : "text-slate-300 bg-slate-950/40"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span>{opt.optionText}</span>
+                                {opt.isCorrect && (
+                                  <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-400/40">
+                                    ✓ KUNCI BENAR
+                                  </span>
+                                )}
+                              </div>
                               <span className="font-mono font-bold text-white">{votes} suara ({pct}%)</span>
                             </div>
                           );
@@ -892,8 +981,8 @@ export default function ModeratorPage() {
 
             <form onSubmit={handleCreatePoll} className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1.5">Tipe Polling</label>
-                <div className="grid grid-cols-3 gap-2">
+                <label className="text-xs font-semibold text-slate-300 block mb-1.5">Tipe Interaksi</label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <button
                     type="button"
                     onClick={() => setNewPollType("MULTIPLE_CHOICE")}
@@ -904,6 +993,17 @@ export default function ModeratorPage() {
                     }`}
                   >
                     Pilihan Ganda
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewPollType("QUIZ")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-semibold transition ${
+                      newPollType === "QUIZ"
+                        ? "bg-amber-500 text-slate-950 font-black border-amber-400 shadow-md shadow-amber-500/25"
+                        : "bg-slate-800 text-slate-400 border-slate-700 hover:text-white"
+                    }`}
+                  >
+                    🏆 Kuis Live
                   </button>
                   <button
                     type="button"
@@ -931,10 +1031,12 @@ export default function ModeratorPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1.5">Pertanyaan / Topik</label>
+                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                  {newPollType === "QUIZ" ? "Pertanyaan Kuis *" : "Pertanyaan / Topik Polling *"}
+                </label>
                 <input
                   type="text"
-                  placeholder="Contoh: Apa tantangan terbesar Anda saat ini?"
+                  placeholder={newPollType === "QUIZ" ? "Contoh: Manakah yang merupakan prinsip utama Agile?" : "Contoh: Apa tantangan terbesar Anda saat ini?"}
                   value={newPollTitle}
                   onChange={(e) => setNewPollTitle(e.target.value)}
                   required
@@ -942,13 +1044,53 @@ export default function ModeratorPage() {
                 />
               </div>
 
-              {/* Options for Multiple Choice */}
-              {newPollType === "MULTIPLE_CHOICE" && (
+              {/* Timer for Quiz */}
+              {newPollType === "QUIZ" && (
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1.5">Pilihan Opsi Jawaban</label>
+                  <label className="text-xs font-semibold text-slate-300 block mb-1.5">Timer Hitung Mundur</label>
+                  <div className="flex gap-2">
+                    {[10, 15, 20, 30, 45].map((sec) => (
+                      <button
+                        key={sec}
+                        type="button"
+                        onClick={() => setNewQuizTimer(sec)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                          newQuizTimer === sec
+                            ? "bg-amber-500 text-slate-950 border-amber-400"
+                            : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"
+                        }`}
+                      >
+                        {sec}s
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Options for Multiple Choice or Quiz */}
+              {(newPollType === "MULTIPLE_CHOICE" || newPollType === "QUIZ") && (
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-xs font-semibold text-slate-300">
+                      {newPollType === "QUIZ" ? "Pilihan Jawaban (Pilih satu sebagai Kunci Benar):" : "Pilihan Opsi Jawaban"}
+                    </label>
+                    {newPollType === "QUIZ" && (
+                      <span className="text-[11px] text-amber-400 font-medium">Klik radio untuk kunci benar</span>
+                    )}
+                  </div>
                   <div className="space-y-2">
                     {newPollOptions.map((opt, idx) => (
-                      <div key={idx} className="flex gap-2">
+                      <div key={idx} className="flex items-center gap-2">
+                        {newPollType === "QUIZ" && (
+                          <input
+                            type="radio"
+                            name="quizCorrectOption"
+                            checked={newQuizCorrectIndex === idx}
+                            onChange={() => setNewQuizCorrectIndex(idx)}
+                            className="w-4 h-4 text-emerald-500 focus:ring-emerald-400 cursor-pointer"
+                            title="Tandai sebagai jawaban benar"
+                          />
+                        )}
                         <input
                           type="text"
                           value={opt}
@@ -958,13 +1100,20 @@ export default function ModeratorPage() {
                             setNewPollOptions(updated);
                           }}
                           placeholder={`Opsi ${idx + 1}`}
-                          className="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          className={`flex-1 px-3 py-2 rounded-xl bg-slate-950 border text-white text-xs focus:outline-none focus:ring-1 ${
+                            newPollType === "QUIZ" && newQuizCorrectIndex === idx
+                              ? "border-emerald-500 ring-1 ring-emerald-500/50 bg-emerald-950/20"
+                              : "border-slate-800 focus:ring-indigo-500"
+                          }`}
                         />
                         {newPollOptions.length > 2 && (
                           <button
                             type="button"
                             onClick={() => {
                               setNewPollOptions(newPollOptions.filter((_, i) => i !== idx));
+                              if (newQuizCorrectIndex >= idx && newQuizCorrectIndex > 0) {
+                                setNewQuizCorrectIndex(newQuizCorrectIndex - 1);
+                              }
                             }}
                             className="px-2 text-slate-500 hover:text-rose-400 text-xs"
                           >

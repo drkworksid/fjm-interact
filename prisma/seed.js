@@ -78,6 +78,23 @@ async function main() {
             showResults: true,
             orderIndex: 2,
           },
+          {
+            title: "Kuis Uji Pemahaman: Manakah di bawah ini yang merupakan keunggulan utama arsitektur cloud serverless?",
+            type: "QUIZ",
+            isActive: false,
+            showResults: true,
+            quizState: "QUESTION",
+            timerSeconds: 20,
+            orderIndex: 3,
+            options: {
+              create: [
+                { optionText: "Perlu menyewa server fisik 24 jam nonstop", isCorrect: false, orderIndex: 0 },
+                { optionText: "Skalabilitas otomatis dan hanya membayar komputasi yang dipakai", isCorrect: true, orderIndex: 1 },
+                { optionText: "Tidak membutuhkan koneksi internet sama sekali", isCorrect: false, orderIndex: 2 },
+                { optionText: "Hanya bisa dijalankan di komputer lokal", isCorrect: false, orderIndex: 3 },
+              ],
+            },
+          },
         ],
       },
     },
