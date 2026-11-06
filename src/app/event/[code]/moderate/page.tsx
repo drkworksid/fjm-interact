@@ -410,18 +410,18 @@ export default function ModeratorPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3" />
-        <p className="text-sm font-semibold">Memuat Panel Kontrol Trainer...</p>
+      <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center font-sans">
+        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-3" />
+        <p className="text-sm font-bold text-slate-700">Memuat Panel Kontrol Trainer...</p>
       </div>
     );
   }
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-6 text-center font-sans">
         <h2 className="text-xl font-bold mb-2">Event Tidak Ditemukan</h2>
-        <Link href="/dashboard" className="text-indigo-400 hover:underline text-sm">
+        <Link href="/dashboard" className="text-blue-600 font-bold hover:underline text-sm">
           Kembali ke Dashboard
         </Link>
       </div>
@@ -438,56 +438,56 @@ export default function ModeratorPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       {/* Top Bar Trainer Navigation */}
-      <header className="border-b border-slate-800 bg-slate-900/80 px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 backdrop-blur-md">
-        <div className="flex items-center gap-4">
+      <header className="border-b border-slate-200 bg-white/95 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 shadow-xs backdrop-blur-md">
+        <div className="flex items-center gap-3">
           <Link
             href="/dashboard"
-            className="text-xs font-bold text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg border border-slate-800 bg-slate-800/60"
+            className="text-xs font-bold text-slate-700 hover:text-slate-900 px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 transition"
           >
             ← Dashboard
           </Link>
           <img
             src="/fjm-logo.png"
             alt="FJM Logo"
-            className="h-8 w-auto object-contain hidden sm:block bg-white rounded-md p-1"
+            className="h-9 w-auto object-contain hidden sm:block"
           />
-          <div>
+          <div className="border-l border-slate-200 pl-3">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-black text-red-400 bg-red-950/70 border border-red-500/30 px-2 py-0.5 rounded">
+              <span className="font-mono text-xs font-black text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg">
                 #{event.code}
               </span>
-              <h1 className="font-bold text-base text-white">{event.title}</h1>
+              <h1 className="font-black text-base text-slate-900 leading-tight">{event.title}</h1>
               <span className="text-[10px] font-black text-white bg-blue-600 px-2 py-0.5 rounded ml-1">
                 FJM InterAct
               </span>
             </div>
-            <p className="text-xs text-slate-400">PT Fiqry Jaya Manunggal • Panel Moderasi Sesi</p>
+            <p className="text-xs text-slate-500 font-medium">PT Fiqry Jaya Manunggal • Panel Moderasi Sesi</p>
           </div>
         </div>
 
         {/* Action Buttons for Stage, Participant views, & Export */}
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Export Dropdown / Buttons */}
-          <div className="flex items-center bg-slate-800 rounded-xl border border-slate-700 p-0.5 text-xs">
+          <div className="flex items-center bg-slate-100 rounded-xl border border-slate-200 p-0.5 text-xs font-semibold">
             <a
               href={`/api/events/${event.code}/export?type=qa`}
               download
-              className="px-2.5 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700/60 rounded-lg flex items-center gap-1 font-medium transition"
+              className="px-2.5 py-1.5 text-slate-700 hover:text-slate-900 hover:bg-white rounded-lg flex items-center gap-1.5 transition"
               title="Unduh seluruh daftar pertanyaan & upvotes ke format Excel/CSV"
             >
-              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <Download className="w-3.5 h-3.5 text-blue-600" />
               <span>Ekspor Q&A</span>
             </a>
-            <span className="text-slate-600">|</span>
+            <span className="text-slate-300">|</span>
             <a
               href={`/api/events/${event.code}/export?type=polls`}
               download
-              className="px-2.5 py-1.5 text-slate-300 hover:text-white hover:bg-slate-700/60 rounded-lg flex items-center gap-1 font-medium transition"
+              className="px-2.5 py-1.5 text-slate-700 hover:text-slate-900 hover:bg-white rounded-lg flex items-center gap-1.5 transition"
               title="Unduh seluruh hasil rekap polling ke format Excel/CSV"
             >
-              <Download className="w-3.5 h-3.5 text-indigo-400" />
+              <Download className="w-3.5 h-3.5 text-red-600" />
               <span>Ekspor Polling</span>
             </a>
           </div>
@@ -495,7 +495,7 @@ export default function ModeratorPage() {
           <Link
             href={`/event/${event.code}/present`}
             target="_blank"
-            className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs flex items-center gap-1.5 transition shadow-sm"
+            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span>Buka Layar Proyektor</span>
@@ -503,7 +503,7 @@ export default function ModeratorPage() {
           <Link
             href={`/${event.code}`}
             target="_blank"
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs flex items-center gap-1.5 transition border border-slate-700"
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-red-50 text-red-600 font-bold text-xs flex items-center gap-1.5 transition border border-red-200 shadow-xs"
           >
             <span>Tampilan Peserta (HP)</span>
           </Link>
@@ -511,21 +511,21 @@ export default function ModeratorPage() {
       </header>
 
       {/* Secondary Bar: Moderation Switch & Status */}
-      <div className="bg-slate-900 border-b border-slate-800/80 px-6 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-white border-b border-slate-200 px-6 py-2.5 flex flex-wrap items-center justify-between gap-4">
         {/* Navigation Tabs */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab("qa")}
-            className={`px-4 py-2 rounded-xl font-semibold text-xs flex items-center gap-2 transition ${
+            className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
               activeTab === "qa"
-                ? "bg-indigo-600 text-white"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
+                ? "bg-blue-600 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             }`}
           >
             <MessageSquare className="w-4 h-4" />
             <span>Audience Q&A</span>
             {pendingQuestions.length > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-bold text-[10px]">
+              <span className="px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px]">
                 {pendingQuestions.length} pending
               </span>
             )}
@@ -533,25 +533,25 @@ export default function ModeratorPage() {
 
           <button
             onClick={() => setActiveTab("polls")}
-            className={`px-4 py-2 rounded-xl font-semibold text-xs flex items-center gap-2 transition ${
+            className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
               activeTab === "polls"
-                ? "bg-indigo-600 text-white"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
+                ? "bg-blue-600 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             }`}
           >
             <BarChart2 className="w-4 h-4" />
             <span>Live Polling & Kuis</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-400 font-bold text-[10px]">
+            <span className="px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold text-[10px]">
               {polls.length}
             </span>
           </button>
 
           <button
             onClick={() => setActiveTab("settings")}
-            className={`px-4 py-2 rounded-xl font-semibold text-xs flex items-center gap-2 transition ${
+            className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
               activeTab === "settings"
-                ? "bg-indigo-600 text-white"
-                : "text-slate-400 hover:text-white hover:bg-slate-800"
+                ? "bg-blue-600 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
             }`}
           >
             <Settings className="w-4 h-4" />
@@ -567,46 +567,46 @@ export default function ModeratorPage() {
               setAnnouncementInput(event.announcement || "");
               setIsAnnouncementModalOpen(true);
             }}
-            className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-indigo-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition"
+            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition"
           >
-            <Megaphone className="w-3.5 h-3.5 text-amber-400" />
+            <Megaphone className="w-3.5 h-3.5 text-amber-500" />
             <span>Siarkan Pengumuman</span>
           </button>
 
           {/* Lock / Close Q&A Button */}
           <button
             onClick={handleToggleEventStatus}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition ${
+            className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition ${
               event.status === "CLOSED"
-                ? "bg-rose-950/80 border-rose-500/50 text-rose-300 ring-1 ring-rose-500/30"
-                : "bg-slate-800/80 border-slate-700 text-slate-300 hover:text-white"
+                ? "bg-red-50 border-red-300 text-red-700 ring-1 ring-red-400"
+                : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
             }`}
             title="Kunci sesi agar peserta tidak bisa menambah pertanyaan baru"
           >
             {event.status === "CLOSED" ? (
               <>
-                <Lock className="w-3.5 h-3.5 text-rose-400" />
+                <Lock className="w-3.5 h-3.5 text-red-600" />
                 <span>Q&A Ditutup (Kunci)</span>
               </>
             ) : (
               <>
-                <Unlock className="w-3.5 h-3.5 text-emerald-400" />
+                <Unlock className="w-3.5 h-3.5 text-emerald-600" />
                 <span>Q&A Aktif Terbuka</span>
               </>
             )}
           </button>
 
           {/* Moderation Toggle */}
-          <label className="flex items-center gap-2 cursor-pointer select-none bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+          <label className="flex items-center gap-2 cursor-pointer select-none bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
             <input
               type="checkbox"
               checked={event.isModerationEnabled}
               onChange={handleToggleModeration}
-              className="w-4 h-4 rounded text-indigo-500 focus:ring-indigo-400"
+              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
             />
-            <span className="text-xs font-semibold text-slate-300">
+            <span className="text-xs font-bold text-slate-700">
               Moderasi:{" "}
-              <strong className={event.isModerationEnabled ? "text-amber-400" : "text-slate-400"}>
+              <strong className={event.isModerationEnabled ? "text-amber-600 font-black" : "text-slate-500"}>
                 {event.isModerationEnabled ? "Aktif" : "Non-aktif"}
               </strong>
             </span>
@@ -618,17 +618,17 @@ export default function ModeratorPage() {
       <main className="flex-1 p-6 max-w-6xl mx-auto w-full">
         {/* Active Announcement Alert */}
         {event.announcement && (
-          <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs flex items-center justify-between gap-4">
+          <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between gap-4 shadow-xs">
             <div className="flex items-center gap-2.5">
-              <Megaphone className="w-4 h-4 text-amber-400 shrink-0" />
+              <Megaphone className="w-4 h-4 text-amber-600 shrink-0" />
               <span>
                 Pengumuman Aktif di HP Peserta:{" "}
-                <strong className="text-white">"{event.announcement}"</strong>
+                <strong className="text-slate-900 font-bold">"{event.announcement}"</strong>
               </span>
             </div>
             <button
               onClick={handleClearAnnouncement}
-              className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-xs font-semibold shrink-0"
+              className="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs font-bold shrink-0 transition"
             >
               Hapus Pengumuman ✕
             </button>
@@ -637,16 +637,16 @@ export default function ModeratorPage() {
 
         {/* Closed Session Alert */}
         {event.status === "CLOSED" && (
-          <div className="mb-6 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs flex items-center justify-between gap-4">
+          <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-900 text-xs flex items-center justify-between gap-4 shadow-xs">
             <div className="flex items-center gap-2.5">
-              <Lock className="w-4 h-4 text-rose-400 shrink-0" />
+              <Lock className="w-4 h-4 text-red-600 shrink-0" />
               <span>
-                <strong>Sesi Q&A Sedang Dikunci:</strong> Peserta tidak dapat mengirim pertanyaan baru atau upvote saat ini.
+                <strong>Sesi Q&A Sedang Dikunci:</strong> Peserta tidak dapat mengirim pertanyaan baru saat ini.
               </span>
             </div>
             <button
               onClick={handleToggleEventStatus}
-              className="px-3 py-1 rounded-lg bg-rose-500 text-white font-bold text-xs shrink-0"
+              className="px-3 py-1 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs shrink-0 transition"
             >
               Buka Kembali Sesi
             </button>
@@ -658,37 +658,37 @@ export default function ModeratorPage() {
           <div>
             {/* Filter buttons */}
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-              <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800">
+              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
                 <button
                   onClick={() => setQaFilter("all")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    qaFilter === "all" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-white"
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                    qaFilter === "all" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   Semua ({questions.length})
                 </button>
                 <button
                   onClick={() => setQaFilter("pending")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
                     qaFilter === "pending"
-                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                      : "text-slate-400 hover:text-white"
+                      ? "bg-amber-100 text-amber-900 shadow-xs"
+                      : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   Perlu Review ({pendingQuestions.length})
                 </button>
                 <button
                   onClick={() => setQaFilter("approved")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    qaFilter === "approved" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-white"
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                    qaFilter === "approved" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   Tampil ({questions.filter((q) => q.status === "APPROVED" || q.status === "HIGHLIGHTED").length})
                 </button>
                 <button
                   onClick={() => setQaFilter("answered")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
-                    qaFilter === "answered" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-white"
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                    qaFilter === "answered" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   Terjawab ({questions.filter((q) => q.status === "ANSWERED").length})
@@ -696,12 +696,12 @@ export default function ModeratorPage() {
               </div>
 
               {event.highlightedQuestionId && (
-                <div className="flex items-center gap-2 bg-emerald-950/60 border border-emerald-500/40 px-3 py-1 rounded-xl text-emerald-300 text-xs font-medium">
-                  <Sparkles className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-2 bg-amber-50 border border-amber-300 px-3 py-1.5 rounded-xl text-amber-900 text-xs font-bold">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                   <span>Ada 1 pertanyaan sedang disorot di proyektor</span>
                   <button
                     onClick={() => handleToggleHighlight(event.highlightedQuestionId!)}
-                    className="text-white hover:underline text-[11px] font-bold ml-1"
+                    className="text-red-600 hover:underline text-[11px] font-black ml-1"
                   >
                     (Lepas Sorotan)
                   </button>
@@ -711,9 +711,9 @@ export default function ModeratorPage() {
 
             {/* Questions List */}
             {filteredQuestions.length === 0 ? (
-              <div className="text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800">
-                <MessageSquare className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-slate-400">Tidak ada pertanyaan pada filter ini</p>
+              <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-xs">
+                <MessageSquare className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                <p className="text-sm font-bold text-slate-700">Tidak ada pertanyaan pada filter ini</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -723,70 +723,70 @@ export default function ModeratorPage() {
                   return (
                     <div
                       key={q.id}
-                      className={`p-4 rounded-2xl border transition ${
+                      className={`p-5 rounded-2xl border transition shadow-xs ${
                         isHighlighted
-                          ? "bg-gradient-to-r from-emerald-950/40 to-slate-900 border-emerald-500/60 shadow-lg"
+                          ? "bg-amber-50/70 border-2 border-amber-400 shadow-sm"
                           : q.status === "PENDING"
-                          ? "bg-amber-950/20 border-amber-500/40"
-                          : "bg-slate-900/70 border-slate-800 hover:border-slate-700"
+                          ? "bg-amber-50/40 border-amber-300"
+                          : "bg-white border-slate-200 hover:border-blue-400"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="font-semibold text-xs text-white">
+                            <span className="font-bold text-xs text-slate-900">
                               {q.isAnonymous ? "Anonim" : q.authorName}
                             </span>
-                            <span className="text-xs text-slate-500">•</span>
+                            <span className="text-xs text-slate-300">•</span>
                             <span className="text-xs text-slate-400">
                               {new Date(q.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
 
                             {/* Status Badges */}
                             {q.status === "PENDING" && (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
                                 Perlu Review
                               </span>
                             )}
                             {q.status === "ANSWERED" && (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
                                 Selesai Terjawab
                               </span>
                             )}
                             {isHighlighted && (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 flex items-center gap-1">
-                                <Sparkles className="w-3 h-3 text-emerald-400" />
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500 text-slate-950 flex items-center gap-1">
+                                <Sparkles className="w-3 h-3" />
                                 Sedang di Proyektor
                               </span>
                             )}
                           </div>
 
-                          <p className="text-base text-white font-medium mb-3 leading-relaxed">
+                          <p className="text-base text-slate-900 font-bold mb-3 leading-relaxed">
                             {q.content}
                           </p>
 
                           {/* Upvotes Counter */}
-                          <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                            <ThumbsUp className="w-3.5 h-3.5 text-indigo-400" />
-                            <span className="font-bold text-white">{q.upvotes}</span>
+                          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
+                            <ThumbsUp className="w-3.5 h-3.5 text-blue-600" />
+                            <span className="font-black text-slate-900">{q.upvotes}</span>
                             <span>upvotes dari peserta</span>
                           </div>
                         </div>
 
                         {/* Action Controls for Trainer */}
-                        <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end max-w-xs">
+                        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end max-w-xs">
                           {q.status === "PENDING" ? (
                             <>
                               <button
                                 onClick={() => handleUpdateQuestionStatus(q.id, "APPROVED")}
-                                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-1"
+                                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 transition shadow-xs"
                               >
                                 <CheckCircle className="w-3.5 h-3.5" />
                                 <span>Setujui</span>
                               </button>
                               <button
-                                onClick={() => handleDeleteQuestion(q.id)}
-                                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-950 text-rose-300 font-semibold text-xs flex items-center gap-1 border border-slate-700"
+                                onClick={() => handleUpdateQuestionStatus(q.id, "REJECTED")}
+                                className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 border border-slate-200 text-xs font-semibold transition"
                               >
                                 <XCircle className="w-3.5 h-3.5" />
                                 <span>Tolak</span>
@@ -794,48 +794,47 @@ export default function ModeratorPage() {
                             </>
                           ) : (
                             <>
-                              {/* Highlight to Big Screen Toggle */}
+                              {/* Highlight Toggle */}
                               <button
                                 onClick={() => handleToggleHighlight(q.id)}
-                                className={`px-3 py-1.5 rounded-xl font-semibold text-xs flex items-center gap-1.5 transition ${
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 transition shadow-xs ${
                                   isHighlighted
-                                    ? "bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/30"
-                                    : "bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700"
+                                    ? "bg-amber-500 hover:bg-amber-600 text-slate-950 font-black"
+                                    : "bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 border border-blue-200"
                                 }`}
                               >
-                                <Sparkles className={`w-3.5 h-3.5 ${isHighlighted ? "text-slate-950" : "text-amber-400"}`} />
-                                <span>{isHighlighted ? "Lepas Sorot" : "Sorot ke Layar"}</span>
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <span>{isHighlighted ? "Lepas Layar" : "Sorot ke Layar"}</span>
                               </button>
 
                               {/* Mark Answered */}
                               {q.status !== "ANSWERED" ? (
                                 <button
                                   onClick={() => handleUpdateQuestionStatus(q.id, "ANSWERED")}
-                                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-indigo-900/60 text-indigo-300 font-semibold text-xs flex items-center gap-1 border border-slate-700"
-                                  title="Tandai Selesai Dijawab"
+                                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-300 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 transition"
                                 >
-                                  <Check className="w-3.5 h-3.5" />
+                                  <Check className="w-3.5 h-3.5 text-emerald-600" />
                                   <span>Terjawab</span>
                                 </button>
                               ) : (
                                 <button
                                   onClick={() => handleUpdateQuestionStatus(q.id, "APPROVED")}
-                                  className="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white font-semibold text-xs"
+                                  className="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 hover:text-slate-800 text-xs font-semibold transition"
                                 >
-                                  Batal Terjawab
+                                  Kembalikan
                                 </button>
                               )}
-
-                              {/* Delete */}
-                              <button
-                                onClick={() => handleDeleteQuestion(q.id)}
-                                className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-rose-950 text-slate-400 hover:text-rose-400 border border-slate-700"
-                                title="Hapus Pertanyaan"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
                             </>
                           )}
+
+                          {/* Delete Question */}
+                          <button
+                            onClick={() => handleDeleteQuestion(q.id)}
+                            className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 transition"
+                            title="Hapus Pertanyaan"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -851,15 +850,15 @@ export default function ModeratorPage() {
           <div>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-lg font-bold text-white">Daftar Polling & Kuis</h2>
-                <p className="text-xs text-slate-400">
+                <h2 className="text-xl font-black text-slate-900">Daftar Polling & Kuis</h2>
+                <p className="text-xs text-slate-500 mt-0.5">
                   Luncurkan satu polling dalam satu waktu untuk dijawab peserta langsung di ponsel mereka.
                 </p>
               </div>
 
               <button
                 onClick={() => setIsNewPollModalOpen(true)}
-                className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs flex items-center gap-1.5 shadow-lg shadow-indigo-600/25 transition"
+                className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-red-600/20 transition"
               >
                 <Plus className="w-4 h-4" />
                 <span>Buat Polling Baru</span>
@@ -868,13 +867,13 @@ export default function ModeratorPage() {
 
             {/* Polls List */}
             {polls.length === 0 ? (
-              <div className="text-center py-16 bg-slate-900/40 rounded-2xl border border-slate-800">
-                <BarChart2 className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-slate-400 mb-1">Belum Ada Polling</p>
+              <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-xs">
+                <BarChart2 className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                <p className="text-sm font-bold text-slate-700 mb-1">Belum Ada Polling</p>
                 <p className="text-xs text-slate-500 mb-4">Buat polling pilihan ganda, word cloud, atau skala rating.</p>
                 <button
                   onClick={() => setIsNewPollModalOpen(true)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold"
                 >
                   Buat Polling Pertama
                 </button>
@@ -884,37 +883,37 @@ export default function ModeratorPage() {
                 {polls.map((poll) => (
                   <div
                     key={poll.id}
-                    className={`p-5 rounded-2xl border transition ${
+                    className={`p-5 rounded-2xl border transition shadow-xs ${
                       poll.isActive
-                        ? "bg-slate-900 border-emerald-500/70 ring-1 ring-emerald-500/50 shadow-xl"
-                        : "bg-slate-900/60 border-slate-800"
+                        ? "bg-white border-blue-600 ring-2 ring-blue-500/20 shadow-md"
+                        : "bg-white border-slate-200"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <div>
                         <div className="flex items-center gap-2 mb-1.5">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-indigo-300">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
                             {poll.type === "MULTIPLE_CHOICE" && "Pilihan Ganda"}
                             {poll.type === "WORD_CLOUD" && "Word Cloud"}
                             {poll.type === "RATING" && "Rating / Skala"}
                             {poll.type === "QUIZ" && "🏆 Kuis Live"}
                           </span>
                           {poll.isActive ? (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
                               Sedang Aktif di Layar
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-500">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">
                               Non-aktif
                             </span>
                           )}
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-slate-500 font-medium">
                             • {poll.responses?.length || 0} suara masuk
                           </span>
                         </div>
 
-                        <h3 className="text-base font-bold text-white">{poll.title}</h3>
+                        <h3 className="text-base font-black text-slate-900">{poll.title}</h3>
                       </div>
 
                       {/* Control buttons */}
@@ -922,7 +921,7 @@ export default function ModeratorPage() {
                         {poll.isActive ? (
                           <button
                             onClick={() => handleTogglePollActive(poll.id, true)}
-                            className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold flex items-center gap-1.5"
+                            className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition"
                           >
                             <Square className="w-3.5 h-3.5" />
                             <span>Hentikan Polling</span>
@@ -930,7 +929,7 @@ export default function ModeratorPage() {
                         ) : (
                           <button
                             onClick={() => handleTogglePollActive(poll.id, false)}
-                            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md shadow-emerald-600/20"
+                            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition"
                           >
                             <Play className="w-3.5 h-3.5 fill-current" />
                             <span>Luncurkan ke Peserta</span>
@@ -939,15 +938,16 @@ export default function ModeratorPage() {
 
                         <button
                           onClick={() => handleTogglePollResults(poll.id, poll.showResults)}
-                          className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700"
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition"
                           title={poll.showResults ? "Sembunyikan Hasil dari Peserta" : "Tampilkan Hasil ke Peserta"}
                         >
-                          {poll.showResults ? <Eye className="w-4 h-4 text-emerald-400" /> : <EyeOff className="w-4 h-4 text-slate-500" />}
+                          {poll.showResults ? <Eye className="w-4 h-4 text-blue-600" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
                         </button>
 
                         <button
                           onClick={() => handleDeletePoll(poll.id)}
-                          className="p-1.5 rounded-xl bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 border border-slate-700"
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 transition"
+                          title="Hapus Polling"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -956,38 +956,38 @@ export default function ModeratorPage() {
 
                     {/* Quiz Stage Flow Controls */}
                     {poll.type === "QUIZ" && poll.isActive && (
-                      <div className="mt-3 p-3 rounded-xl bg-slate-950/80 border border-indigo-500/30 flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-xs text-indigo-300 font-bold flex items-center gap-1.5">
-                          <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                      <div className="mt-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-xs text-slate-800 font-bold flex items-center gap-1.5">
+                          <Trophy className="w-4 h-4 text-amber-500" />
                           <span>Alur Panggung Kuis:</span>
                         </span>
-                        <div className="flex items-center gap-1.5 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <button
                             onClick={() => handleUpdateQuizState(poll.id, "QUESTION")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
                               (poll.quizState || "QUESTION") === "QUESTION"
-                                ? "bg-indigo-600 text-white shadow-sm"
-                                : "bg-slate-800 text-slate-400 hover:text-white"
+                                ? "bg-blue-600 text-white shadow-xs"
+                                : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
                             }`}
                           >
                             1. Tampil Soal & Hitung Mundur
                           </button>
                           <button
                             onClick={() => handleUpdateQuizState(poll.id, "REVEALED")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
                               poll.quizState === "REVEALED"
-                                ? "bg-emerald-600 text-white shadow-sm"
-                                : "bg-slate-800 text-slate-400 hover:text-white"
+                                ? "bg-emerald-600 text-white shadow-xs"
+                                : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
                             }`}
                           >
                             2. Buka Kunci Jawaban
                           </button>
                           <button
                             onClick={() => handleUpdateQuizState(poll.id, "LEADERBOARD")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                            className={`px-3 py-1.5 rounded-lg text-xs font-black transition ${
                               poll.quizState === "LEADERBOARD"
-                                ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/30"
-                                : "bg-slate-800 text-slate-400 hover:text-white"
+                                ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25"
+                                : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
                             }`}
                           >
                             3. Tampilkan Leaderboard 🏆
@@ -998,7 +998,7 @@ export default function ModeratorPage() {
 
                     {/* Poll & Quiz Summary Preview */}
                     {(poll.type === "MULTIPLE_CHOICE" || poll.type === "QUIZ") && (
-                      <div className="space-y-1.5 pt-3 border-t border-slate-800/80">
+                      <div className="space-y-1.5 pt-3 border-t border-slate-100">
                         {poll.options.map((opt) => {
                           const votes = poll.responses?.filter((r) => r.optionId === opt.id).length || 0;
                           const total = poll.responses?.length || 0;
@@ -1008,19 +1008,19 @@ export default function ModeratorPage() {
                               key={opt.id}
                               className={`flex items-center justify-between text-xs px-3 py-2 rounded-lg ${
                                 opt.isCorrect
-                                  ? "bg-emerald-950/40 text-emerald-200 border border-emerald-500/40"
-                                  : "text-slate-300 bg-slate-950/40"
+                                  ? "bg-emerald-50 text-emerald-900 border border-emerald-300 font-bold"
+                                  : "text-slate-700 bg-slate-50 border border-slate-100"
                               }`}
                             >
                               <div className="flex items-center gap-2">
                                 <span>{opt.optionText}</span>
                                 {opt.isCorrect && (
-                                  <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-400/40">
+                                  <span className="text-[10px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded">
                                     ✓ KUNCI BENAR
                                   </span>
                                 )}
                               </div>
-                              <span className="font-mono font-bold text-white">{votes} suara ({pct}%)</span>
+                              <span className="font-mono font-bold text-slate-900">{votes} suara ({pct}%)</span>
                             </div>
                           );
                         })}
@@ -1036,17 +1036,17 @@ export default function ModeratorPage() {
         {/* TAB 3: SETTINGS & QR CODE */}
         {activeTab === "settings" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 bg-slate-900 rounded-2xl border border-slate-800">
-              <h3 className="font-bold text-base text-white mb-2">QR Code & Tautan Akses Peserta</h3>
-              <p className="text-xs text-slate-400 mb-6 leading-relaxed">
+            <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs">
+              <h3 className="font-bold text-base text-slate-900 mb-2">QR Code & Tautan Akses Peserta</h3>
+              <p className="text-xs text-slate-500 mb-6 leading-relaxed">
                 Tampilkan QR Code ini di layar proyektor atau masukkan ke slide materi presentasi Anda agar peserta dapat langsung bergabung tanpa instalasi aplikasi.
               </p>
 
               {qrDataUrl && (
-                <div className="flex flex-col items-center p-6 bg-white rounded-2xl w-fit mx-auto mb-6 shadow-xl">
-                  <img src={qrDataUrl} alt="QR Code Join" className="w-48 h-48" />
-                  <p className="text-slate-900 font-mono font-black text-lg mt-3">#{event.code}</p>
-                  <p className="text-slate-500 text-xs">{joinUrl}</p>
+                <div className="flex flex-col items-center p-6 bg-slate-50 border border-slate-200 rounded-2xl w-fit mx-auto mb-6 shadow-xs">
+                  <img src={qrDataUrl} alt="QR Code Join" className="w-48 h-48 bg-white p-2 rounded-xl border border-slate-200" />
+                  <p className="text-red-600 font-mono font-black text-xl mt-3">#{event.code}</p>
+                  <p className="text-slate-500 text-xs font-medium">{joinUrl}</p>
                 </div>
               )}
 
@@ -1054,7 +1054,7 @@ export default function ModeratorPage() {
                 <a
                   href={qrDataUrl}
                   download={`QR-${event.code}.png`}
-                  className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs flex items-center gap-2 shadow"
+                  className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-2 shadow-xs transition"
                 >
                   <Download className="w-4 h-4" />
                   <span>Unduh Gambar QR (PNG)</span>
@@ -1062,34 +1062,34 @@ export default function ModeratorPage() {
               </div>
             </div>
 
-            <div className="p-6 bg-slate-900 rounded-2xl border border-slate-800">
-              <h3 className="font-bold text-base text-white mb-4">Informasi Sesi Training</h3>
+            <div className="p-6 bg-white rounded-2xl border border-slate-200 shadow-xs">
+              <h3 className="font-bold text-base text-slate-900 mb-4">Informasi Sesi Training</h3>
 
               <div className="space-y-4 text-xs">
                 <div>
-                  <label className="text-slate-400 font-semibold block mb-1">Kode Sesi (Event Code)</label>
-                  <div className="px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-emerald-400 font-bold text-sm">
+                  <label className="text-slate-600 font-bold block mb-1">Kode Sesi (Event Code)</label>
+                  <div className="px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-red-600 font-black text-sm">
                     #{event.code}
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-slate-400 font-semibold block mb-1">Judul Sesi</label>
-                  <div className="px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white font-medium">
+                  <label className="text-slate-600 font-bold block mb-1">Judul Sesi</label>
+                  <div className="px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-bold">
                     {event.title}
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-slate-400 font-semibold block mb-1">Tautan Langsung Peserta</label>
-                  <div className="px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-indigo-300 font-mono select-all">
+                  <label className="text-slate-600 font-bold block mb-1">Tautan Langsung Peserta</label>
+                  <div className="px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-blue-600 font-mono select-all font-semibold">
                     {joinUrl}
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-800">
-                  <p className="text-slate-400 text-xs leading-relaxed">
-                    Aplikasi ini dirancang untuk deployment langsung ke VPS atau Cloud (Node.js/Docker). Semua interaksi tersimpan secara lokal di database SQLite yang ringan dan cepat.
+                <div className="pt-4 border-t border-slate-100">
+                  <p className="text-slate-500 text-xs leading-relaxed">
+                    Aplikasi ini dirancang untuk PT Fiqry Jaya Manunggal. Semua interaksi peserta, polling, dan skor kuis tersimpan secara real-time.
                   </p>
                 </div>
               </div>
@@ -1100,24 +1100,24 @@ export default function ModeratorPage() {
 
       {/* CREATE NEW POLL MODAL */}
       {isNewPollModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-1">Buat Polling Baru</h3>
-            <p className="text-xs text-slate-400 mb-5">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl">
+            <h3 className="text-lg font-black text-slate-900 mb-1">Buat Polling Baru</h3>
+            <p className="text-xs text-slate-500 mb-5">
               Pilih tipe interaksi yang diinginkan untuk peserta training.
             </p>
 
             <form onSubmit={handleCreatePoll} className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1.5">Tipe Interaksi</label>
+                <label className="text-xs font-bold text-slate-700 block mb-1.5">Tipe Interaksi</label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   <button
                     type="button"
                     onClick={() => setNewPollType("MULTIPLE_CHOICE")}
-                    className={`py-2 px-3 rounded-xl border text-xs font-semibold transition ${
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition ${
                       newPollType === "MULTIPLE_CHOICE"
-                        ? "bg-indigo-600 text-white border-indigo-500"
-                        : "bg-slate-800 text-slate-400 border-slate-700 hover:text-white"
+                        ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                     }`}
                   >
                     Pilihan Ganda
@@ -1125,10 +1125,10 @@ export default function ModeratorPage() {
                   <button
                     type="button"
                     onClick={() => setNewPollType("QUIZ")}
-                    className={`py-2 px-3 rounded-xl border text-xs font-semibold transition ${
+                    className={`py-2 px-3 rounded-xl border text-xs font-black transition ${
                       newPollType === "QUIZ"
-                        ? "bg-amber-500 text-slate-950 font-black border-amber-400 shadow-md shadow-amber-500/25"
-                        : "bg-slate-800 text-slate-400 border-slate-700 hover:text-white"
+                        ? "bg-amber-500 text-slate-950 border-amber-500 shadow-xs"
+                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                     }`}
                   >
                     🏆 Kuis Live
@@ -1136,10 +1136,10 @@ export default function ModeratorPage() {
                   <button
                     type="button"
                     onClick={() => setNewPollType("WORD_CLOUD")}
-                    className={`py-2 px-3 rounded-xl border text-xs font-semibold transition ${
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition ${
                       newPollType === "WORD_CLOUD"
-                        ? "bg-indigo-600 text-white border-indigo-500"
-                        : "bg-slate-800 text-slate-400 border-slate-700 hover:text-white"
+                        ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                     }`}
                   >
                     Word Cloud
@@ -1147,10 +1147,10 @@ export default function ModeratorPage() {
                   <button
                     type="button"
                     onClick={() => setNewPollType("RATING")}
-                    className={`py-2 px-3 rounded-xl border text-xs font-semibold transition ${
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition ${
                       newPollType === "RATING"
-                        ? "bg-indigo-600 text-white border-indigo-500"
-                        : "bg-slate-800 text-slate-400 border-slate-700 hover:text-white"
+                        ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                     }`}
                   >
                     Rating (1-5)
@@ -1159,23 +1159,23 @@ export default function ModeratorPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                <label className="text-xs font-bold text-slate-700 block mb-1.5">
                   {newPollType === "QUIZ" ? "Pertanyaan Kuis *" : "Pertanyaan / Topik Polling *"}
                 </label>
                 <input
                   type="text"
-                  placeholder={newPollType === "QUIZ" ? "Contoh: Manakah yang merupakan prinsip utama Agile?" : "Contoh: Apa tantangan terbesar Anda saat ini?"}
+                  placeholder={newPollType === "QUIZ" ? "Contoh: Manakah yang merupakan keunggulan arsitektur cloud serverless?" : "Contoh: Apa tantangan terbesar Anda saat ini?"}
                   value={newPollTitle}
                   onChange={(e) => setNewPollTitle(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
                 />
               </div>
 
               {/* Timer for Quiz */}
               {newPollType === "QUIZ" && (
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 block mb-1.5">Timer Hitung Mundur</label>
+                  <label className="text-xs font-bold text-slate-700 block mb-1.5">Timer Hitung Mundur</label>
                   <div className="flex gap-2">
                     {[10, 15, 20, 30, 45].map((sec) => (
                       <button
@@ -1184,8 +1184,8 @@ export default function ModeratorPage() {
                         onClick={() => setNewQuizTimer(sec)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
                           newQuizTimer === sec
-                            ? "bg-amber-500 text-slate-950 border-amber-400"
-                            : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"
+                            ? "bg-amber-500 text-slate-950 border-amber-500"
+                            : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                         }`}
                       >
                         {sec}s
@@ -1199,11 +1199,11 @@ export default function ModeratorPage() {
               {(newPollType === "MULTIPLE_CHOICE" || newPollType === "QUIZ") && (
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-slate-300">
-                      {newPollType === "QUIZ" ? "Pilihan Jawaban (Pilih satu sebagai Kunci Benar):" : "Pilihan Opsi Jawaban"}
+                    <label className="text-xs font-bold text-slate-700">
+                      {newPollType === "QUIZ" ? "Pilihan Jawaban (Pilih radio sebagai Kunci Benar):" : "Pilihan Opsi Jawaban"}
                     </label>
                     {newPollType === "QUIZ" && (
-                      <span className="text-[11px] text-amber-400 font-medium">Klik radio untuk kunci benar</span>
+                      <span className="text-[11px] text-amber-600 font-bold">Kunci Benar</span>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -1215,7 +1215,7 @@ export default function ModeratorPage() {
                             name="quizCorrectOption"
                             checked={newQuizCorrectIndex === idx}
                             onChange={() => setNewQuizCorrectIndex(idx)}
-                            className="w-4 h-4 text-emerald-500 focus:ring-emerald-400 cursor-pointer"
+                            className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                             title="Tandai sebagai jawaban benar"
                           />
                         )}
@@ -1228,10 +1228,10 @@ export default function ModeratorPage() {
                             setNewPollOptions(updated);
                           }}
                           placeholder={`Opsi ${idx + 1}`}
-                          className={`flex-1 px-3 py-2 rounded-xl bg-slate-950 border text-white text-xs focus:outline-none focus:ring-1 ${
+                          className={`flex-1 px-3 py-2 rounded-xl bg-slate-50 border text-slate-900 text-xs focus:outline-none focus:ring-2 ${
                             newPollType === "QUIZ" && newQuizCorrectIndex === idx
-                              ? "border-emerald-500 ring-1 ring-emerald-500/50 bg-emerald-950/20"
-                              : "border-slate-800 focus:ring-indigo-500"
+                              ? "border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/40 font-bold"
+                              : "border-slate-300 focus:ring-blue-500 focus:bg-white"
                           }`}
                         />
                         {newPollOptions.length > 2 && (
@@ -1243,7 +1243,7 @@ export default function ModeratorPage() {
                                 setNewQuizCorrectIndex(newQuizCorrectIndex - 1);
                               }
                             }}
-                            className="px-2 text-slate-500 hover:text-rose-400 text-xs"
+                            className="px-2 text-slate-400 hover:text-red-600 text-xs font-bold"
                           >
                             ✕
                           </button>
@@ -1253,7 +1253,7 @@ export default function ModeratorPage() {
                     <button
                       type="button"
                       onClick={() => setNewPollOptions([...newPollOptions, `Opsi ${newPollOptions.length + 1}`])}
-                      className="text-xs text-indigo-400 hover:underline font-medium"
+                      className="text-xs text-blue-600 hover:underline font-bold"
                     >
                       + Tambah Opsi Lain
                     </button>
@@ -1261,17 +1261,17 @@ export default function ModeratorPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsNewPollModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/20 transition"
                 >
                   Simpan Polling
                 </button>
@@ -1280,21 +1280,22 @@ export default function ModeratorPage() {
           </div>
         </div>
       )}
+
       {/* BROADCAST ANNOUNCEMENT MODAL */}
       {isAnnouncementModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-md shadow-2xl">
             <div className="flex items-center gap-2 mb-1">
-              <Megaphone className="w-5 h-5 text-amber-400" />
-              <h3 className="text-lg font-bold text-white">Siarkan Pengumuman Langsung</h3>
+              <Megaphone className="w-5 h-5 text-amber-500" />
+              <h3 className="text-lg font-black text-slate-900">Siarkan Pengumuman Langsung</h3>
             </div>
-            <p className="text-xs text-slate-400 mb-5">
+            <p className="text-xs text-slate-500 mb-5">
               Pesan ini akan langsung muncul sebagai banner prioritas di bagian atas layar ponsel semua peserta training secara real-time.
             </p>
 
             <form onSubmit={handleBroadcastAnnouncement} className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                <label className="text-xs font-bold text-slate-700 block mb-1.5">
                   Isi Pesan Pengumuman *
                 </label>
                 <textarea
@@ -1304,14 +1305,14 @@ export default function ModeratorPage() {
                   onChange={(e) => setAnnouncementInput(e.target.value)}
                   required
                   maxLength={160}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white resize-none"
                 />
-                <div className="text-[11px] text-slate-500 text-right mt-1">
+                <div className="text-[11px] text-slate-400 text-right mt-1">
                   {announcementInput.length}/160 karakter
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100">
                 {event.announcement ? (
                   <button
                     type="button"
@@ -1319,7 +1320,7 @@ export default function ModeratorPage() {
                       handleClearAnnouncement();
                       setIsAnnouncementModalOpen(false);
                     }}
-                    className="text-xs font-semibold text-rose-400 hover:underline"
+                    className="text-xs font-bold text-red-600 hover:underline"
                   >
                     Hapus Pengumuman Aktif
                   </button>
@@ -1331,13 +1332,13 @@ export default function ModeratorPage() {
                   <button
                     type="button"
                     onClick={() => setIsAnnouncementModalOpen(false)}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
                   >
                     Batal
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-500/25"
+                    className="px-5 py-2.5 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/25 transition"
                   >
                     Siarkan Sekarang 📢
                   </button>
@@ -1350,4 +1351,3 @@ export default function ModeratorPage() {
     </div>
   );
 }
-

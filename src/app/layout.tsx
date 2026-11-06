@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-plus-jakarta-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "FJM InterAct - Real-time Audience Interaction Platform",
@@ -17,8 +25,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
-      <body className="min-h-screen flex flex-col">{children}</body>
+    <html lang="id" className={plusJakartaSans.variable}>
+      <body className={`${plusJakartaSans.className} min-h-screen flex flex-col font-sans bg-white text-slate-900`}>
+        {children}
+      </body>
     </html>
   );
 }

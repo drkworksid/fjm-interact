@@ -234,16 +234,16 @@ export default function PresenterPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <h2 className="text-xl font-bold">Menyiapkan Layar Presenter #{eventCode}...</h2>
+      <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center font-sans">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
+        <h2 className="text-xl font-black text-slate-800">Menyiapkan Layar Presenter #{eventCode}...</h2>
       </div>
     );
   }
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center font-sans">
         <h2 className="text-xl font-bold">Event #{eventCode} tidak ditemukan</h2>
       </div>
     );
@@ -281,16 +281,16 @@ export default function PresenterPage() {
     <div
       className={
         stageTheme === "light"
-          ? "min-h-screen bg-slate-100 text-slate-900 flex flex-col justify-between p-6 lg:p-10 select-none"
+          ? "min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between p-6 lg:p-10 select-none font-sans"
           : stageTheme === "oled"
-          ? "min-h-screen bg-black text-slate-100 flex flex-col justify-between p-6 lg:p-10 select-none"
-          : "min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 flex flex-col justify-between p-6 lg:p-10 select-none"
+          ? "min-h-screen bg-black text-slate-100 flex flex-col justify-between p-6 lg:p-10 select-none font-sans"
+          : "min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 flex flex-col justify-between p-6 lg:p-10 select-none font-sans"
       }
     >
       {/* Top Bar for Presenter Mode */}
       <header
         className={`flex items-center justify-between gap-6 pb-6 border-b ${
-          stageTheme === "light" ? "border-slate-300" : "border-slate-800/80"
+          stageTheme === "light" ? "border-slate-200" : "border-slate-800/80"
         }`}
       >
         <div>
@@ -298,15 +298,15 @@ export default function PresenterPage() {
             <img
               src="/fjm-logo.png"
               alt="FJM Logo"
-              className="h-9 w-auto object-contain bg-white rounded-lg p-1 shadow-sm border border-slate-200"
+              className="h-10 w-auto object-contain bg-white rounded-xl p-1.5 shadow-xs border border-slate-200"
             />
-            <span className="text-xs font-black tracking-wider uppercase text-white bg-blue-700 px-2.5 py-1 rounded-lg shadow-sm">
+            <span className="text-xs font-black tracking-wider uppercase text-white bg-blue-600 px-3 py-1 rounded-lg shadow-xs">
               FJM InterAct
             </span>
             <span
               className={`text-xs font-mono font-bold tracking-wider uppercase px-3 py-1 rounded-full ${
                 stageTheme === "light"
-                  ? "text-red-700 bg-red-100 border border-red-300 font-extrabold"
+                  ? "text-red-700 bg-red-50 border border-red-200 font-black"
                   : "text-red-400 bg-red-950/60 border border-red-500/30"
               }`}
             >
@@ -314,8 +314,8 @@ export default function PresenterPage() {
             </span>
           </div>
           <h1
-            className={`text-2xl lg:text-3xl font-extrabold tracking-tight ${
-              stageTheme === "light" ? "text-slate-950" : "text-white"
+            className={`text-2xl lg:text-3xl font-black tracking-tight ${
+              stageTheme === "light" ? "text-slate-900" : "text-white"
             }`}
           >
             {event.title}
@@ -324,9 +324,9 @@ export default function PresenterPage() {
 
         {/* Join Prompt & QR Box on Stage */}
         <div
-          className={`flex items-center gap-4 rounded-2xl p-3 shadow-xl backdrop-blur-md ${
+          className={`flex items-center gap-4 rounded-2xl p-3 shadow-md backdrop-blur-md ${
             stageTheme === "light"
-              ? "bg-white border border-slate-300"
+              ? "bg-white border border-slate-200"
               : "bg-slate-900/90 border border-indigo-500/30"
           }`}
         >
@@ -334,13 +334,13 @@ export default function PresenterPage() {
             <img
               src={qrDataUrl}
               alt="QR Code"
-              className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl bg-white p-1 border border-slate-200"
+              className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl bg-white p-1 border border-slate-200 shadow-2xs"
             />
           )}
           <div className="text-left pr-2">
             <p
-              className={`text-xs font-medium ${
-                stageTheme === "light" ? "text-slate-600" : "text-indigo-300"
+              className={`text-xs font-semibold ${
+                stageTheme === "light" ? "text-slate-500" : "text-indigo-300"
               }`}
             >
               Pindai QR atau buka tautan:
@@ -352,11 +352,11 @@ export default function PresenterPage() {
             >
               {joinUrl ? joinUrl.replace(/^https?:\/\//, "") : `/#${event.code}`}
             </p>
-            <p className="text-xs text-emerald-500 font-mono font-bold mt-0.5">
+            <p className="text-xs text-red-600 font-mono font-black mt-0.5">
               Kode:{" "}
               <span
                 className={`text-base font-black ${
-                  stageTheme === "light" ? "text-indigo-700" : "text-white"
+                  stageTheme === "light" ? "text-red-600" : "text-white"
                 }`}
               >
                 #{event.code}
@@ -366,42 +366,42 @@ export default function PresenterPage() {
 
           {/* Theme Selector */}
           <div
-            className={`flex items-center rounded-xl p-1 border text-xs ${
+            className={`flex items-center rounded-xl p-1 border text-xs font-bold ${
               stageTheme === "light"
-                ? "bg-slate-100 border-slate-300"
+                ? "bg-slate-100 border-slate-200"
                 : "bg-slate-800/80 border-slate-700"
             }`}
           >
             <button
-              onClick={() => changeTheme("indigo")}
-              className={`px-2 py-1 rounded-lg font-bold transition ${
-                stageTheme === "indigo"
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-slate-400 hover:text-white"
-              }`}
-              title="Tema Indigo Modern"
-            >
-              Indigo
-            </button>
-            <button
               onClick={() => changeTheme("light")}
-              className={`px-2 py-1 rounded-lg font-bold transition ${
+              className={`px-2.5 py-1 rounded-lg transition ${
                 stageTheme === "light"
-                  ? "bg-white text-slate-900 shadow-sm"
+                  ? "bg-white text-slate-900 shadow-xs"
                   : "text-slate-400 hover:text-white"
               }`}
-              title="Tema Terang (Untuk Proyektor Ruang Terang)"
+              title="Tema Terang (Latar Putih Bersih)"
             >
               Terang
             </button>
             <button
-              onClick={() => changeTheme("oled")}
-              className={`px-2 py-1 rounded-lg font-bold transition ${
-                stageTheme === "oled"
-                  ? "bg-slate-950 text-white border border-slate-700 shadow-sm"
-                  : "text-slate-400 hover:text-white"
+              onClick={() => changeTheme("indigo")}
+              className={`px-2.5 py-1 rounded-lg transition ${
+                stageTheme === "indigo"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-400 hover:text-slate-800"
               }`}
-              title="Tema OLED Gelap Pekat"
+              title="Tema Indigo"
+            >
+              Indigo
+            </button>
+            <button
+              onClick={() => changeTheme("oled")}
+              className={`px-2.5 py-1 rounded-lg transition ${
+                stageTheme === "oled"
+                  ? "bg-slate-950 text-white shadow-xs"
+                  : "text-slate-400 hover:text-slate-800"
+              }`}
+              title="Tema OLED Gelap"
             >
               OLED
             </button>
@@ -411,7 +411,7 @@ export default function PresenterPage() {
             onClick={toggleFullscreen}
             className={`p-2.5 rounded-xl transition ${
               stageTheme === "light"
-                ? "bg-slate-200 hover:bg-slate-300 text-slate-700"
+                ? "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
                 : "bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white"
             }`}
             title="Fullscreen"
@@ -425,28 +425,66 @@ export default function PresenterPage() {
       <main className="flex-1 my-8 flex flex-col justify-center max-w-6xl mx-auto w-full">
         {/* SCENARIO 1: A Question is Spotlighted / Highlighted by Trainer */}
         {highlightedQuestion ? (
-          <div className="bg-gradient-to-br from-indigo-900/70 to-slate-900/90 border-2 border-emerald-400/80 rounded-3xl p-8 lg:p-12 shadow-2xl backdrop-blur-xl relative overflow-hidden">
+          <div
+            className={`rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden ${
+              stageTheme === "light"
+                ? "bg-white border-4 border-amber-400 text-slate-900"
+                : "bg-gradient-to-br from-indigo-900/70 to-slate-900/90 border-2 border-emerald-400/80 text-white backdrop-blur-xl"
+            }`}
+          >
             <div className="flex items-center justify-between gap-4 mb-6">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-sm font-bold">
-                <Sparkles className="w-4 h-4 text-emerald-400 animate-spin" />
+              <div
+                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-black ${
+                  stageTheme === "light"
+                    ? "bg-amber-100 border border-amber-300 text-amber-900"
+                    : "bg-emerald-500/20 border border-emerald-400/40 text-emerald-300"
+                }`}
+              >
+                <Sparkles className="w-4 h-4 text-amber-500 animate-spin" />
                 <span>SEDANG DIBAHAS DI PANGGUNG</span>
               </div>
 
-              <div className="flex items-center gap-2 bg-indigo-950/80 border border-indigo-500/40 px-4 py-2 rounded-2xl text-white font-bold text-lg">
-                <ThumbsUp className="w-5 h-5 text-indigo-400 stroke-[2.5]" />
+              <div
+                className={`flex items-center gap-2 px-4 py-2 rounded-2xl font-black text-lg ${
+                  stageTheme === "light"
+                    ? "bg-blue-50 border border-blue-200 text-blue-700"
+                    : "bg-indigo-950/80 border border-indigo-500/40 text-white"
+                }`}
+              >
+                <ThumbsUp className="w-5 h-5 stroke-[2.5]" />
                 <span>{highlightedQuestion.upvotes} Suara</span>
               </div>
             </div>
 
-            <p className="text-3xl lg:text-5xl font-extrabold text-white leading-tight mb-8">
+            <h2
+              className={`text-3xl lg:text-5xl font-black leading-tight mb-8 select-text ${
+                stageTheme === "light" ? "text-slate-950" : "text-white"
+              }`}
+            >
               "{highlightedQuestion.content}"
-            </p>
+            </h2>
 
-            <div className="flex items-center gap-3 text-base lg:text-lg text-indigo-200 font-medium">
-              <span className="w-3 h-3 rounded-full bg-emerald-400" />
-              <span>
-                Diajukan oleh:{" "}
-                <strong className="text-white">
+            <div
+              className={`flex items-center gap-3 pt-6 border-t ${
+                stageTheme === "light" ? "border-slate-100" : "border-white/10"
+              }`}
+            >
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-base ${
+                  stageTheme === "light"
+                    ? "bg-slate-100 text-slate-700 border border-slate-200"
+                    : "bg-indigo-600 text-white"
+                }`}
+              >
+                {highlightedQuestion.authorName.charAt(0).toUpperCase()}
+              </div>
+              <span
+                className={`text-base font-semibold ${
+                  stageTheme === "light" ? "text-slate-600" : "text-indigo-200"
+                }`}
+              >
+                Diajukan oleh{" "}
+                <strong className={stageTheme === "light" ? "text-slate-900 font-bold" : "text-white"}>
                   {highlightedQuestion.isAnonymous ? "Peserta Anonim" : highlightedQuestion.authorName}
                 </strong>
               </span>
@@ -454,18 +492,38 @@ export default function PresenterPage() {
           </div>
         ) : activePoll ? (
           /* SCENARIO 2: A Poll is Active */
-          <div className="bg-slate-900/90 border border-indigo-500/30 rounded-3xl p-8 lg:p-12 shadow-2xl backdrop-blur-xl">
+          <div
+            className={`rounded-3xl p-8 lg:p-12 shadow-xl ${
+              stageTheme === "light"
+                ? "bg-white border-2 border-slate-200 text-slate-900"
+                : "bg-slate-900/90 border border-indigo-500/30 text-white backdrop-blur-xl"
+            }`}
+          >
             <div className="flex items-center justify-between mb-4">
-              <span className="px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold text-xs uppercase tracking-wider">
+              <span
+                className={`px-3 py-1 rounded-lg font-black text-xs uppercase tracking-wider ${
+                  stageTheme === "light"
+                    ? "bg-blue-50 border border-blue-200 text-blue-700"
+                    : "bg-emerald-500/20 border border-emerald-500/30 text-emerald-300"
+                }`}
+              >
                 Live Polling: {activePoll.type.replace("_", " ")}
               </span>
-              <span className="text-sm font-semibold text-slate-400 flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-indigo-400" />
+              <span
+                className={`text-sm font-bold flex items-center gap-1.5 ${
+                  stageTheme === "light" ? "text-slate-500" : "text-slate-400"
+                }`}
+              >
+                <Users className="w-4 h-4 text-blue-600" />
                 <span>{activePoll.responses?.length || 0} Respons Masuk</span>
               </span>
             </div>
 
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-8 leading-snug">
+            <h2
+              className={`text-3xl lg:text-4xl font-black mb-8 leading-snug ${
+                stageTheme === "light" ? "text-slate-900" : "text-white"
+              }`}
+            >
               {activePoll.title}
             </h2>
 
@@ -476,11 +534,15 @@ export default function PresenterPage() {
                 {activePoll.quizState === "LEADERBOARD" ? (
                   <div className="py-4">
                     <div className="text-center mb-8">
-                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-sm font-black mb-3">
-                        <Trophy className="w-5 h-5 text-amber-400" />
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-800 text-sm font-black mb-3">
+                        <Trophy className="w-5 h-5 text-amber-500" />
                         <span>PAPAN PERINGKAT RESMI TRAINING (LEADERBOARD)</span>
                       </div>
-                      <h2 className="text-4xl lg:text-5xl font-black text-white tracking-tight">
+                      <h2
+                        className={`text-4xl lg:text-5xl font-black tracking-tight ${
+                          stageTheme === "light" ? "text-slate-900" : "text-white"
+                        }`}
+                      >
                         Peringkat Juara Sesi
                       </h2>
                     </div>
@@ -494,7 +556,7 @@ export default function PresenterPage() {
 
                       if (leaders.length === 0) {
                         return (
-                          <div className="text-center py-12 text-slate-400 text-base">
+                          <div className="text-center py-12 text-slate-500 text-base font-semibold">
                             Belum ada skor tercatat. Pastikan peserta menjawab dengan benar!
                           </div>
                         );
@@ -506,38 +568,46 @@ export default function PresenterPage() {
                             {/* #2 SILVER PODIUM (LEFT) */}
                             {second ? (
                               <div className="flex flex-col items-center flex-1">
-                                <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-slate-700 border-2 border-slate-400 flex items-center justify-center font-black text-white text-base lg:text-xl shadow-lg mb-2">
+                                <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-slate-200 border-2 border-slate-400 flex items-center justify-center font-black text-slate-800 text-base lg:text-xl shadow-lg mb-2">
                                   🥈
                                 </div>
-                                <span className="text-sm lg:text-base font-bold text-white truncate max-w-[140px] mb-0.5">
+                                <span
+                                  className={`text-sm lg:text-base font-bold truncate max-w-[140px] mb-0.5 ${
+                                    stageTheme === "light" ? "text-slate-900" : "text-white"
+                                  }`}
+                                >
                                   {second.name}
                                 </span>
-                                <span className="text-xs font-mono font-bold text-slate-300 mb-2">
+                                <span className="text-xs font-mono font-bold text-slate-500 mb-2">
                                   {second.score} Poin
                                 </span>
-                                <div className="w-full h-32 lg:h-40 rounded-t-2xl bg-gradient-to-t from-slate-800 to-slate-700/80 border-t-2 border-slate-400 flex items-center justify-center font-black text-2xl lg:text-4xl text-slate-300 shadow-xl">
+                                <div className="w-full h-32 lg:h-40 rounded-t-2xl bg-gradient-to-t from-slate-200 to-slate-100 border-t-4 border-slate-400 flex items-center justify-center font-black text-2xl lg:text-4xl text-slate-600 shadow-md">
                                   2
                                 </div>
                               </div>
                             ) : (
-                              <div className="flex-1 opacity-20 h-28" />
+                              <div className="flex-1" />
                             )}
 
                             {/* #1 GOLD PODIUM (CENTER) */}
                             {first && (
-                              <div className="flex flex-col items-center flex-1 -mt-8">
-                                <span className="text-2xl animate-bounce mb-1">👑</span>
-                                <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-amber-500 border-4 border-amber-300 flex items-center justify-center font-black text-slate-950 text-xl lg:text-2xl shadow-xl shadow-amber-500/40 mb-2">
-                                  🥇
+                              <div className="flex flex-col items-center flex-1 z-10">
+                                <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-amber-100 border-4 border-amber-400 flex items-center justify-center font-black text-slate-900 text-2xl lg:text-3xl shadow-2xl mb-2 animate-bounce">
+                                  👑
                                 </div>
-                                <span className="text-base lg:text-lg font-black text-white truncate max-w-[160px] mb-0.5 drop-shadow">
+                                <span
+                                  className={`text-base lg:text-lg font-black truncate max-w-[160px] mb-0.5 ${
+                                    stageTheme === "light" ? "text-slate-900" : "text-white"
+                                  }`}
+                                >
                                   {first.name}
                                 </span>
-                                <span className="text-sm font-mono font-black text-amber-300 mb-2">
+                                <span className="text-xs font-mono font-bold text-amber-600 mb-2">
                                   {first.score} Poin
                                 </span>
-                                <div className="w-full h-44 lg:h-56 rounded-t-2xl bg-gradient-to-t from-amber-600 to-amber-500 border-t-4 border-amber-300 flex items-center justify-center font-black text-4xl lg:text-6xl text-slate-950 shadow-2xl shadow-amber-500/30">
-                                  1
+                                <div className="w-full h-44 lg:h-56 rounded-t-2xl bg-gradient-to-t from-amber-400 to-amber-300 border-t-4 border-amber-500 flex flex-col items-center justify-center font-black text-3xl lg:text-5xl text-slate-950 shadow-2xl">
+                                  <span>1</span>
+                                  <span className="text-xs font-black tracking-widest uppercase mt-1">JUARA 1</span>
                                 </div>
                               </div>
                             )}
@@ -545,39 +615,47 @@ export default function PresenterPage() {
                             {/* #3 BRONZE PODIUM (RIGHT) */}
                             {third ? (
                               <div className="flex flex-col items-center flex-1">
-                                <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-amber-900 border-2 border-amber-600 flex items-center justify-center font-black text-white text-base lg:text-xl shadow-lg mb-2">
+                                <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-amber-800/20 border-2 border-amber-700 flex items-center justify-center font-black text-amber-900 text-base lg:text-xl shadow-lg mb-2">
                                   🥉
                                 </div>
-                                <span className="text-sm lg:text-base font-bold text-white truncate max-w-[140px] mb-0.5">
+                                <span
+                                  className={`text-sm lg:text-base font-bold truncate max-w-[140px] mb-0.5 ${
+                                    stageTheme === "light" ? "text-slate-900" : "text-white"
+                                  }`}
+                                >
                                   {third.name}
                                 </span>
-                                <span className="text-xs font-mono font-bold text-amber-400/90 mb-2">
+                                <span className="text-xs font-mono font-bold text-slate-500 mb-2">
                                   {third.score} Poin
                                 </span>
-                                <div className="w-full h-24 lg:h-32 rounded-t-2xl bg-gradient-to-t from-amber-950 to-amber-900/80 border-t-2 border-amber-600 flex items-center justify-center font-black text-2xl lg:text-4xl text-amber-500 shadow-xl">
+                                <div className="w-full h-24 lg:h-28 rounded-t-2xl bg-gradient-to-t from-amber-700/30 to-amber-600/20 border-t-4 border-amber-700 flex items-center justify-center font-black text-2xl lg:text-4xl text-amber-900 shadow-md">
                                   3
                                 </div>
                               </div>
                             ) : (
-                              <div className="flex-1 opacity-20 h-20" />
+                              <div className="flex-1" />
                             )}
                           </div>
 
-                          {/* 4th & 5th Places List */}
+                          {/* Remaining Leaderboard Rows (4-10) */}
                           {leaders.length > 3 && (
-                            <div className="max-w-md mx-auto space-y-2 pt-4 border-t border-slate-800">
-                              {leaders.slice(3, 5).map((ldr, idx) => (
+                            <div className="max-w-xl mx-auto space-y-2">
+                              {leaders.slice(3, 8).map((ldr, rankIdx) => (
                                 <div
-                                  key={idx}
-                                  className="flex items-center justify-between p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-sm"
+                                  key={ldr.name + rankIdx}
+                                  className={`flex items-center justify-between p-3 rounded-xl border text-sm ${
+                                    stageTheme === "light"
+                                      ? "bg-slate-50 border-slate-200 text-slate-900"
+                                      : "bg-slate-900/60 border-slate-800 text-white"
+                                  }`}
                                 >
                                   <div className="flex items-center gap-3">
-                                    <span className="font-mono font-bold text-slate-400 w-6">
-                                      #{idx + 4}
+                                    <span className="font-mono text-slate-400 font-bold w-6">
+                                      #{rankIdx + 4}
                                     </span>
-                                    <span className="font-bold text-white">{ldr.name}</span>
+                                    <span className="font-semibold">{ldr.name}</span>
                                   </div>
-                                  <span className="font-mono font-bold text-amber-400">
+                                  <span className="font-mono font-black text-amber-600">
                                     {ldr.score} Poin
                                   </span>
                                 </div>
@@ -592,8 +670,8 @@ export default function PresenterPage() {
                   /* STAGE 1 (QUESTION) OR STAGE 2 (REVEALED) */
                   <div>
                     {activePoll.quizState === "REVEALED" && (
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold mb-4">
-                        <Check className="w-4 h-4 text-emerald-400" />
+                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-black mb-5 shadow-xs">
+                        <Check className="w-4 h-4 text-emerald-600 stroke-[3]" />
                         <span>KUNCI JAWABAN RESMI TERBUKA</span>
                       </div>
                     )}
@@ -603,18 +681,30 @@ export default function PresenterPage() {
                         const total = activePoll.responses?.length || 0;
                         const isRevealed = activePoll.quizState === "REVEALED";
                         const letters = ["A", "B", "C", "D", "E", "F"];
-                        const cardStyles = [
-                          "border-rose-500/60 bg-rose-950/30 text-rose-100",
-                          "border-sky-500/60 bg-sky-950/30 text-sky-100",
-                          "border-amber-500/60 bg-amber-950/30 text-amber-100",
-                          "border-emerald-500/60 bg-emerald-950/30 text-emerald-100",
-                        ];
 
                         return activePoll.options.map((opt, idx) => {
                           const optVotes =
                             activePoll.responses?.filter((r) => r.optionId === opt.id).length || 0;
                           const percent = total > 0 ? Math.round((optVotes / total) * 100) : 0;
-                          const style = cardStyles[idx % cardStyles.length];
+
+                          // Light vs Dark Styles
+                          const lightCardStyles = [
+                            "border-blue-200 bg-blue-50/50 hover:border-blue-400 text-slate-900",
+                            "border-red-200 bg-red-50/50 hover:border-red-400 text-slate-900",
+                            "border-amber-200 bg-amber-50/50 hover:border-amber-400 text-slate-900",
+                            "border-emerald-200 bg-emerald-50/50 hover:border-emerald-400 text-slate-900",
+                          ];
+                          const darkCardStyles = [
+                            "border-rose-500/60 bg-rose-950/30 text-rose-100",
+                            "border-sky-500/60 bg-sky-950/30 text-sky-100",
+                            "border-amber-500/60 bg-amber-950/30 text-amber-100",
+                            "border-emerald-500/60 bg-emerald-950/30 text-emerald-100",
+                          ];
+
+                          const baseStyle =
+                            stageTheme === "light"
+                              ? lightCardStyles[idx % lightCardStyles.length]
+                              : darkCardStyles[idx % darkCardStyles.length];
 
                           return (
                             <div
@@ -622,16 +712,16 @@ export default function PresenterPage() {
                               className={`p-6 rounded-2xl border-2 transition-all relative overflow-hidden flex flex-col justify-between min-h-[110px] ${
                                 isRevealed
                                   ? opt.isCorrect
-                                    ? "border-emerald-400 bg-emerald-950/80 ring-4 ring-emerald-400/40 shadow-2xl scale-[1.02]"
-                                    : "border-slate-800 bg-slate-900/40 opacity-40"
-                                  : style
+                                    ? "border-emerald-500 bg-emerald-50 text-emerald-950 ring-4 ring-emerald-500/30 shadow-lg scale-[1.02]"
+                                    : "border-slate-200 bg-slate-100/60 opacity-40 text-slate-400"
+                                  : baseStyle
                               }`}
                             >
                               {/* Background percentage fill when revealed */}
                               {isRevealed && (
                                 <div
                                   className={`absolute left-0 top-0 bottom-0 transition-all duration-700 opacity-20 ${
-                                    opt.isCorrect ? "bg-emerald-400" : "bg-slate-700"
+                                    opt.isCorrect ? "bg-emerald-400" : "bg-slate-400"
                                   }`}
                                   style={{ width: `${percent}%` }}
                                 />
@@ -639,16 +729,26 @@ export default function PresenterPage() {
 
                               <div className="relative z-10 flex items-start justify-between gap-3 mb-2">
                                 <div className="flex items-center gap-3">
-                                  <span className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 font-black text-sm text-white flex items-center justify-center shrink-0">
+                                  <span
+                                    className={`w-8 h-8 rounded-lg font-black text-sm flex items-center justify-center shrink-0 ${
+                                      stageTheme === "light"
+                                        ? "bg-slate-200 text-slate-900 border border-slate-300"
+                                        : "bg-white/10 text-white border border-white/20"
+                                    }`}
+                                  >
                                     {letters[idx]}
                                   </span>
-                                  <span className="text-xl lg:text-2xl font-bold text-white leading-snug">
+                                  <span
+                                    className={`text-xl lg:text-2xl font-black leading-snug ${
+                                      stageTheme === "light" ? "text-slate-900" : "text-white"
+                                    }`}
+                                  >
                                     {opt.optionText}
                                   </span>
                                 </div>
 
                                 {isRevealed && opt.isCorrect && (
-                                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow-md">
+                                  <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center gap-1 shadow-md">
                                     <Check className="w-3.5 h-3.5 stroke-[3]" />
                                     <span>BENAR</span>
                                   </span>
@@ -656,9 +756,17 @@ export default function PresenterPage() {
                               </div>
 
                               {isRevealed && (
-                                <div className="relative z-10 flex items-center justify-between text-xs font-semibold text-slate-300 pt-2 border-t border-white/10">
+                                <div
+                                  className={`relative z-10 flex items-center justify-between text-xs font-bold pt-2 border-t ${
+                                    stageTheme === "light" ? "border-slate-200 text-slate-600" : "border-white/10 text-slate-300"
+                                  }`}
+                                >
                                   <span>{optVotes} peserta</span>
-                                  <span className="font-mono text-lg font-black text-white">
+                                  <span
+                                    className={`font-mono text-lg font-black ${
+                                      stageTheme === "light" ? "text-slate-900" : "text-white"
+                                    }`}
+                                  >
                                     {percent}%
                                   </span>
                                 </div>
@@ -685,22 +793,42 @@ export default function PresenterPage() {
 
                     return (
                       <div key={opt.id} className="relative">
-                        <div className="h-16 lg:h-20 bg-slate-800/80 rounded-2xl overflow-hidden relative border border-slate-700/60 flex items-center px-6">
+                        <div
+                          className={`h-16 lg:h-20 rounded-2xl overflow-hidden relative border flex items-center px-6 ${
+                            stageTheme === "light"
+                              ? "bg-slate-100 border-slate-200"
+                              : "bg-slate-800/80 border-slate-700/60"
+                          }`}
+                        >
                           {/* Animated progress fill */}
                           <div
-                            className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-indigo-600 to-indigo-500 transition-all duration-700 rounded-2xl"
+                            className={`absolute left-0 top-0 bottom-0 transition-all duration-700 rounded-2xl ${
+                              stageTheme === "light" ? "bg-blue-600" : "bg-gradient-to-r from-indigo-600 to-indigo-500"
+                            }`}
                             style={{ width: `${percent}%` }}
                           />
 
                           <div className="relative z-10 w-full flex items-center justify-between">
-                            <span className="text-lg lg:text-xl font-bold text-white drop-shadow">
+                            <span
+                              className={`text-lg lg:text-xl font-black ${
+                                stageTheme === "light" && percent < 40 ? "text-slate-900" : "text-white drop-shadow"
+                              }`}
+                            >
                               {opt.optionText}
                             </span>
                             <div className="flex items-center gap-3">
-                              <span className="text-sm text-indigo-200/80 font-medium">
+                              <span
+                                className={`text-sm font-bold ${
+                                  stageTheme === "light" && percent < 80 ? "text-slate-600" : "text-blue-100"
+                                }`}
+                              >
                                 {optVotes} suara
                               </span>
-                              <span className="text-2xl lg:text-3xl font-black text-white font-mono">
+                              <span
+                                className={`text-2xl lg:text-3xl font-black font-mono ${
+                                  stageTheme === "light" && percent < 90 ? "text-slate-900" : "text-white"
+                                }`}
+                              >
                                 {percent}%
                               </span>
                             </div>
@@ -715,9 +843,12 @@ export default function PresenterPage() {
 
             {/* Word Cloud View */}
             {activePoll.type === "WORD_CLOUD" && (
-              <div className="min-h-[300px] flex items-center justify-center p-6 bg-slate-950/60 rounded-2xl border border-slate-800">
+              <div
+                className={`min-h-[300px] flex items-center justify-center p-6 rounded-2xl border ${
+                  stageTheme === "light" ? "bg-slate-50 border-slate-200" : "bg-slate-950/60 border-slate-800"
+                }`}
+              >
                 {(() => {
-                  // Calculate word frequencies
                   const freqMap: Record<string, number> = {};
                   (activePoll.responses || []).forEach((r) => {
                     const word = (r.textResponse || "").trim().toLowerCase();
@@ -731,13 +862,21 @@ export default function PresenterPage() {
 
                   if (entries.length === 0) {
                     return (
-                      <p className="text-slate-500 text-lg">
+                      <p className="text-slate-400 text-lg font-medium">
                         Menunggu peserta memasukkan kata kunci...
                       </p>
                     );
                   }
 
-                  const colors = [
+                  const lightColors = [
+                    "text-blue-600",
+                    "text-red-600",
+                    "text-slate-900",
+                    "text-sky-600",
+                    "text-emerald-600",
+                    "text-amber-600",
+                  ];
+                  const darkColors = [
                     "text-indigo-400",
                     "text-emerald-400",
                     "text-amber-300",
@@ -745,19 +884,20 @@ export default function PresenterPage() {
                     "text-rose-400",
                     "text-teal-300",
                   ];
+                  const colors = stageTheme === "light" ? lightColors : darkColors;
 
                   return (
                     <div className="flex flex-wrap items-center justify-center gap-4 lg:gap-6 p-4">
                       {entries.map(([word, count], i) => {
-                        const scale = 1 + (count / maxFreq) * 2; // scale from 1 to 3
-                        const fontSize = `${Math.min(48, Math.max(18, 18 * scale))}px`;
+                        const scale = 1 + (count / maxFreq) * 2;
+                        const fontSize = `${Math.min(52, Math.max(20, 20 * scale))}px`;
                         const colorClass = colors[i % colors.length];
 
                         return (
                           <span
                             key={word}
                             style={{ fontSize }}
-                            className={`font-black tracking-wide ${colorClass} transition-all duration-300 hover:scale-110 drop-shadow-md`}
+                            className={`font-black tracking-wide ${colorClass} transition-all duration-300 hover:scale-110 drop-shadow-xs`}
                           >
                             {word}
                           </span>
@@ -784,7 +924,11 @@ export default function PresenterPage() {
 
                   return (
                     <div className="flex flex-col items-center">
-                      <div className="text-6xl lg:text-8xl font-black text-amber-400 font-mono mb-2">
+                      <div
+                        className={`text-6xl lg:text-8xl font-black font-mono mb-2 ${
+                          stageTheme === "light" ? "text-slate-900" : "text-amber-400"
+                        }`}
+                      >
                         {avg}
                       </div>
                       <div className="flex items-center gap-2 mb-4">
@@ -794,12 +938,18 @@ export default function PresenterPage() {
                             className={`w-8 h-8 ${
                               parseFloat(avg) >= s
                                 ? "text-amber-400 fill-amber-400"
+                                : stageTheme === "light"
+                                ? "text-slate-200"
                                 : "text-slate-700"
                             }`}
                           />
                         ))}
                       </div>
-                      <p className="text-slate-400 text-base">
+                      <p
+                        className={`text-base font-semibold ${
+                          stageTheme === "light" ? "text-slate-500" : "text-slate-400"
+                        }`}
+                      >
                         Berdasarkan {total} suara peserta
                       </p>
                     </div>
@@ -812,18 +962,36 @@ export default function PresenterPage() {
           /* SCENARIO 3: Default Q&A Questions Board */
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl lg:text-2xl font-bold text-white flex items-center gap-3">
-                <MessageSquare className="w-6 h-6 text-indigo-400" />
+              <h2
+                className={`text-xl lg:text-2xl font-black flex items-center gap-3 ${
+                  stageTheme === "light" ? "text-slate-900" : "text-white"
+                }`}
+              >
+                <MessageSquare className="w-6 h-6 text-blue-600" />
                 <span>Pertanyaan Audiens Teratas</span>
               </h2>
-              <span className="text-sm text-slate-400 font-medium">
+              <span
+                className={`text-sm font-bold ${
+                  stageTheme === "light" ? "text-slate-500" : "text-slate-400"
+                }`}
+              >
                 {sortedQuestions.length} Total Pertanyaan
               </span>
             </div>
 
             {sortedQuestions.length === 0 ? (
-              <div className="text-center py-20 bg-slate-900/50 border border-slate-800 rounded-3xl">
-                <p className="text-xl text-slate-400 font-medium mb-2">
+              <div
+                className={`text-center py-20 rounded-3xl border ${
+                  stageTheme === "light"
+                    ? "bg-white border-slate-200 shadow-xs"
+                    : "bg-slate-900/50 border-slate-800"
+                }`}
+              >
+                <p
+                  className={`text-xl font-bold mb-2 ${
+                    stageTheme === "light" ? "text-slate-700" : "text-slate-400"
+                  }`}
+                >
                   Belum ada pertanyaan dari audiens.
                 </p>
                 <p className="text-sm text-slate-500">
@@ -835,24 +1003,48 @@ export default function PresenterPage() {
                 {sortedQuestions.slice(0, 6).map((q, idx) => (
                   <div
                     key={q.id}
-                    className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 transition shadow-lg flex items-start justify-between gap-4"
+                    className={`p-6 rounded-2xl border transition shadow-sm flex items-start justify-between gap-4 ${
+                      stageTheme === "light"
+                        ? "bg-white border-slate-200 hover:border-blue-400"
+                        : "bg-slate-900/80 border-slate-800 hover:border-indigo-500/50"
+                    }`}
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-300 font-mono text-xs font-bold flex items-center justify-center">
+                        <span
+                          className={`w-6 h-6 rounded-full font-mono text-xs font-black flex items-center justify-center ${
+                            stageTheme === "light"
+                              ? "bg-red-50 text-red-600 border border-red-200"
+                              : "bg-indigo-500/20 text-indigo-300"
+                          }`}
+                        >
                           #{idx + 1}
                         </span>
-                        <span className="text-xs font-semibold text-slate-400">
+                        <span
+                          className={`text-xs font-bold ${
+                            stageTheme === "light" ? "text-slate-500" : "text-slate-400"
+                          }`}
+                        >
                           {q.isAnonymous ? "Anonim" : q.authorName}
                         </span>
                       </div>
-                      <p className="text-lg font-bold text-white leading-relaxed line-clamp-3">
+                      <p
+                        className={`text-lg font-black leading-relaxed line-clamp-3 ${
+                          stageTheme === "light" ? "text-slate-900" : "text-white"
+                        }`}
+                      >
                         {q.content}
                       </p>
                     </div>
 
-                    <div className="flex flex-col items-center justify-center min-w-[54px] px-3 py-3 rounded-xl bg-indigo-950/80 border border-indigo-500/30 text-white shrink-0">
-                      <ThumbsUp className="w-5 h-5 text-indigo-400 mb-1" />
+                    <div
+                      className={`flex flex-col items-center justify-center min-w-[54px] px-3 py-3 rounded-xl shrink-0 font-bold ${
+                        stageTheme === "light"
+                          ? "bg-blue-50 border border-blue-200 text-blue-700"
+                          : "bg-indigo-950/80 border border-indigo-500/30 text-white"
+                      }`}
+                    >
+                      <ThumbsUp className="w-5 h-5 mb-1" />
                       <span className="text-base font-black font-mono">{q.upvotes}</span>
                     </div>
                   </div>
@@ -864,17 +1056,21 @@ export default function PresenterPage() {
       </main>
 
       {/* Footer */}
-      <footer className="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500">
+      <footer
+        className={`pt-4 border-t flex items-center justify-between text-xs ${
+          stageTheme === "light" ? "border-slate-200 text-slate-500" : "border-slate-800/80 text-slate-500"
+        }`}
+      >
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span className="font-semibold text-slate-400">FJM InterAct</span>
+          <span className="w-2 h-2 rounded-full bg-blue-600" />
+          <span className="font-bold text-slate-700">FJM InterAct</span>
           <span>•</span>
           <span>PT Fiqry Jaya Manunggal</span>
         </div>
         <Link
           href={`/event/${event.code}/moderate`}
           target="_blank"
-          className="text-indigo-400 hover:text-indigo-300 underline font-medium"
+          className="text-blue-600 hover:underline font-bold"
         >
           Buka Panel Kontrol Trainer (Tab Terpisah)
         </Link>
@@ -882,4 +1078,3 @@ export default function PresenterPage() {
     </div>
   );
 }
-
