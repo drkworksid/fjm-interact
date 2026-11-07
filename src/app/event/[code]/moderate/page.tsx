@@ -858,7 +858,7 @@ export default function ModeratorPage() {
 
               <button
                 onClick={() => setIsNewPollModalOpen(true)}
-                className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-red-600/20 transition"
+                className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-600/20 transition"
               >
                 <Plus className="w-4 h-4" />
                 <span>Buat Polling Baru</span>
@@ -1101,7 +1101,7 @@ export default function ModeratorPage() {
       {/* CREATE NEW POLL MODAL */}
       {isNewPollModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl text-slate-900">
             <h3 className="text-lg font-black text-slate-900 mb-1">Buat Polling Baru</h3>
             <p className="text-xs text-slate-500 mb-5">
               Pilih tipe interaksi yang diinginkan untuk peserta training.
@@ -1127,7 +1127,7 @@ export default function ModeratorPage() {
                     onClick={() => setNewPollType("QUIZ")}
                     className={`py-2 px-3 rounded-xl border text-xs font-black transition ${
                       newPollType === "QUIZ"
-                        ? "bg-amber-500 text-slate-950 border-amber-500 shadow-xs"
+                        ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                         : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                     }`}
                   >
@@ -1168,7 +1168,7 @@ export default function ModeratorPage() {
                   value={newPollTitle}
                   onChange={(e) => setNewPollTitle(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder:text-slate-400 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white focus:text-slate-900"
                 />
               </div>
 
@@ -1184,7 +1184,7 @@ export default function ModeratorPage() {
                         onClick={() => setNewQuizTimer(sec)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
                           newQuizTimer === sec
-                            ? "bg-amber-500 text-slate-950 border-amber-500"
+                            ? "bg-blue-600 text-white border-blue-600"
                             : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                         }`}
                       >
@@ -1203,7 +1203,7 @@ export default function ModeratorPage() {
                       {newPollType === "QUIZ" ? "Pilihan Jawaban (Pilih radio sebagai Kunci Benar):" : "Pilihan Opsi Jawaban"}
                     </label>
                     {newPollType === "QUIZ" && (
-                      <span className="text-[11px] text-amber-600 font-bold">Kunci Benar</span>
+                      <span className="text-[11px] text-blue-600 font-bold">Kunci Benar</span>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -1228,10 +1228,10 @@ export default function ModeratorPage() {
                             setNewPollOptions(updated);
                           }}
                           placeholder={`Opsi ${idx + 1}`}
-                          className={`flex-1 px-3 py-2 rounded-xl bg-slate-50 border text-slate-900 text-xs focus:outline-none focus:ring-2 ${
+                          className={`flex-1 px-3 py-2 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:outline-none focus:ring-2 focus:text-slate-900 ${
                             newPollType === "QUIZ" && newQuizCorrectIndex === idx
-                              ? "border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/40 font-bold"
-                              : "border-slate-300 focus:ring-blue-500 focus:bg-white"
+                              ? "border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/40 font-bold text-slate-900"
+                              : "border-slate-300 focus:ring-blue-500 focus:bg-white focus:text-slate-900"
                           }`}
                         />
                         {newPollOptions.length > 2 && (
@@ -1271,7 +1271,7 @@ export default function ModeratorPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/20 transition"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/25 transition"
                 >
                   Simpan Polling
                 </button>

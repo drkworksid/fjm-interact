@@ -118,7 +118,7 @@ export default function DashboardPage() {
 
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="px-4 py-2.5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-md shadow-red-600/25 transition-all"
+          className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-md shadow-blue-600/25 transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>Buat Sesi Training Baru</span>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
             </p>
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md shadow-red-600/30 transition-all"
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-600/30 transition-all"
             >
               Buat Sesi Sekarang
             </button>
@@ -328,7 +328,7 @@ export default function DashboardPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || !title.trim()}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 disabled:bg-slate-200 disabled:text-slate-400 text-white shadow-md shadow-red-600/20 transition"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white shadow-md shadow-blue-600/20 transition"
                 >
                   {isSubmitting ? "Membuat..." : "Buat Sesi & Buka"}
                 </button>
