@@ -35,7 +35,9 @@ import {
   KeyRound,
   CheckCircle2,
   AlertCircle,
-  X
+  X,
+  ArrowLeft,
+  Smartphone
 } from "lucide-react";
 import Link from "next/link";
 import TrainerPinGate from "@/components/TrainerPinGate";
@@ -551,196 +553,204 @@ export default function ModeratorPage() {
 
   return (
     <TrainerPinGate eventCode={eventCode} eventTitle={event.title}>
-      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans w-full max-w-full overflow-x-hidden">
         {/* Top Bar Trainer Navigation */}
-        <header className="border-b border-slate-200 bg-white/95 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 shadow-xs backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/dashboard"
-              className="text-xs font-bold text-slate-700 hover:text-slate-900 px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 transition"
-            >
-              ← Dashboard
-            </Link>
-            <img
-              src="/fjm-logo.png"
-              alt="FJM Logo"
-              className="h-9 w-auto object-contain hidden sm:block"
-            />
-            <div className="border-l border-slate-200 pl-3">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-black text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg">
-                  #{event.code}
-                </span>
-                <h1 className="font-black text-base text-slate-900 leading-tight">{event.title}</h1>
-                <span className="text-[10px] font-black text-white bg-blue-600 px-2 py-0.5 rounded ml-1">
-                  FJM InterAct
-                </span>
+        <header className="border-b border-slate-200 bg-white/95 px-3 sm:px-6 py-2.5 sm:py-3 sticky top-0 z-30 shadow-xs backdrop-blur-md w-full">
+          <div className="max-w-6xl mx-auto w-full flex flex-col gap-2">
+            {/* Row 1: Back, Title/Code, and Direct Actions */}
+            <div className="flex items-center justify-between gap-2 w-full">
+              {/* Left: Back & Event Code/Title */}
+              <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1">
+                <Link
+                  href="/dashboard"
+                  className="text-xs font-bold text-slate-700 hover:text-slate-900 px-2 py-1.5 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 transition shrink-0 whitespace-nowrap flex items-center gap-1"
+                  title="Kembali ke Dashboard"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span className="hidden xs:inline sm:inline">Dashboard</span>
+                </Link>
+
+                <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                  <span className="font-mono text-xs font-black text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg shrink-0">
+                    #{event.code}
+                  </span>
+                  <h1 className="font-black text-xs sm:text-base text-slate-900 leading-tight truncate">
+                    {event.title}
+                  </h1>
+                </div>
               </div>
-              <p className="text-xs text-slate-500 font-medium">PT Fiqry Jaya Manunggal • Panel Moderasi Sesi</p>
+
+              {/* Right: Stage link, Participant link & Logout Lock */}
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                <Link
+                  href={`/event/${event.code}/present`}
+                  target="_blank"
+                  className="px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1 transition shadow-xs whitespace-nowrap"
+                  title="Buka Layar Proyektor di Tab Baru"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Layar Proyektor</span>
+                  <span className="sm:hidden text-[11px]">Layar</span>
+                </Link>
+                <Link
+                  href={`/${event.code}`}
+                  target="_blank"
+                  className="px-2 py-1.5 rounded-xl bg-white hover:bg-red-50 text-red-600 font-bold text-xs flex items-center gap-1 transition border border-red-200 shadow-xs whitespace-nowrap"
+                  title="Buka Tampilan Peserta (HP)"
+                >
+                  <Smartphone className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Tampilan Peserta (HP)</span>
+                  <span className="sm:hidden text-[11px]">HP</span>
+                </Link>
+                <button
+                  onClick={async () => {
+                    await fetch("/api/auth/pin", { method: "DELETE" });
+                    window.location.reload();
+                  }}
+                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 border border-slate-200 transition cursor-pointer shrink-0"
+                  title="Kunci Akses Trainer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Action Buttons for Stage, Participant views, & Export */}
-          <div className="flex items-center gap-2.5 flex-wrap">
-            {/* Export Dropdown / Buttons */}
-            <div className="flex items-center bg-slate-100 rounded-xl border border-slate-200 p-0.5 text-xs font-semibold">
-              <a
-                href={`/api/events/${event.code}/export?type=qa`}
-                download
-                className="px-2.5 py-1.5 text-slate-700 hover:text-slate-900 hover:bg-white rounded-lg flex items-center gap-1.5 transition"
-                title="Unduh seluruh daftar pertanyaan & upvotes ke format Excel/CSV"
-              >
-                <Download className="w-3.5 h-3.5 text-blue-600" />
-                <span>Ekspor Q&A</span>
-              </a>
-              <span className="text-slate-300">|</span>
-              <a
-                href={`/api/events/${event.code}/export?type=polls`}
-                download
-                className="px-2.5 py-1.5 text-slate-700 hover:text-slate-900 hover:bg-white rounded-lg flex items-center gap-1.5 transition"
-                title="Unduh seluruh hasil rekap polling ke format Excel/CSV"
-              >
-                <Download className="w-3.5 h-3.5 text-red-600" />
-                <span>Ekspor Polling</span>
-              </a>
+            {/* Row 2: Export links (Full width or neatly aligned) */}
+            <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 text-xs w-full">
+              <span className="text-[11px] text-slate-400 font-medium truncate hidden md:inline">
+                PT Fiqry Jaya Manunggal • Panel Moderasi Sesi
+              </span>
+              <div className="flex items-center gap-1.5 w-full md:w-auto justify-end">
+                <span className="text-[11px] font-bold text-slate-400 mr-1 hidden xs:inline shrink-0">Ekspor Rekap:</span>
+                <a
+                  href={`/api/events/${event.code}/export?type=qa`}
+                  download
+                  className="flex-1 md:flex-initial text-center justify-center px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center gap-1 border border-slate-200 transition truncate"
+                >
+                  <Download className="w-3 h-3 text-blue-600 shrink-0" />
+                  <span>Ekspor Q&A</span>
+                </a>
+                <a
+                  href={`/api/events/${event.code}/export?type=polls`}
+                  download
+                  className="flex-1 md:flex-initial text-center justify-center px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center gap-1 border border-slate-200 transition truncate"
+                >
+                  <Download className="w-3 h-3 text-red-600 shrink-0" />
+                  <span>Ekspor Polling</span>
+                </a>
+              </div>
             </div>
-
-            <Link
-              href={`/event/${event.code}/present`}
-              target="_blank"
-              className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs"
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>Buka Layar Proyektor</span>
-            </Link>
-            <Link
-              href={`/${event.code}`}
-              target="_blank"
-              className="px-3.5 py-2 rounded-xl bg-white hover:bg-red-50 text-red-600 font-bold text-xs flex items-center gap-1.5 transition border border-red-200 shadow-xs"
-            >
-              <span>Tampilan Peserta (HP)</span>
-            </Link>
-
-            {/* Lock Access Button */}
-            <button
-              onClick={async () => {
-                await fetch("/api/auth/pin", { method: "DELETE" });
-                window.location.reload();
-              }}
-              className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 border border-slate-200 transition cursor-pointer"
-              title="Kunci Akses Trainer"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
           </div>
         </header>
 
       {/* Secondary Bar: Moderation Switch & Status */}
-      <div className="bg-white border-b border-slate-200 px-6 py-2.5 flex flex-wrap items-center justify-between gap-4">
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setActiveTab("qa")}
-            className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
-              activeTab === "qa"
-                ? "bg-blue-600 text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            }`}
-          >
-            <MessageSquare className="w-4 h-4" />
-            <span>Audience Q&A</span>
-            {pendingQuestions.length > 0 && (
-              <span className="px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px]">
-                {pendingQuestions.length} pending
+      <div className="bg-white border-b border-slate-200 px-3 sm:px-6 py-2.5 w-full">
+        <div className="max-w-6xl mx-auto w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          {/* Navigation Tabs (3 tabs evenly spaced on mobile, auto on desktop) */}
+          <div className="grid grid-cols-3 sm:flex sm:items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setActiveTab("qa")}
+              className={`py-2 px-1 sm:px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-1 sm:gap-2 transition text-center truncate ${
+                activeTab === "qa"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 bg-slate-50 sm:bg-transparent"
+              }`}
+            >
+              <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Audience Q&A</span>
+              {pendingQuestions.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 font-black text-[9px] shrink-0">
+                  {pendingQuestions.length}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab("polls")}
+              className={`py-2 px-1 sm:px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-1 sm:gap-2 transition text-center truncate ${
+                activeTab === "polls"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 bg-slate-50 sm:bg-transparent"
+              }`}
+            >
+              <BarChart2 className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Live Polling</span>
+              <span className="px-1.5 py-0.2 rounded-full bg-slate-200/90 text-slate-700 font-bold text-[9px] shrink-0">
+                {polls.length}
               </span>
-            )}
-          </button>
+            </button>
 
-          <button
-            onClick={() => setActiveTab("polls")}
-            className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
-              activeTab === "polls"
-                ? "bg-blue-600 text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            }`}
-          >
-            <BarChart2 className="w-4 h-4" />
-            <span>Live Polling & Kuis</span>
-            <span className="px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600 font-bold text-[10px]">
-              {polls.length}
-            </span>
-          </button>
+            <button
+              onClick={() => setActiveTab("settings")}
+              className={`py-2 px-1 sm:px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-1 sm:gap-2 transition text-center truncate ${
+                activeTab === "settings"
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 bg-slate-50 sm:bg-transparent"
+              }`}
+            >
+              <Settings className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Pengaturan</span>
+            </button>
+          </div>
 
-          <button
-            onClick={() => setActiveTab("settings")}
-            className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition ${
-              activeTab === "settings"
-                ? "bg-blue-600 text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            <span>Pengaturan & QR Code</span>
-          </button>
-        </div>
+          {/* Action Toggles: Moderation, Lock Q&A, Announcement */}
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-1.5 sm:gap-2.5 w-full sm:w-auto">
+            {/* Announcement Button */}
+            <button
+              onClick={() => {
+                setAnnouncementInput(event.announcement || "");
+                setIsAnnouncementModalOpen(true);
+              }}
+              className="col-span-2 sm:col-span-1 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-bold flex items-center justify-center gap-1.5 transition"
+            >
+              <Megaphone className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <span>Siarkan Pengumuman</span>
+            </button>
 
-        {/* Action Toggles: Moderation, Lock Q&A, Announcement */}
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Announcement Button */}
-          <button
-            onClick={() => {
-              setAnnouncementInput(event.announcement || "");
-              setIsAnnouncementModalOpen(true);
-            }}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition"
-          >
-            <Megaphone className="w-3.5 h-3.5 text-amber-500" />
-            <span>Siarkan Pengumuman</span>
-          </button>
+            {/* Lock / Close Q&A Button */}
+            <button
+              onClick={handleToggleEventStatus}
+              className={`col-span-1 px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition text-center truncate ${
+                event.status === "CLOSED"
+                  ? "bg-red-50 border-red-300 text-red-700 ring-1 ring-red-400"
+                  : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
+              }`}
+              title="Kunci sesi agar peserta tidak bisa menambah pertanyaan baru"
+            >
+              {event.status === "CLOSED" ? (
+                <>
+                  <Lock className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                  <span className="truncate">Q&A Dikunci</span>
+                </>
+              ) : (
+                <>
+                  <Unlock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="truncate">Q&A Terbuka</span>
+                </>
+              )}
+            </button>
 
-          {/* Lock / Close Q&A Button */}
-          <button
-            onClick={handleToggleEventStatus}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition ${
-              event.status === "CLOSED"
-                ? "bg-red-50 border-red-300 text-red-700 ring-1 ring-red-400"
-                : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
-            }`}
-            title="Kunci sesi agar peserta tidak bisa menambah pertanyaan baru"
-          >
-            {event.status === "CLOSED" ? (
-              <>
-                <Lock className="w-3.5 h-3.5 text-red-600" />
-                <span>Q&A Ditutup (Kunci)</span>
-              </>
-            ) : (
-              <>
-                <Unlock className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Q&A Aktif Terbuka</span>
-              </>
-            )}
-          </button>
-
-          {/* Moderation Toggle */}
-          <label className="flex items-center gap-2 cursor-pointer select-none bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-            <input
-              type="checkbox"
-              checked={event.isModerationEnabled}
-              onChange={handleToggleModeration}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
-            />
-            <span className="text-xs font-bold text-slate-700">
-              Moderasi:{" "}
-              <strong className={event.isModerationEnabled ? "text-amber-600 font-black" : "text-slate-500"}>
-                {event.isModerationEnabled ? "Aktif" : "Non-aktif"}
-              </strong>
-            </span>
-          </label>
+            {/* Moderation Toggle */}
+            <label className="col-span-1 flex items-center justify-center gap-1.5 cursor-pointer select-none bg-slate-100 px-2.5 py-1.5 rounded-xl border border-slate-200">
+              <input
+                type="checkbox"
+                checked={event.isModerationEnabled}
+                onChange={handleToggleModeration}
+                className="w-3.5 h-3.5 rounded text-blue-600 focus:ring-blue-500 shrink-0"
+              />
+              <span className="text-xs font-bold text-slate-700 truncate">
+                Moderasi:{" "}
+                <strong className={event.isModerationEnabled ? "text-amber-600 font-black" : "text-slate-500"}>
+                  {event.isModerationEnabled ? "Aktif" : "Mati"}
+                </strong>
+              </span>
+            </label>
+          </div>
         </div>
       </div>
 
       {/* Main Container */}
-      <main className="flex-1 p-6 max-w-6xl mx-auto w-full">
+      <main className="flex-1 p-3.5 sm:p-6 max-w-6xl mx-auto w-full">
         {/* Active Announcement Alert */}
         {event.announcement && (
           <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between gap-4 shadow-xs">
@@ -782,11 +792,11 @@ export default function ModeratorPage() {
         {activeTab === "qa" && (
           <div>
             {/* Filter buttons */}
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-              <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2.5">
+              <div className="grid grid-cols-4 sm:flex sm:items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 w-full sm:w-auto">
                 <button
                   onClick={() => setQaFilter("all")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  className={`py-1.5 px-1 sm:px-3 rounded-lg text-[11px] sm:text-xs font-bold transition text-center truncate ${
                     qaFilter === "all" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
@@ -794,17 +804,17 @@ export default function ModeratorPage() {
                 </button>
                 <button
                   onClick={() => setQaFilter("pending")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  className={`py-1.5 px-1 sm:px-3 rounded-lg text-[11px] sm:text-xs font-bold transition text-center truncate ${
                     qaFilter === "pending"
                       ? "bg-amber-100 text-amber-900 shadow-xs"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  Perlu Review ({pendingQuestions.length})
+                  Review ({pendingQuestions.length})
                 </button>
                 <button
                   onClick={() => setQaFilter("approved")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  className={`py-1.5 px-1 sm:px-3 rounded-lg text-[11px] sm:text-xs font-bold transition text-center truncate ${
                     qaFilter === "approved" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
@@ -812,7 +822,7 @@ export default function ModeratorPage() {
                 </button>
                 <button
                   onClick={() => setQaFilter("answered")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                  className={`py-1.5 px-1 sm:px-3 rounded-lg text-[11px] sm:text-xs font-bold transition text-center truncate ${
                     qaFilter === "answered" ? "bg-white text-slate-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
@@ -822,13 +832,13 @@ export default function ModeratorPage() {
 
               {event.highlightedQuestionId && (
                 <div className="flex items-center gap-2 bg-amber-50 border border-amber-300 px-3 py-1.5 rounded-xl text-amber-900 text-xs font-bold">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Ada 1 pertanyaan sedang disorot di proyektor</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span className="truncate">1 pertanyaan disorot di layar</span>
                   <button
                     onClick={() => handleToggleHighlight(event.highlightedQuestionId!)}
-                    className="text-red-600 hover:underline text-[11px] font-black ml-1"
+                    className="text-red-600 hover:underline text-[11px] font-black ml-1 shrink-0"
                   >
-                    (Lepas Sorotan)
+                    (Lepas)
                   </button>
                 </div>
               )}
@@ -848,7 +858,7 @@ export default function ModeratorPage() {
                   return (
                     <div
                       key={q.id}
-                      className={`p-5 rounded-2xl border transition shadow-xs ${
+                      className={`p-4 sm:p-5 rounded-2xl border transition shadow-xs ${
                         isHighlighted
                           ? "bg-amber-50/70 border-2 border-amber-400 shadow-sm"
                           : q.status === "PENDING"
@@ -856,9 +866,9 @@ export default function ModeratorPage() {
                           : "bg-white border-slate-200 hover:border-blue-400"
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <span className="font-bold text-xs text-slate-900">
                               {q.isAnonymous ? "Anonim" : q.authorName}
                             </span>
@@ -886,20 +896,20 @@ export default function ModeratorPage() {
                             )}
                           </div>
 
-                          <p className="text-base text-slate-900 font-bold mb-3 leading-relaxed">
+                          <p className="text-sm sm:text-base text-slate-900 font-bold mb-3 leading-relaxed break-words">
                             {q.content}
                           </p>
 
                           {/* Upvotes Counter */}
                           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
-                            <ThumbsUp className="w-3.5 h-3.5 text-blue-600" />
+                            <ThumbsUp className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                             <span className="font-black text-slate-900">{q.upvotes}</span>
                             <span>upvotes dari peserta</span>
                           </div>
                         </div>
 
                         {/* Action Controls for Trainer */}
-                        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end max-w-xs">
+                        <div className="flex items-center gap-2 shrink-0 flex-wrap sm:justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 w-full sm:w-auto">
                           {q.status === "PENDING" ? (
                             <>
                               <button
@@ -1014,9 +1024,9 @@ export default function ModeratorPage() {
                         : "bg-white border-slate-200"
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1.5">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                           <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
                             {poll.type === "MULTIPLE_CHOICE" && "Pilihan Ganda"}
                             {poll.type === "WORD_CLOUD" && "Word Cloud"}
@@ -1038,7 +1048,7 @@ export default function ModeratorPage() {
                           </span>
                         </div>
 
-                        <div className="flex items-start gap-3 mt-1.5">
+                        <div className="flex items-start gap-3 mt-1.5 min-w-0">
                           {poll.imageUrl && (
                             <img
                               src={poll.imageUrl}
@@ -1046,16 +1056,18 @@ export default function ModeratorPage() {
                               className="w-16 h-12 object-cover rounded-lg border border-slate-200 shrink-0 bg-slate-100 shadow-2xs"
                             />
                           )}
-                          <h3 className="text-base font-black text-slate-900 leading-snug">{poll.title}</h3>
+                          <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug break-words flex-1">
+                            {poll.title}
+                          </h3>
                         </div>
                       </div>
 
                       {/* Control buttons */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 w-full sm:w-auto">
                         {poll.isActive ? (
                           <button
                             onClick={() => handleTogglePollActive(poll.id, true)}
-                            className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition"
+                            className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition"
                           >
                             <Square className="w-3.5 h-3.5" />
                             <span>Hentikan Polling</span>
@@ -1063,16 +1075,16 @@ export default function ModeratorPage() {
                         ) : (
                           <button
                             onClick={() => handleTogglePollActive(poll.id, false)}
-                            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition"
+                            className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition"
                           >
                             <Play className="w-3.5 h-3.5 fill-current" />
-                            <span>Luncurkan ke Peserta</span>
+                            <span>Luncurkan</span>
                           </button>
                         )}
 
                         <button
                           onClick={() => handleTogglePollResults(poll.id, poll.showResults)}
-                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition"
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition shrink-0"
                           title={poll.showResults ? "Sembunyikan Hasil dari Peserta" : "Tampilkan Hasil ke Peserta"}
                         >
                           {poll.showResults ? <Eye className="w-4 h-4 text-blue-600" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
@@ -1080,7 +1092,7 @@ export default function ModeratorPage() {
 
                         <button
                           onClick={() => handleDeletePoll(poll.id)}
-                          className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 transition"
+                          className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 transition shrink-0"
                           title="Hapus Polling"
                         >
                           <Trash2 className="w-4 h-4" />
