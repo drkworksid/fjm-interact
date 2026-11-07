@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Lock, ShieldCheck, ArrowLeft, KeyRound, Delete, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Lock, ArrowLeft, KeyRound, Delete, AlertCircle, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 interface TrainerPinGateProps {
   children: React.ReactNode;
+  eventCode?: string;
+  eventTitle?: string;
 }
 
-export default function TrainerPinGate({ children }: TrainerPinGateProps) {
+export default function TrainerPinGate({ children, eventCode, eventTitle }: TrainerPinGateProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [pinDigits, setPinDigits] = useState<string[]>(["", "", "", "", "", ""]);
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
@@ -20,10 +23,14 @@ export default function TrainerPinGate({ children }: TrainerPinGateProps) {
   // Check auth status on load
   const checkAuth = async () => {
     try {
-      const res = await fetch("/api/auth/pin");
+      const url = eventCode
+        ? `/api/auth/pin?eventCode=${encodeURIComponent(eventCode)}`
+        : "/api/auth/pin";
+      const res = await fetch(url);
       const data = await res.json();
       if (data.authenticated) {
         setIsAuthenticated(true);
+        setIsAdmin(Boolean(data.isAdmin));
       } else {
         setIsAuthenticated(false);
       }
@@ -34,7 +41,7 @@ export default function TrainerPinGate({ children }: TrainerPinGateProps) {
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [eventCode]);
 
   // Auto focus first pin input once loaded
   useEffect(() => {
@@ -45,7 +52,6 @@ export default function TrainerPinGate({ children }: TrainerPinGateProps) {
 
   // Handle single digit input
   const handleDigitChange = (index: number, value: string) => {
-    // Only accept numeric digit
     const digit = value.replace(/\D/g, "").slice(-1);
     const newDigits = [...pinDigits];
     newDigits[index] = digit;
@@ -135,13 +141,17 @@ export default function TrainerPinGate({ children }: TrainerPinGateProps) {
       const res = await fetch("/api/auth/pin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pin: fullPin }),
+        body: JSON.stringify({
+          pin: fullPin,
+          eventCode: eventCode || undefined,
+        }),
       });
 
       const data = await res.json();
 
       if (data.success) {
         setIsAuthenticated(true);
+        setIsAdmin(Boolean(data.isAdmin));
       } else {
         setErrorMsg(data.error || "PIN salah. Silakan coba lagi.");
         setIsShake(true);
@@ -177,11 +187,11 @@ export default function TrainerPinGate({ children }: TrainerPinGateProps) {
       {/* Top back button */}
       <div className="w-full max-w-md flex items-center justify-between pt-2">
         <Link
-          href="/"
+          href={eventCode ? "/dashboard" : "/"}
           className="text-xs font-bold text-slate-600 hover:text-blue-700 flex items-center gap-1.5 transition px-3 py-1.5 rounded-xl hover:bg-slate-200/60"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Beranda</span>
+          <span>{eventCode ? "Ke Dashboard" : "Kembali ke Beranda"}</span>
         </Link>
         <span className="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-wider">
           FJM Security
@@ -197,14 +207,24 @@ export default function TrainerPinGate({ children }: TrainerPinGateProps) {
 
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold mb-3 shadow-xs">
           <KeyRound className="w-3.5 h-3.5" />
-          <span>Akses Khusus Trainer & Admin</span>
+          <span>
+            {eventCode ? `Akses Trainer Sesi #${eventCode}` : "Akses Khusus Trainer & Admin"}
+          </span>
         </div>
 
         <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-1.5">
-          Verifikasi PIN Keamanan
+          {eventCode ? `Verifikasi PIN Sesi #${eventCode}` : "Verifikasi PIN Keamanan"}
         </h2>
         <p className="text-xs text-slate-500 max-w-xs mx-auto mb-6 leading-relaxed">
-          Masukkan 6 angka PIN trainer untuk membuka Dashboard dan mengelola sesi interaksi.
+          {eventCode ? (
+            <>
+              Masukkan 6 angka PIN khusus trainer untuk sesi{" "}
+              <strong className="text-slate-800">#{eventCode}</strong>
+              {eventTitle ? ` (${eventTitle})` : ""} atau Master PIN Admin.
+            </>
+          ) : (
+            "Masukkan 6 angka PIN trainer untuk membuka Dashboard dan mengelola sesi interaksi."
+          )}
         </p>
 
         {/* 6 Digit Inputs */}
@@ -259,7 +279,9 @@ export default function TrainerPinGate({ children }: TrainerPinGateProps) {
             PIN Bawaan Awal: <strong className="font-mono text-blue-700 font-black">262626</strong>
           </p>
           <p className="text-[10px] text-slate-400 mt-0.5">
-            Dapat diubah kapan saja di menu Pengaturan Dashboard.
+            {eventCode
+              ? "Gunakan PIN khusus sesi ini atau Master PIN Admin."
+              : "Dapat diubah kapan saja di menu Pengaturan Dashboard."}
           </p>
         </div>
 
@@ -293,4 +315,3 @@ export default function TrainerPinGate({ children }: TrainerPinGateProps) {
     </div>
   );
 }
-

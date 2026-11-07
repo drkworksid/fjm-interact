@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Calendar, MessageSquare, BarChart2, Settings, Monitor, Smartphone, Building2, KeyRound, LogOut, CheckCircle2, AlertCircle, X } from "lucide-react";
+import { Plus, Calendar, MessageSquare, BarChart2, Settings, Monitor, Smartphone, Building2, KeyRound, LogOut, CheckCircle2, AlertCircle, X, Lock } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import TrainerPinGate from "@/components/TrainerPinGate";
@@ -13,6 +13,7 @@ interface EventItem {
   description: string;
   status: string;
   isModerationEnabled: boolean;
+  trainerPin?: string;
   createdAt: string;
   _count?: {
     questions: number;
@@ -29,6 +30,7 @@ export default function DashboardPage() {
   const [title, setTitle] = useState("");
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
+  const [newSessionPin, setNewSessionPin] = useState("262626");
   const [isModerationEnabled, setIsModerationEnabled] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -76,6 +78,7 @@ export default function DashboardPage() {
           title: title.trim(),
           code: code.trim(),
           description: description.trim(),
+          trainerPin: newSessionPin.trim() || "262626",
           isModerationEnabled,
         }),
       });
@@ -86,6 +89,7 @@ export default function DashboardPage() {
         setTitle("");
         setCode("");
         setDescription("");
+        setNewSessionPin("262626");
         fetchEvents();
         router.push(`/event/${data.event.code}/moderate`);
       } else {
@@ -248,9 +252,18 @@ export default function DashboardPage() {
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="font-mono text-xs font-black text-red-700 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-lg">
-                      #{evt.code}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono text-xs font-black text-red-700 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-lg">
+                        #{evt.code}
+                      </span>
+                      <span
+                        className="flex items-center gap-1 font-mono text-[11px] font-bold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-lg"
+                        title="PIN Trainer khusus sesi ini"
+                      >
+                        <Lock className="w-3 h-3 text-slate-400" />
+                        <span>PIN: <strong>{evt.trainerPin || "262626"}</strong></span>
+                      </span>
+                    </div>
                     <span className="text-[11px] font-medium text-slate-400">
                       {new Date(evt.createdAt).toLocaleDateString()}
                     </span>
@@ -359,6 +372,33 @@ export default function DashboardPage() {
                     maxLength={10}
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1.5 flex items-center justify-between">
+                  <span>PIN Khusus Trainer Sesi Ini (6 Angka)</span>
+                  <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                    Bawaan: 262626
+                  </span>
+                </label>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-slate-400 select-none">
+                    <Lock className="w-4 h-4 text-slate-400" />
+                  </span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={6}
+                    placeholder="262626"
+                    value={newSessionPin}
+                    onChange={(e) => setNewSessionPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white focus:border-blue-500 transition tracking-wider"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                  Trainer sesi ini akan menggunakan PIN ini untuk membuka panel moderasi. Master PIN Admin tetap dapat membuka semua sesi.
+                </p>
               </div>
 
               <div>

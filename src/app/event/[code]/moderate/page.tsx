@@ -31,7 +31,11 @@ import {
   Megaphone,
   Image as ImageIcon,
   Upload,
-  LogOut
+  LogOut,
+  KeyRound,
+  CheckCircle2,
+  AlertCircle,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import TrainerPinGate from "@/components/TrainerPinGate";
@@ -86,6 +90,7 @@ interface EventData {
   status: string;
   highlightedQuestionId: string | null;
   announcement?: string | null;
+  trainerPin?: string;
 }
 
 export default function ModeratorPage() {
@@ -162,6 +167,58 @@ export default function ModeratorPage() {
   // Announcement State
   const [announcementInput, setAnnouncementInput] = useState("");
   const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
+
+  // Change Session PIN State
+  const [isChangePinModalOpen, setIsChangePinModalOpen] = useState(false);
+  const [oldSessionPin, setOldSessionPin] = useState("");
+  const [newSessionPin, setNewSessionPin] = useState("");
+  const [pinChangeError, setPinChangeError] = useState("");
+  const [pinChangeSuccess, setPinChangeSuccess] = useState("");
+  const [isUpdatingPin, setIsUpdatingPin] = useState(false);
+
+  const handleUpdateSessionPin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPinChangeError("");
+    setPinChangeSuccess("");
+
+    if (!/^\d{6}$/.test(newSessionPin)) {
+      setPinChangeError("PIN baru harus berupa 6 digit angka.");
+      return;
+    }
+
+    setIsUpdatingPin(true);
+    try {
+      const res = await fetch("/api/auth/pin", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          eventCode,
+          oldPin: oldSessionPin,
+          newPin: newSessionPin,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setPinChangeSuccess("PIN sesi berhasil diperbarui!");
+        if (event) {
+          setEvent({ ...event, trainerPin: newSessionPin });
+        }
+        setOldSessionPin("");
+        setNewSessionPin("");
+        setTimeout(() => {
+          setIsChangePinModalOpen(false);
+          setPinChangeSuccess("");
+        }, 1500);
+      } else {
+        setPinChangeError(data.error || "Gagal mengubah PIN sesi.");
+      }
+    } catch (e) {
+      setPinChangeError("Terjadi kesalahan koneksi.");
+    } finally {
+      setIsUpdatingPin(false);
+    }
+  };
 
   const handleToggleEventStatus = async () => {
     if (!event) return;
@@ -493,7 +550,7 @@ export default function ModeratorPage() {
   });
 
   return (
-    <TrainerPinGate>
+    <TrainerPinGate eventCode={eventCode} eventTitle={event.title}>
       <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
         {/* Top Bar Trainer Navigation */}
         <header className="border-b border-slate-200 bg-white/95 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 shadow-xs backdrop-blur-md">
@@ -1164,6 +1221,32 @@ export default function ModeratorPage() {
                   </div>
                 </div>
 
+                <div className="pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-slate-700 font-bold block">PIN Keamanan Trainer Sesi Ini</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOldSessionPin("");
+                        setNewSessionPin("");
+                        setPinChangeError("");
+                        setPinChangeSuccess("");
+                        setIsChangePinModalOpen(true);
+                      }}
+                      className="text-[11px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg transition"
+                    >
+                      Ubah PIN Sesi
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-slate-800 font-black text-sm">
+                    <Lock className="w-4 h-4 text-slate-400" />
+                    <span>{event.trainerPin || "262626"}</span>
+                    <span className="text-[10px] font-sans font-normal text-slate-400 ml-auto">
+                      Hanya trainer sesi ini & Admin yang dapat mengakses
+                    </span>
+                  </div>
+                </div>
+
                 <div className="pt-4 border-t border-slate-100">
                   <p className="text-slate-500 text-xs leading-relaxed">
                     Aplikasi ini dirancang untuk PT Fiqry Jaya Manunggal. Semua interaksi peserta, polling, dan skor kuis tersimpan secara real-time.
@@ -1476,6 +1559,97 @@ export default function ModeratorPage() {
                     Siarkan Sekarang 📢
                   </button>
                 </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* CHANGE SESSION PIN MODAL */}
+      {isChangePinModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-sm shadow-2xl text-slate-900 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <KeyRound className="w-5 h-5 text-blue-600" />
+                <h3 className="text-base font-black text-slate-900">Ubah PIN Sesi #{event.code}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsChangePinModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+              Perbarui 6 angka PIN trainer untuk sesi ini. Trainer lain tidak akan dapat mengakses sesi ini jika tidak memiliki PIN baru.
+            </p>
+
+            {pinChangeError && (
+              <div className="mb-3 p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-bold flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{pinChangeError}</span>
+              </div>
+            )}
+
+            {pinChangeSuccess && (
+              <div className="mb-3 p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-bold flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                <span>{pinChangeSuccess}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateSessionPin} className="space-y-3.5">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  PIN Lama Sesi Ini (atau Master PIN Admin)
+                </label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  placeholder="Masukkan 6 angka PIN saat ini"
+                  value={oldSessionPin}
+                  onChange={(e) => setOldSessionPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono text-center tracking-widest text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  PIN Baru Khusus Sesi Ini (6 Angka)
+                </label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  placeholder="Masukkan 6 angka PIN baru"
+                  value={newSessionPin}
+                  onChange={(e) => setNewSessionPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 font-mono text-center tracking-widest text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsChangePinModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingPin || oldSessionPin.length !== 6 || newSessionPin.length !== 6}
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white shadow-md shadow-blue-600/20 transition cursor-pointer flex items-center gap-1.5"
+                >
+                  <Lock className="w-3.5 h-3.5" />
+                  <span>{isUpdatingPin ? "Menyimpan..." : "Simpan PIN Baru"}</span>
+                </button>
               </div>
             </form>
           </div>

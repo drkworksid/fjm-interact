@@ -32,6 +32,10 @@ export async function POST(req: NextRequest) {
       code = "TR" + Math.floor(1000 + Math.random() * 9000);
     }
 
+    // Session-specific trainer PIN
+    const rawTrainerPin = (body.trainerPin || "").trim();
+    const trainerPin = /^\d{6}$/.test(rawTrainerPin) ? rawTrainerPin : "262626";
+
     // Check duplicate code
     const existing = await prisma.event.findUnique({ where: { code } });
     if (existing) {
@@ -44,6 +48,7 @@ export async function POST(req: NextRequest) {
         title: title || `Training Session #${code}`,
         description: description || "",
         passcode: passcode || null,
+        trainerPin,
         isModerationEnabled: Boolean(isModerationEnabled),
         isAnonymousAllowed: isAnonymousAllowed !== undefined ? Boolean(isAnonymousAllowed) : true,
       },
@@ -54,4 +59,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
-

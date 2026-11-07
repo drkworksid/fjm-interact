@@ -13,6 +13,7 @@ model Event {
   title               String
   description         String?
   passcode            String?    // Optional room passcode
+  trainerPin          String?    @default("262626") // Session-specific 6-digit trainer PIN
   isModerationEnabled Boolean    @default(false) // If true, questions start as PENDING
   isAnonymousAllowed  Boolean    @default(true)
   status              String     @default("ACTIVE") // ACTIVE, PAUSED, CLOSED
