@@ -103,3 +103,9 @@ model PollResponse {
   @@index([pollId, participantToken])
 }
 
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+

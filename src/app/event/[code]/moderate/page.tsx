@@ -30,9 +30,11 @@ import {
   Unlock,
   Megaphone,
   Image as ImageIcon,
-  Upload
+  Upload,
+  LogOut
 } from "lucide-react";
 import Link from "next/link";
+import TrainerPinGate from "@/components/TrainerPinGate";
 
 interface Question {
   id: string;
@@ -491,77 +493,90 @@ export default function ModeratorPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-      {/* Top Bar Trainer Navigation */}
-      <header className="border-b border-slate-200 bg-white/95 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 shadow-xs backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard"
-            className="text-xs font-bold text-slate-700 hover:text-slate-900 px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 transition"
-          >
-            ← Dashboard
-          </Link>
-          <img
-            src="/fjm-logo.png"
-            alt="FJM Logo"
-            className="h-9 w-auto object-contain hidden sm:block"
-          />
-          <div className="border-l border-slate-200 pl-3">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs font-black text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg">
-                #{event.code}
-              </span>
-              <h1 className="font-black text-base text-slate-900 leading-tight">{event.title}</h1>
-              <span className="text-[10px] font-black text-white bg-blue-600 px-2 py-0.5 rounded ml-1">
-                FJM InterAct
-              </span>
+    <TrainerPinGate>
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+        {/* Top Bar Trainer Navigation */}
+        <header className="border-b border-slate-200 bg-white/95 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 shadow-xs backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="text-xs font-bold text-slate-700 hover:text-slate-900 px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 transition"
+            >
+              ← Dashboard
+            </Link>
+            <img
+              src="/fjm-logo.png"
+              alt="FJM Logo"
+              className="h-9 w-auto object-contain hidden sm:block"
+            />
+            <div className="border-l border-slate-200 pl-3">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-black text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded-lg">
+                  #{event.code}
+                </span>
+                <h1 className="font-black text-base text-slate-900 leading-tight">{event.title}</h1>
+                <span className="text-[10px] font-black text-white bg-blue-600 px-2 py-0.5 rounded ml-1">
+                  FJM InterAct
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium">PT Fiqry Jaya Manunggal • Panel Moderasi Sesi</p>
             </div>
-            <p className="text-xs text-slate-500 font-medium">PT Fiqry Jaya Manunggal • Panel Moderasi Sesi</p>
-          </div>
-        </div>
-
-        {/* Action Buttons for Stage, Participant views, & Export */}
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {/* Export Dropdown / Buttons */}
-          <div className="flex items-center bg-slate-100 rounded-xl border border-slate-200 p-0.5 text-xs font-semibold">
-            <a
-              href={`/api/events/${event.code}/export?type=qa`}
-              download
-              className="px-2.5 py-1.5 text-slate-700 hover:text-slate-900 hover:bg-white rounded-lg flex items-center gap-1.5 transition"
-              title="Unduh seluruh daftar pertanyaan & upvotes ke format Excel/CSV"
-            >
-              <Download className="w-3.5 h-3.5 text-blue-600" />
-              <span>Ekspor Q&A</span>
-            </a>
-            <span className="text-slate-300">|</span>
-            <a
-              href={`/api/events/${event.code}/export?type=polls`}
-              download
-              className="px-2.5 py-1.5 text-slate-700 hover:text-slate-900 hover:bg-white rounded-lg flex items-center gap-1.5 transition"
-              title="Unduh seluruh hasil rekap polling ke format Excel/CSV"
-            >
-              <Download className="w-3.5 h-3.5 text-red-600" />
-              <span>Ekspor Polling</span>
-            </a>
           </div>
 
-          <Link
-            href={`/event/${event.code}/present`}
-            target="_blank"
-            className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span>Buka Layar Proyektor</span>
-          </Link>
-          <Link
-            href={`/${event.code}`}
-            target="_blank"
-            className="px-3.5 py-2 rounded-xl bg-white hover:bg-red-50 text-red-600 font-bold text-xs flex items-center gap-1.5 transition border border-red-200 shadow-xs"
-          >
-            <span>Tampilan Peserta (HP)</span>
-          </Link>
-        </div>
-      </header>
+          {/* Action Buttons for Stage, Participant views, & Export */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            {/* Export Dropdown / Buttons */}
+            <div className="flex items-center bg-slate-100 rounded-xl border border-slate-200 p-0.5 text-xs font-semibold">
+              <a
+                href={`/api/events/${event.code}/export?type=qa`}
+                download
+                className="px-2.5 py-1.5 text-slate-700 hover:text-slate-900 hover:bg-white rounded-lg flex items-center gap-1.5 transition"
+                title="Unduh seluruh daftar pertanyaan & upvotes ke format Excel/CSV"
+              >
+                <Download className="w-3.5 h-3.5 text-blue-600" />
+                <span>Ekspor Q&A</span>
+              </a>
+              <span className="text-slate-300">|</span>
+              <a
+                href={`/api/events/${event.code}/export?type=polls`}
+                download
+                className="px-2.5 py-1.5 text-slate-700 hover:text-slate-900 hover:bg-white rounded-lg flex items-center gap-1.5 transition"
+                title="Unduh seluruh hasil rekap polling ke format Excel/CSV"
+              >
+                <Download className="w-3.5 h-3.5 text-red-600" />
+                <span>Ekspor Polling</span>
+              </a>
+            </div>
+
+            <Link
+              href={`/event/${event.code}/present`}
+              target="_blank"
+              className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-xs"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Buka Layar Proyektor</span>
+            </Link>
+            <Link
+              href={`/${event.code}`}
+              target="_blank"
+              className="px-3.5 py-2 rounded-xl bg-white hover:bg-red-50 text-red-600 font-bold text-xs flex items-center gap-1.5 transition border border-red-200 shadow-xs"
+            >
+              <span>Tampilan Peserta (HP)</span>
+            </Link>
+
+            {/* Lock Access Button */}
+            <button
+              onClick={async () => {
+                await fetch("/api/auth/pin", { method: "DELETE" });
+                window.location.reload();
+              }}
+              className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 border border-slate-200 transition cursor-pointer"
+              title="Kunci Akses Trainer"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </header>
 
       {/* Secondary Bar: Moderation Switch & Status */}
       <div className="bg-white border-b border-slate-200 px-6 py-2.5 flex flex-wrap items-center justify-between gap-4">
@@ -1466,6 +1481,7 @@ export default function ModeratorPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </TrainerPinGate>
   );
 }
