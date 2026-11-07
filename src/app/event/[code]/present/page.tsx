@@ -66,6 +66,7 @@ interface PollResponse {
 interface Poll {
   id: string;
   title: string;
+  imageUrl?: string | null;
   type: string;
   isActive: boolean;
   isLocked?: boolean;
@@ -722,13 +723,28 @@ export default function PresenterPage() {
                   </span>
                 </div>
 
-                <h2
-                  className={`text-3xl lg:text-4xl font-black mb-8 leading-snug ${
-                    stageTheme === "light" ? "text-slate-900" : "text-white"
-                  }`}
-                >
-                  {activePoll.title}
-                </h2>
+                <div className="mb-8">
+                  <h2
+                    className={`text-3xl lg:text-4xl font-black mb-4 leading-snug ${
+                      stageTheme === "light" ? "text-slate-900" : "text-white"
+                    }`}
+                  >
+                    {activePoll.title}
+                  </h2>
+
+                  {/* Poll Question Image on Stage */}
+                  {activePoll.imageUrl && (
+                    <div className="mb-6 flex justify-center">
+                      <div className="relative max-w-2xl max-h-80 overflow-hidden rounded-2xl border border-slate-200/80 shadow-lg bg-black/5">
+                        <img
+                          src={activePoll.imageUrl}
+                          alt="Ilustrasi Pertanyaan Polling"
+                          className="max-h-80 w-auto object-contain mx-auto rounded-2xl"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* LIVE QUIZ & LEADERBOARD MODE */}
                 {activePoll.type === "QUIZ" && (

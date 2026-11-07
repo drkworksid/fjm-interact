@@ -57,6 +57,7 @@ interface PollResponse {
 interface Poll {
   id: string;
   title: string;
+  imageUrl?: string | null;
   type: string;
   isActive: boolean;
   isLocked?: boolean;
@@ -832,9 +833,22 @@ export default function ParticipantPage() {
                   </span>
                 </div>
 
-                <h2 className="text-base font-bold text-slate-900 mb-5 leading-snug">
-                  {activePoll.title}
-                </h2>
+                <div className="mb-5">
+                  <h2 className="text-base font-bold text-slate-900 mb-3 leading-snug">
+                    {activePoll.title}
+                  </h2>
+
+                  {/* Poll Question Image on Mobile */}
+                  {activePoll.imageUrl && (
+                    <div className="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 mb-2">
+                      <img
+                        src={activePoll.imageUrl}
+                        alt="Gambar Pertanyaan"
+                        className="w-full max-h-64 object-contain mx-auto"
+                      />
+                    </div>
+                  )}
+                </div>
 
                 {/* QUIZ INTERACTIVE MODE */}
                 {activePoll.type === "QUIZ" && (

@@ -28,7 +28,9 @@ import {
   Trophy,
   Lock,
   Unlock,
-  Megaphone
+  Megaphone,
+  Image as ImageIcon,
+  Upload
 } from "lucide-react";
 import Link from "next/link";
 
@@ -62,6 +64,7 @@ interface PollResponse {
 interface Poll {
   id: string;
   title: string;
+  imageUrl?: string | null;
   type: string;
   isActive: boolean;
   showResults: boolean;
@@ -101,10 +104,58 @@ export default function ModeratorPage() {
   // New Poll Modal Form
   const [isNewPollModalOpen, setIsNewPollModalOpen] = useState(false);
   const [newPollTitle, setNewPollTitle] = useState("");
+  const [newPollImageUrl, setNewPollImageUrl] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [newPollType, setNewPollType] = useState<"MULTIPLE_CHOICE" | "WORD_CLOUD" | "RATING" | "QUIZ">("MULTIPLE_CHOICE");
   const [newPollOptions, setNewPollOptions] = useState<string[]>(["Opsi 1", "Opsi 2"]);
   const [newQuizCorrectIndex, setNewQuizCorrectIndex] = useState<number>(0);
   const [newQuizTimer, setNewQuizTimer] = useState<number>(20);
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Silakan pilih file gambar (JPG, PNG, WebP).");
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new (window as any).Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 1200;
+        const MAX_HEIGHT = 1200;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+        setNewPollImageUrl(compressedDataUrl);
+        setIsUploadingImage(false);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Announcement State
   const [announcementInput, setAnnouncementInput] = useState("");
@@ -374,6 +425,7 @@ export default function ModeratorPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: newPollTitle.trim(),
+          imageUrl: newPollImageUrl.trim() || undefined,
           type: newPollType,
           options: preparedOptions,
           timerSeconds: newPollType === "QUIZ" ? newQuizTimer : 0,
@@ -385,6 +437,7 @@ export default function ModeratorPage() {
       if (data.success) {
         setIsNewPollModalOpen(false);
         setNewPollTitle("");
+        setNewPollImageUrl("");
         setNewPollOptions(["Opsi 1", "Opsi 2"]);
         setNewQuizCorrectIndex(0);
       }
@@ -913,7 +966,16 @@ export default function ModeratorPage() {
                           </span>
                         </div>
 
-                        <h3 className="text-base font-black text-slate-900">{poll.title}</h3>
+                        <div className="flex items-start gap-3 mt-1.5">
+                          {poll.imageUrl && (
+                            <img
+                              src={poll.imageUrl}
+                              alt="Gambar Polling"
+                              className="w-16 h-12 object-cover rounded-lg border border-slate-200 shrink-0 bg-slate-100 shadow-2xs"
+                            />
+                          )}
+                          <h3 className="text-base font-black text-slate-900 leading-snug">{poll.title}</h3>
+                        </div>
                       </div>
 
                       {/* Control buttons */}
@@ -1101,7 +1163,7 @@ export default function ModeratorPage() {
       {/* CREATE NEW POLL MODAL */}
       {isNewPollModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl text-slate-900">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl text-slate-900 max-h-[92vh] overflow-y-auto">
             <h3 className="text-lg font-black text-slate-900 mb-1">Buat Polling Baru</h3>
             <p className="text-xs text-slate-500 mb-5">
               Pilih tipe interaksi yang diinginkan untuk peserta training.
@@ -1170,6 +1232,62 @@ export default function ModeratorPage() {
                   required
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder:text-slate-400 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white focus:text-slate-900"
                 />
+              </div>
+
+              {/* Insert Gambar Pertanyaan (Opsional) */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Gambar Pertanyaan (Opsional)</span>
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-normal">Bagan, Diagram, atau Ilustrasi Soal</span>
+                </label>
+
+                {!newPollImageUrl ? (
+                  <div className="space-y-2">
+                    <label className="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-3 text-center cursor-pointer bg-slate-50 hover:bg-blue-50/50 transition group block">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                      <div className="flex items-center justify-center gap-2 text-xs font-bold text-slate-600 group-hover:text-blue-700">
+                        <Upload className="w-4 h-4 text-blue-600" />
+                        <span>{isUploadingImage ? "Memproses Gambar..." : "Unggah Gambar dari Perangkat"}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-0.5">PNG, JPG, WebP, GIF</p>
+                    </label>
+
+                    <input
+                      type="url"
+                      placeholder="Atau tempel URL gambar (https://...)"
+                      value={newPollImageUrl}
+                      onChange={(e) => setNewPollImageUrl(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 placeholder:text-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+                    />
+                  </div>
+                ) : (
+                  <div className="relative border border-slate-200 rounded-2xl p-2.5 bg-slate-50 flex items-center gap-3">
+                    <img
+                      src={newPollImageUrl}
+                      alt="Preview Gambar Pertanyaan"
+                      className="w-24 h-20 object-cover rounded-xl border border-slate-200 bg-white shadow-2xs shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-slate-800 truncate">Gambar Berhasil Dilampirkan</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">Akan tampil di layar proyektor & HP peserta</p>
+                      <button
+                        type="button"
+                        onClick={() => setNewPollImageUrl("")}
+                        className="mt-2 text-xs font-bold text-red-600 hover:text-red-800 hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        ✕ Hapus Gambar
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Timer for Quiz */}

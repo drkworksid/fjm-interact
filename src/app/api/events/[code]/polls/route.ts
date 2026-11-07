@@ -49,7 +49,7 @@ export async function POST(
     }
 
     const body = await req.json();
-    const { title, type, options, isActive, timerSeconds } = body;
+    const { title, imageUrl, type, options, isActive, timerSeconds } = body;
 
     if (!title || !title.trim()) {
       return NextResponse.json({ success: false, error: "Judul polling harus diisi" }, { status: 400 });
@@ -70,6 +70,7 @@ export async function POST(
       data: {
         eventId: event.id,
         title: title.trim(),
+        imageUrl: imageUrl?.trim() || null,
         type: type || "MULTIPLE_CHOICE",
         isActive: Boolean(isActive),
         timerSeconds: timerSeconds ? parseInt(timerSeconds, 10) : 0,

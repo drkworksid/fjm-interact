@@ -58,6 +58,7 @@ model Poll {
   eventId              String
   event                Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
   title                String
+  imageUrl             String?
   type                 String         // MULTIPLE_CHOICE, WORD_CLOUD, RATING, OPEN_TEXT, QUIZ
   isActive             Boolean        @default(false)
   isLocked             Boolean        @default(false)
