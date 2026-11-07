@@ -91,6 +91,8 @@ export default function ParticipantPage() {
   const [activeTab, setActiveTab] = useState<"qa" | "polls">("qa");
   const [sortBy, setSortBy] = useState<"top" | "recent">("top");
   const [isConnected, setIsConnected] = useState(false);
+  const [isServerReachable, setIsServerReachable] = useState(true);
+  const [isBrowserOnline, setIsBrowserOnline] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState<string | null>(null);
@@ -137,6 +139,7 @@ export default function ParticipantPage() {
       if (!data.success) {
         setError(data.error || "Event tidak ditemukan");
         setIsLoading(false);
+        setIsServerReachable(false);
         return;
       }
       setEvent(data.event);
@@ -146,15 +149,32 @@ export default function ParticipantPage() {
         setAnnouncement(data.event.announcement);
       }
       setIsLoading(false);
+      setIsServerReachable(true);
     } catch (err: any) {
-      setError("Gagal memuat event. Periksa koneksi Anda.");
-      setIsLoading(false);
+      setIsServerReachable(false);
+      if (isLoading) {
+        setError("Gagal memuat event. Periksa koneksi Anda.");
+        setIsLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     if (!eventCode) return;
     fetchEventData();
+
+    // Track browser online status
+    const handleOnline = () => {
+      setIsBrowserOnline(true);
+      fetchEventData();
+    };
+    const handleOffline = () => setIsBrowserOnline(false);
+
+    if (typeof window !== "undefined") {
+      setIsBrowserOnline(navigator.onLine);
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("offline", handleOffline);
+    }
 
     // Setup Socket.io
     const socket = getSocket();
@@ -246,6 +266,10 @@ export default function ParticipantPage() {
     }, 3000);
 
     return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
+      }
       clearInterval(fallbackSync);
       socket.emit("leave_event", eventCode);
       socket.off("connect", onConnect);
@@ -464,13 +488,13 @@ export default function ParticipantPage() {
             <h1 className="font-extrabold text-sm text-slate-900 truncate">{event.title}</h1>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            {isConnected ? (
-              <span className="flex items-center gap-1 text-[11px] text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+            {isBrowserOnline && (isConnected || isServerReachable) ? (
+              <span className="flex items-center gap-1 text-[11px] text-blue-700 font-bold bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
                 Live
               </span>
             ) : (
-              <span className="flex items-center gap-1 text-[11px] text-amber-700 font-medium bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+              <span className="flex items-center gap-1 text-[11px] text-amber-700 font-medium bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                 Offline
               </span>
