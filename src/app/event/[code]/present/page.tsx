@@ -427,10 +427,10 @@ export default function PresenterPage() {
     <div
       className={
         stageTheme === "light"
-          ? "min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between p-6 lg:p-10 select-none font-sans relative pb-28"
+          ? "min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between p-3.5 sm:p-6 lg:p-10 select-none font-sans relative pb-28 w-full max-w-full overflow-x-hidden"
           : stageTheme === "oled"
-          ? "min-h-screen bg-black text-slate-100 flex flex-col justify-between p-6 lg:p-10 select-none font-sans relative pb-28"
-          : "min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 flex flex-col justify-between p-6 lg:p-10 select-none font-sans relative pb-28"
+          ? "min-h-screen bg-black text-slate-100 flex flex-col justify-between p-3.5 sm:p-6 lg:p-10 select-none font-sans relative pb-28 w-full max-w-full overflow-x-hidden"
+          : "min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 flex flex-col justify-between p-3.5 sm:p-6 lg:p-10 select-none font-sans relative pb-28 w-full max-w-full overflow-x-hidden"
       }
     >
       {/* Top Bar for Presenter Mode */}
@@ -1232,12 +1232,12 @@ export default function PresenterPage() {
 
       {/* Footer */}
       <footer
-        className={`pt-4 border-t flex items-center justify-between text-xs ${
+        className={`pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-center sm:text-left ${
           stageTheme === "light" ? "border-slate-200 text-slate-500" : "border-slate-800/80 text-slate-500"
         }`}
       >
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-blue-600" />
+        <div className="flex items-center justify-center sm:justify-start gap-2">
+          <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
           <span className="font-bold text-slate-700">FJM InterAct</span>
           <span>•</span>
           <span>PT Fiqry Jaya Manunggal</span>
@@ -1259,7 +1259,7 @@ export default function PresenterPage() {
           /* Minimized Floating Pill */
           <button
             onClick={() => setIsControlsMinimized(false)}
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 hover:bg-slate-900 text-white border border-slate-700/80 rounded-full px-4 py-2 shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs font-bold transition hover:scale-105 group"
+            className="fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/90 hover:bg-slate-900 text-white border border-slate-700/80 rounded-full px-3.5 py-1.5 sm:px-4 sm:py-2 shadow-2xl backdrop-blur-md flex items-center gap-1.5 sm:gap-2 text-xs font-bold transition hover:scale-105 group whitespace-nowrap"
             title="Tampilkan panel navigasi presenter"
           >
             <ChevronUp className="w-4 h-4 text-blue-400 group-hover:-translate-y-0.5 transition-transform" />
@@ -1267,7 +1267,7 @@ export default function PresenterPage() {
           </button>
         ) : (
           /* Expanded Floating Control Bar */
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-2xl px-3 py-2 shadow-2xl flex items-center gap-1.5 md:gap-2 text-white text-xs select-none max-w-[95vw] overflow-visible">
+          <div className="fixed bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-2xl p-1.5 sm:px-3 sm:py-2 shadow-2xl flex items-center gap-1 sm:gap-2 text-white text-xs select-none max-w-[calc(100vw-16px)] sm:max-w-[95vw] overflow-visible">
             {/* 1. Stop / Start Poll Button */}
             <div className="relative group shrink-0">
               <button
@@ -1275,20 +1275,20 @@ export default function PresenterPage() {
                   if (activePoll) handleTogglePollActive(activePoll.id, activePoll.isActive);
                   else if (polls.length > 0) handleSwitchPoll(polls[0].id);
                 }}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition shadow-xs ${
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition shadow-xs ${
                   activePoll?.isActive
                     ? "bg-red-700 hover:bg-red-600 text-white"
                     : "bg-emerald-600 hover:bg-emerald-500 text-white"
                 }`}
               >
                 {activePoll?.isActive ? (
-                  <Square className="w-3.5 h-3.5 fill-current" />
+                  <Square className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current" />
                 ) : (
-                  <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                  <Play className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current ml-0.5" />
                 )}
               </button>
               {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden md:group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
                 <span>{activePoll?.isActive ? "Stop poll" : "Start poll"}</span>
                 <span className="bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-mono mt-0.5">space</span>
               </div>
@@ -1299,12 +1299,12 @@ export default function PresenterPage() {
               <button
                 onClick={handlePrevPoll}
                 disabled={polls.length <= 1}
-                className="px-2.5 py-1.5 rounded-xl hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none text-slate-200 hover:text-white font-bold flex items-center gap-1 transition"
+                className="p-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none text-slate-200 hover:text-white font-bold flex items-center gap-1 transition"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span className="hidden sm:inline">Prev</span>
               </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden md:group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
                 <span>Previous poll</span>
                 <span className="bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-mono mt-0.5">←</span>
               </div>
@@ -1317,7 +1317,7 @@ export default function PresenterPage() {
                   if (activePoll) handleTogglePollResults(activePoll.id, activePoll.showResults);
                 }}
                 disabled={!activePoll}
-                className={`p-2 rounded-xl transition ${
+                className={`p-1.5 sm:p-2 rounded-xl transition ${
                   !activePoll?.showResults
                     ? "bg-slate-800 text-amber-400"
                     : "hover:bg-slate-800 text-slate-200 hover:text-white"
@@ -1325,7 +1325,7 @@ export default function PresenterPage() {
               >
                 {activePoll?.showResults ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
               </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden md:group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
                 <span>{activePoll?.showResults ? "Hide result" : "Show result"}</span>
                 <span className="bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-mono mt-0.5">H</span>
               </div>
@@ -1338,7 +1338,7 @@ export default function PresenterPage() {
                   if (activePoll) handleTogglePollLock(activePoll.id, !!activePoll.isLocked);
                 }}
                 disabled={!activePoll}
-                className={`p-2 rounded-xl transition ${
+                className={`p-1.5 sm:p-2 rounded-xl transition ${
                   activePoll?.isLocked
                     ? "bg-amber-500/20 text-amber-400 border border-amber-500/40"
                     : "hover:bg-slate-800 text-slate-200 hover:text-white"
@@ -1346,7 +1346,7 @@ export default function PresenterPage() {
               >
                 {activePoll?.isLocked ? <Lock className="w-4 h-4 text-amber-400" /> : <Unlock className="w-4 h-4" />}
               </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden md:group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
                 <span>{activePoll?.isLocked ? "Unlock poll" : "Lock poll"}</span>
                 <span className="bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-mono mt-0.5">L</span>
               </div>
@@ -1357,12 +1357,12 @@ export default function PresenterPage() {
               <button
                 onClick={handleNextPoll}
                 disabled={polls.length <= 1}
-                className="px-2.5 py-1.5 rounded-xl hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none text-slate-200 hover:text-white font-bold flex items-center gap-1 transition"
+                className="p-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none text-slate-200 hover:text-white font-bold flex items-center gap-1 transition"
               >
                 <span className="hidden sm:inline">Next</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden md:group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
                 <span>Next poll</span>
                 <span className="bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-mono mt-0.5">→</span>
               </div>
@@ -1377,10 +1377,10 @@ export default function PresenterPage() {
                   setIsPollListDropdownOpen((prev) => !prev);
                   setIsSettingsOpen(false);
                 }}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold flex items-center gap-1.5 max-w-[140px] md:max-w-[210px] transition cursor-pointer"
+                className="px-2 sm:px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-bold flex items-center gap-1 sm:gap-1.5 max-w-[85px] sm:max-w-[140px] md:max-w-[210px] transition cursor-pointer text-[11px] sm:text-xs"
               >
                 <span className="truncate">
-                  {activePoll ? activePoll.title : "Daftar Polling"}
+                  {activePoll ? activePoll.title : "Daftar"}
                 </span>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               </button>
@@ -1388,7 +1388,7 @@ export default function PresenterPage() {
               {isPollListDropdownOpen && (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-80 sm:w-96 bg-slate-900 border border-slate-700 rounded-2xl p-2.5 shadow-2xl z-[100] space-y-1.5 animate-in fade-in slide-in-from-bottom-2 duration-150"
+                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-[min(340px,88vw)] bg-slate-900 border border-slate-700 rounded-2xl p-2.5 shadow-2xl z-[100] space-y-1.5 animate-in fade-in slide-in-from-bottom-2 duration-150"
                 >
                   <div className="px-2.5 py-1.5 text-[11px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-800 mb-1 flex items-center justify-between">
                     <span>Daftar Polling Sesi</span>
@@ -1447,7 +1447,7 @@ export default function PresenterPage() {
             <div className="relative group shrink-0">
               <button
                 onClick={() => setPresenterView(presenterView === "poll" ? "qa" : "poll")}
-                className={`px-3 py-1.5 rounded-xl border font-bold flex items-center gap-1.5 transition ${
+                className={`px-2 sm:px-3 py-1.5 rounded-xl border font-bold flex items-center gap-1 sm:gap-1.5 transition text-[11px] sm:text-xs shrink-0 ${
                   presenterView === "qa"
                     ? "bg-blue-600 text-white border-blue-500 shadow-xs"
                     : "bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-200 hover:text-white"
@@ -1455,7 +1455,8 @@ export default function PresenterPage() {
               >
                 {presenterView === "poll" ? (
                   <>
-                    <span>Show Q&A</span>
+                    <MessageSquare className="w-3.5 h-3.5 text-emerald-400 sm:hidden" />
+                    <span className="hidden sm:inline">Show Q&A</span>
                     <span className="px-1.5 py-0.2 rounded-full bg-emerald-500 text-slate-950 font-black text-[10px]">
                       {approvedQuestions.length}
                     </span>
@@ -1463,11 +1464,12 @@ export default function PresenterPage() {
                 ) : (
                   <>
                     <BarChart2 className="w-3.5 h-3.5 text-blue-400" />
-                    <span>Show Polls</span>
+                    <span className="hidden sm:inline">Show Polls</span>
+                    <span className="sm:hidden text-[10px]">Polls</span>
                   </>
                 )}
               </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden md:group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
                 <span>{presenterView === "poll" ? "Go to Q&A" : "Go to Polls"}</span>
                 <span className="bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-mono mt-0.5">
                   {presenterView === "poll" ? "Q" : "P"}
@@ -1476,7 +1478,7 @@ export default function PresenterPage() {
             </div>
 
             {/* Divider */}
-            <div className="h-5 w-px bg-slate-700 mx-1 shrink-0" />
+            <div className="h-4 sm:h-5 w-px bg-slate-700 mx-0.5 sm:mx-1 shrink-0" />
 
             {/* Settings / Theme Popover Button */}
             <div className="relative shrink-0">
@@ -1485,17 +1487,17 @@ export default function PresenterPage() {
                   setIsSettingsOpen(!isSettingsOpen);
                   setIsPollListDropdownOpen(false);
                 }}
-                className={`p-2 rounded-xl transition ${
+                className={`p-1.5 sm:p-2 rounded-xl transition ${
                   isSettingsOpen ? "bg-slate-800 text-white" : "hover:bg-slate-800 text-slate-300 hover:text-white"
                 }`}
                 title="Pengaturan Tema Layar"
               >
-                <Settings className="w-4 h-4" />
+                <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
               {isSettingsOpen && (
                 <div
                   onClick={(e) => e.stopPropagation()}
-                  className="absolute bottom-full right-0 mb-3 w-52 bg-slate-900 border border-slate-700 rounded-2xl p-2.5 shadow-2xl z-[100] animate-in fade-in slide-in-from-bottom-2 duration-150"
+                  className="absolute bottom-full right-0 mb-3 w-48 sm:w-52 bg-slate-900 border border-slate-700 rounded-2xl p-2.5 shadow-2xl z-[100] animate-in fade-in slide-in-from-bottom-2 duration-150"
                 >
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Tema Layar</p>
                   <div className="space-y-1">
@@ -1529,14 +1531,14 @@ export default function PresenterPage() {
             </div>
 
             {/* 7. Full Screen Button */}
-            <div className="relative group shrink-0">
+            <div className="relative group shrink-0 hidden xs:flex">
               <button
                 onClick={toggleFullscreen}
-                className="p-2 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition"
+                className="p-1.5 sm:p-2 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition"
               >
-                {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                {isFullscreen ? <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               </button>
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden md:group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
                 <span>{isFullscreen ? "Keluar Fullscreen" : "Fullscreen"}</span>
                 <span className="bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded text-[10px] font-mono mt-0.5">F</span>
               </div>
@@ -1546,12 +1548,12 @@ export default function PresenterPage() {
             <div className="relative group shrink-0">
               <button
                 onClick={() => setIsControlsMinimized(true)}
-                className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition ml-0.5"
+                className="p-1 sm:p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition"
                 title="Minimize panel kontrol"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronDown className="w-4 h-4" />
               </button>
-              <div className="absolute bottom-full right-0 mb-2 hidden group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
+              <div className="absolute bottom-full right-0 mb-2 hidden md:group-hover:flex flex-col items-center bg-slate-800 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-slate-700 z-50">
                 <span>Minimize panel</span>
               </div>
             </div>
