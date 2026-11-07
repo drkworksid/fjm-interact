@@ -148,8 +148,11 @@ export default function ParticipantPage() {
       setEvent(data.event);
       setQuestions(data.event.questions || []);
       setPolls(data.event.polls || []);
-      if (data.event.announcement) {
-        setAnnouncement(data.event.announcement);
+      if (data.event.announcement !== announcement) {
+        setAnnouncement(data.event.announcement || null);
+        if (data.event.announcement) {
+          setIsAnnouncementDismissed(false);
+        }
       }
       setIsLoading(false);
       setIsServerReachable(true);
@@ -607,6 +610,34 @@ export default function ParticipantPage() {
           </button>
         </div>
       </div>
+
+      {/* Broadcast Announcement Banner */}
+      {announcement && !isAnnouncementDismissed && (
+        <div className="bg-amber-500 text-slate-950 px-4 py-3 border-b border-amber-600 shadow-md flex items-center justify-between gap-3 animate-in slide-in-from-top duration-200 sticky top-[117px] z-20">
+          <div className="flex items-start gap-2.5 min-w-0">
+            <div className="p-1.5 rounded-full bg-white/30 shrink-0 mt-0.5">
+              <Megaphone className="w-4 h-4 text-slate-950" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-[10px] uppercase font-black tracking-wider bg-slate-950/15 px-1.5 py-0.2 rounded text-slate-900">
+                  📢 Pengumuman Trainer
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm font-black text-slate-950 leading-snug break-words">
+                "{announcement}"
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setIsAnnouncementDismissed(true)}
+            className="p-1.5 rounded-xl hover:bg-black/10 active:bg-black/20 text-slate-900 transition shrink-0 cursor-pointer"
+            title="Tutup pengumuman"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 p-4 pb-24 overflow-y-auto">

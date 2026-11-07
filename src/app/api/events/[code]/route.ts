@@ -73,6 +73,10 @@ export async function PATCH(
       highlightedQuestionId: body.highlightedQuestionId !== undefined ? body.highlightedQuestionId : undefined,
     };
 
+    if (body.announcement !== undefined) {
+      dataToUpdate.announcement = body.announcement ? String(body.announcement).trim() : null;
+    }
+
     if (body.trainerPin && /^\d{6}$/.test(body.trainerPin)) {
       dataToUpdate.trainerPin = body.trainerPin;
     }
