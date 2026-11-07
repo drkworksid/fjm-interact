@@ -7,44 +7,55 @@
 ## 🚀 Fitur Utama FJM InterAct
 
 ### 1. Peserta Training (Mobile-First / Zero-Login) - `/[code]`
-- **Akses Cepat**: Cukup buka tautan atau scan QR Code (contoh: `http://localhost:3000/TRAIN26`).
-- **Zero Login**: Peserta tidak perlu membuat akun atau install aplikasi.
+- **Akses Cepat & Zero Login**: Cukup buka tautan atau scan QR Code (contoh: `https://fjm-interact.vercel.app/TRAIN26`). Tanpa download aplikasi atau registrasi akun.
 - **Identitas Fleksibel**: Peserta bisa memilih tampil dengan nama atau **Anonim** (bisa diganti kapan saja).
+- **Banner Pengumuman Real-time**: Notifikasi pengumuman dari trainer (banner amber dengan icon 📢) tampil langsung seketika di atas layar peserta.
 - **Audience Q&A**:
-  - Kirim pertanyaan dengan batas karakter.
-  - Upvote pertanyaan secara real-time.
-  - Sortir pertanyaan: *Terpopuler (Upvotes)* atau *Terbaru*.
-  - Indikator khusus jika pertanyaan sedang dibahas di layar proyektor panggung.
-- **Live Polling**:
-  - Pilihan Ganda (*Multiple Choice*) dengan persentase suara langsung.
+  - Kirim pertanyaan dengan kategori topik (`Umum`, `Materi`, `Teknis`, `Manajemen`).
+  - Upvote pertanyaan secara real-time; pertanyaan terpopuler otomatis naik ke atas.
+  - Indikator khusus jika pertanyaan sedang disorot di panggung proyektor.
+- **Live Polling & Keadilan Respon (Anti-Biased Polling)**:
+  - Pilihan Ganda (*Multiple Choice*) dengan opsi lampiran gambar soal.
   - *Word Cloud* dinamis (input kata kunci).
   - *Rating* skala 1-5 bintang pemahaman materi.
-  - Sinkronisasi otomatis saat trainer mengganti polling.
+  - **Sembunyikan Skor Sebelum Jawab**: Skor dan persentase tidak ditampilkan sebelum peserta mengklik tombol **"Kirim Jawaban"**, mencegah bias suara mayoritas.
+  - **Kunci Respon**: Jawaban dikunci permanen setelah dikirim.
 
 ### 2. Layar Proyektor / Stage View - `/event/[code]/present`
 - Dioptimalkan untuk resolusi 16:9 / Fullscreen di proyektor, Smart TV, atau Zoom screen sharing.
 - Menampilkan QR Code dan kode event di pojok kanan atas secara konstan.
+- **Dukungan Embed Slide Presentasi**:
+  - Siap di-embed langsung ke dalam slide **Microsoft PowerPoint** (via Add-in *Web Viewer*), Google Slides, atau Canva.
+  - Deteksi embed otomatis: saat berada di dalam slide, tautan footer disembunyikan dan floating bar diminimalkan agar tampilan 100% bersih seperti slide presentasi bawaan.
 - **Mode Spotlight / Highlight**: Saat trainer menyorot pertanyaan, panggung otomatis menampilkan pertanyaan tersebut dalam tipografi besar dan jelas.
-- **Grafik Polling Real-time**: Animasi transisi bar persentase dan Word Cloud yang dinamis seiring suara masuk.
+- **Grafik Polling Real-time**: Animasi transisi bar persentase, Word Cloud, serta panggung kuis 3-tahap lengkap dengan **Podium Juara 1, 2, 3** dan efek konfeti selebrasi.
+- **Floating Navigation Bar Responsif**: Kontrol alur polling, prev/next, sembunyikan hasil, kunci polling, dan toggle Q&A langsung dari layar panggung.
 
 ### 3. Panel Kontrol & Moderasi Trainer - `/event/[code]/moderate`
+- **Keamanan PIN Per Sesi**: Dilindungi 6 digit PIN khusus trainer sesi atau Master Admin PIN.
+- **Tata Letak Mobile Fit-to-Screen**: Tampilan 100% pas dan proporsional di layar ponsel tanpa terpotong atau bocor ke samping.
 - **Moderasi Pertanyaan**:
   - Saklar moderasi aktif/non-aktif.
-  - Filter: *Semua*, *Perlu Review (Pending)*, *Tampil*, dan *Selesai Terjawab*.
+  - Filter 4 kolom: *Semua*, *Review*, *Tampil*, dan *Terjawab*.
   - Aksi 1-klik: **Sorot ke Layar (Highlight)**, **Setujui**, **Tolak**, **Tandai Terjawab**, dan **Hapus**.
-- **Kontrol Live Polling**:
-  - Pembuat polling baru (Pilihan Ganda, Word Cloud, Rating).
+- **Siarkan Pengumuman (Broadcast Announcement)**: 1-klik untuk menyiarkan pesan berjalan atau informasi penting langsung ke seluruh HP peserta secara instan.
+- **Kontrol Live Polling & Gambar**:
+  - Pembuat polling baru (Pilihan Ganda, Word Cloud, Rating, Kuis).
+  - Fitur lampiran gambar soal (upload langsung dengan kompresi otomatis atau via URL).
   - Tombol **Luncurkan ke Peserta** (1-klik langsung mengalihkan layar peserta & proyektor).
   - Saklar tampilkan/sembunyikan hasil ke peserta.
 - **Ekspor Data & Laporan**:
-  - Unduh rekapitulasi Q&A beserta jumlah upvote ke format **Excel / CSV**.
-  - Unduh rekapitulasi hasil polling peserta ke format **Excel / CSV**.
-- **Pengaturan & Unduh QR Code**:
-  - Unduh gambar QR Code (PNG) untuk ditempel di slide materi presentasi / PPT.
+  - Unduh rekapitulasi Q&A beserta jumlah upvote ke format **Excel (.xlsx) / CSV**.
+  - Unduh rekapitulasi hasil polling peserta ke format **Excel (.xlsx) / CSV**.
+- **Pengaturan Sesi & PIN**:
+  - Lihat dan ubah 6 digit PIN khusus sesi ini.
+  - Unduh gambar QR Code (PNG) beresolusi tinggi.
 
 ### 4. Dashboard Trainer - `/dashboard`
+- **Dilindungi Master Admin PIN**: Kunci pengaman 6 angka (bawaan: `262626`, dapat diubah di menu Pengaturan).
 - Kelola semua sesi training PT Fiqry Jaya Manunggal.
-- Buat sesi training baru dengan kode kustom (misal: `#FJM2026`).
+- Buat sesi training baru dengan penentuan PIN khusus trainer sesi tersebut.
+- Kartu sesi menampilkan nomor PIN sesi dengan ikon gembok untuk kemudahan pembagian ke trainer bertugas.
 - Pintasan langsung ke Layar Proyektor, Panel Kontrol, dan Tampilan Peserta.
 
 ---
@@ -59,74 +70,21 @@
 # 1. Pastikan dependensi terpasang
 npm install
 
-# 2. Sinkronisasi database SQLite lokal
-npm run db:push
+# 2. Sinkronisasi database
+npx prisma db push
 
-# 3. Seed data contoh (Opsional, untuk mencoba demo event #TRAIN26)
-node prisma/seed.js
-
-# 4. Jalankan server (Next.js + WebSocket Socket.io)
+# 3. Jalankan server (Next.js + WebSocket Socket.io)
 npm run dev
 # Atau cukup klik dua kali start-dev.bat di Windows
 ```
 
 Buka di browser:
 - **Halaman Utama FJM InterAct**: [http://localhost:3000](http://localhost:3000)
-- **Sesi Demo Peserta**: [http://localhost:3000/TRAIN26](http://localhost:3000/TRAIN26)
-- **Layar Proyektor Demo**: [http://localhost:3000/event/TRAIN26/present](http://localhost:3000/event/TRAIN26/present)
-- **Panel Trainer Demo**: [http://localhost:3000/event/TRAIN26/moderate](http://localhost:3000/event/TRAIN26/moderate)
 - **Dashboard Trainer FJM**: [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
 
 ---
 
-## 🌐 Panduan Deployment ke Cloud / VPS
-
-Aplikasi ini sudah *production-ready* dan dapat dideploy ke VPS Ubuntu / Debian / Cloud mana pun menggunakan Node.js, PM2, atau Docker:
-
-### Opsi A: Deployment dengan PM2 & Nginx (VPS Ubuntu)
-
-```bash
-# 1. Di server VPS Anda, clone repository
-git clone <url-repo> /var/www/fjm-interact
-cd /var/www/fjm-interact
-
-# 2. Install dependensi & build
-npm install
-npx prisma db push
-npm run build
-
-# 3. Jalankan aplikasi di background dengan PM2
-npm install -g pm2
-pm2 start server.js --name "fjm-interact"
-pm2 save
-pm2 startup
-```
-
-### Konfigurasi Nginx Reverse Proxy (dengan WebSocket Support)
-```nginx
-server {
-    listen 80;
-    server_name interact.fiqryj晦.com; # Sesuaikan dengan domain Anda
-
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-### Opsi B: Deployment dengan Docker & Docker Compose
-Cukup jalankan:
-```bash
-docker compose up -d --build
-```
-Aplikasi akan langsung aktif di port `3000`.
-
----
-© **PT Fiqry Jaya Manunggal (FJM)**. All rights reserved.
+## 🌐 Deployment Cloud
+- **Hosting**: Vercel Serverless ([https://fjm-interact.vercel.app](https://fjm-interact.vercel.app))
+- **Database**: Neon Serverless PostgreSQL (AWS Singapore)
+- **Header Keamanan**: CSP `frame-ancestors *` untuk dukungan embedding di slide PowerPoint, Canva, & LMS.
