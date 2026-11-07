@@ -273,18 +273,6 @@ export default function TrainerPinGate({ children, eventCode, eventTitle }: Trai
           <span>{isVerifying ? "Memverifikasi PIN..." : "Buka Akses Trainer"}</span>
         </button>
 
-        {/* Default hint for user */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
-          <p className="text-[11px] text-slate-500 font-medium">
-            PIN Bawaan Awal: <strong className="font-mono text-blue-700 font-black">262626</strong>
-          </p>
-          <p className="text-[10px] text-slate-400 mt-0.5">
-            {eventCode
-              ? "Gunakan PIN khusus sesi ini atau Master PIN Admin."
-              : "Dapat diubah kapan saja di menu Pengaturan Dashboard."}
-          </p>
-        </div>
-
         {/* On-screen numeric keypad for mobile/touch users */}
         <div className="mt-5 pt-4 border-t border-slate-100">
           <div className="grid grid-cols-3 gap-2 max-w-[280px] mx-auto">
