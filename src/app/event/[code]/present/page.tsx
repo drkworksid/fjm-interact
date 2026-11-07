@@ -31,7 +31,8 @@ import {
   ChevronDown,
   ChevronUp,
   Settings,
-  HelpCircle
+  HelpCircle,
+  AlignLeft
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import Link from "next/link";
@@ -61,6 +62,7 @@ interface PollResponse {
   ratingValue?: number | null;
   participantToken: string;
   participantName?: string | null;
+  createdAt?: string;
 }
 
 interface Poll {
@@ -717,7 +719,9 @@ export default function PresenterPage() {
                           : "bg-emerald-500/20 border border-emerald-500/30 text-emerald-300"
                       }`}
                     >
-                      Live Polling: {activePoll.type.replace("_", " ")}
+                      {activePoll.type === "OPEN_TEXT"
+                        ? "💬 Teks Terbuka (Open Text)"
+                        : `Live Polling: ${activePoll.type.replace("_", " ")}`}
                     </span>
                     {activePoll.isLocked && (
                       <span className="px-3 py-1 rounded-lg bg-amber-100 border border-amber-300 text-amber-900 font-bold text-xs flex items-center gap-1.5 shadow-2xs">
@@ -1212,6 +1216,86 @@ export default function PresenterPage() {
                             >
                               Berdasarkan {total} suara peserta
                             </p>
+                          </div>
+                        );
+                      })()
+                    )}
+                  </div>
+                )}
+
+                {/* Open Text (Paragraph / Multi-line Responses) */}
+                {activePoll.type === "OPEN_TEXT" && (
+                  <div>
+                    {!activePoll.showResults ? (
+                      <div className="text-center py-16 text-slate-500">
+                        <EyeOff className="w-12 h-12 mx-auto mb-3 text-slate-400" />
+                        <p className="text-xl font-bold mb-1">Hasil tanggapan disembunyikan oleh trainer</p>
+                        <p className="text-sm text-slate-400">Tekan tombol &apos;H&apos; atau icon mata untuk menampilkan hasil ke layar.</p>
+                      </div>
+                    ) : (
+                      (() => {
+                        const responses = activePoll.responses || [];
+
+                        if (responses.length === 0) {
+                          return (
+                            <div
+                              className={`text-center py-20 rounded-3xl border ${
+                                stageTheme === "light"
+                                  ? "bg-slate-50 border-slate-200"
+                                  : "bg-slate-950/60 border-slate-800"
+                              }`}
+                            >
+                              <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4 border border-blue-200 shadow-xs">
+                                <AlignLeft className="w-8 h-8" />
+                              </div>
+                              <h3
+                                className={`text-2xl font-black mb-2 ${
+                                  stageTheme === "light" ? "text-slate-800" : "text-white"
+                                }`}
+                              >
+                                Menunggu Jawaban dari Peserta...
+                              </h3>
+                              <p className="text-sm text-slate-400 max-w-md mx-auto">
+                                Peserta dapat mengetikkan jawaban teks / paragraf langsung dari perangkat masing-masing. Jawaban akan langsung muncul di sini.
+                              </p>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+                            {responses.map((r, idx) => (
+                              <div
+                                key={r.id || idx}
+                                className={`p-6 rounded-2xl border transition-all duration-300 shadow-sm flex flex-col justify-between ${
+                                  stageTheme === "light"
+                                    ? "bg-white border-slate-200 hover:border-blue-400 hover:shadow-md text-slate-900"
+                                    : stageTheme === "oled"
+                                    ? "bg-zinc-950 border-zinc-800 hover:border-zinc-700 text-zinc-100"
+                                    : "bg-slate-900/80 border-slate-800/80 hover:border-indigo-500/50 text-slate-100"
+                                }`}
+                              >
+                                <div>
+                                  <div className="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b border-slate-100 dark:border-slate-800/60 text-xs">
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-black text-[11px] flex items-center justify-center shrink-0">
+                                        {(r.participantName || "A")[0].toUpperCase()}
+                                      </span>
+                                      <span className="font-bold truncate text-slate-700 dark:text-slate-300">
+                                        {r.participantName || "Anonim"}
+                                      </span>
+                                    </div>
+                                    <span className="text-[11px] text-slate-400 font-mono shrink-0">
+                                      #{idx + 1}
+                                    </span>
+                                  </div>
+
+                                  <p className="text-base lg:text-lg font-medium whitespace-pre-wrap break-words leading-relaxed">
+                                    {r.textResponse}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         );
                       })()

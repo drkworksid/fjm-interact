@@ -23,7 +23,8 @@ import {
   Megaphone,
   X,
   Lock,
-  Tag
+  Tag,
+  AlignLeft
 } from "lucide-react";
 
 interface Question {
@@ -52,6 +53,7 @@ interface PollResponse {
   ratingValue?: number | null;
   participantToken: string;
   participantName?: string | null;
+  createdAt?: string;
 }
 
 interface Poll {
@@ -116,6 +118,7 @@ export default function ParticipantPage() {
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isSubmittingPoll, setIsSubmittingPoll] = useState(false);
   const [wordCloudInput, setWordCloudInput] = useState("");
+  const [openTextInput, setOpenTextInput] = useState("");
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
 
   // Initialize participant token and profile from localStorage
@@ -411,6 +414,25 @@ export default function ParticipantPage() {
         }),
       });
       setWordCloudInput("");
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Submit Open Text (Paragraph) Response
+  const handleSubmitOpenText = async (pollId: string) => {
+    if (!openTextInput.trim() || !voterToken) return;
+    try {
+      await fetch(`/api/events/${eventCode}/polls/${pollId}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          textResponse: openTextInput.trim(),
+          participantToken: voterToken,
+          participantName: isAnonymous ? "Anonim" : authorName,
+        }),
+      });
+      setOpenTextInput("");
     } catch (e) {
       console.error(e);
     }
@@ -857,7 +879,7 @@ export default function ParticipantPage() {
                     {activePoll.type === "QUIZ" && "🏆 Kuis Interaktif"}
                     {activePoll.type === "WORD_CLOUD" && "Word Cloud"}
                     {activePoll.type === "RATING" && "Rating / Skala"}
-                    {activePoll.type === "OPEN_TEXT" && "Pertanyaan Terbuka"}
+                    {activePoll.type === "OPEN_TEXT" && "💬 Teks Terbuka"}
                   </span>
                   <span className="text-xs text-slate-400">
                     {activePoll.responses?.length || 0} respons
@@ -1269,6 +1291,124 @@ export default function ParticipantPage() {
                             activePoll.isLocked && (
                               <p className="text-xs font-bold text-amber-700">Polling rating telah dikunci oleh trainer.</p>
                             )
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {/* Open Text (Paragraph / Multi-line) Poll */}
+                {activePoll.type === "OPEN_TEXT" && (
+                  <div>
+                    {(() => {
+                      const userResponse = activePoll.responses?.find(
+                        (r) => r.participantToken === voterToken
+                      );
+                      const hasVoted = !!userResponse;
+
+                      return (
+                        <div className="space-y-4">
+                          {!hasVoted ? (
+                            activePoll.isLocked ? (
+                              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-center text-xs font-bold text-amber-800 flex items-center justify-center gap-2">
+                                <Lock className="w-4 h-4 text-amber-600" />
+                                <span>Polling telah dikunci oleh trainer.</span>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                <div>
+                                  <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                                    <span className="flex items-center gap-1.5">
+                                      <AlignLeft className="w-3.5 h-3.5 text-blue-600" />
+                                      <span>Tulis Jawaban / Pandangan Anda:</span>
+                                    </span>
+                                    <span className="text-[11px] text-slate-400 font-normal">
+                                      {openTextInput.length}/1000
+                                    </span>
+                                  </label>
+                                  <textarea
+                                    rows={4}
+                                    placeholder="Ketik jawaban Anda di sini (bisa berupa beberapa baris/paragraf)..."
+                                    value={openTextInput}
+                                    onChange={(e) => setOpenTextInput(e.target.value)}
+                                    maxLength={1000}
+                                    disabled={isSubmittingPoll}
+                                    className="w-full p-3.5 rounded-2xl border border-slate-300 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white leading-relaxed resize-y"
+                                  />
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    if (!openTextInput.trim() || isSubmittingPoll) return;
+                                    setIsSubmittingPoll(true);
+                                    await handleSubmitOpenText(activePoll.id);
+                                    setIsSubmittingPoll(false);
+                                  }}
+                                  disabled={!openTextInput.trim() || isSubmittingPoll}
+                                  className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold rounded-xl text-sm shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2 cursor-pointer"
+                                >
+                                  <span>{isSubmittingPoll ? "Mengirim Jawaban..." : "Kirim Jawaban"}</span>
+                                  <Send className="w-4 h-4" />
+                                </button>
+                              </div>
+                            )
+                          ) : (
+                            /* Submitted state */
+                            <div className="space-y-3">
+                              <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs font-bold text-emerald-800">
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                                  <span>Jawaban Anda telah terkirim</span>
+                                </div>
+                                <span className="text-[11px] bg-emerald-100 text-emerald-900 px-2.5 py-0.5 rounded-full font-black shrink-0">
+                                  Terkunci 🔒
+                                </span>
+                              </div>
+
+                              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs space-y-1">
+                                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Jawaban Anda:</span>
+                                <p className="text-slate-800 whitespace-pre-wrap break-words leading-relaxed text-sm font-medium">
+                                  {userResponse.textResponse}
+                                </p>
+                              </div>
+
+                              {/* Responses list from all participants if showResults is enabled */}
+                              {activePoll.showResults && (
+                                <div className="border border-slate-200 bg-slate-50 p-4 rounded-2xl animate-in fade-in duration-200 space-y-2.5">
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-xs font-bold text-slate-700">
+                                      Tanggapan seluruh peserta ({activePoll.responses?.length || 0}):
+                                    </p>
+                                  </div>
+                                  <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                                    {activePoll.responses?.map((r, i) => {
+                                      const isSelf = r.participantToken === voterToken;
+                                      return (
+                                        <div
+                                          key={r.id || i}
+                                          className={`p-3 rounded-xl border text-xs ${
+                                            isSelf
+                                              ? "bg-blue-50/70 border-blue-200 text-slate-900"
+                                              : "bg-white border-slate-200 text-slate-800"
+                                          }`}
+                                        >
+                                          <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 mb-1">
+                                            <span className={isSelf ? "font-bold text-blue-700" : "font-bold text-slate-700"}>
+                                              {r.participantName || "Anonim"} {isSelf && "(Anda)"}
+                                            </span>
+                                          </div>
+                                          <p className="whitespace-pre-wrap break-words leading-relaxed font-normal">
+                                            {r.textResponse}
+                                          </p>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           )}
                         </div>
                       );

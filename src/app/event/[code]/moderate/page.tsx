@@ -37,7 +37,8 @@ import {
   AlertCircle,
   X,
   ArrowLeft,
-  Smartphone
+  Smartphone,
+  AlignLeft
 } from "lucide-react";
 import Link from "next/link";
 import TrainerPinGate from "@/components/TrainerPinGate";
@@ -67,6 +68,7 @@ interface PollResponse {
   ratingValue?: number | null;
   participantToken: string;
   participantName?: string | null;
+  createdAt?: string;
 }
 
 interface Poll {
@@ -115,7 +117,7 @@ export default function ModeratorPage() {
   const [newPollTitle, setNewPollTitle] = useState("");
   const [newPollImageUrl, setNewPollImageUrl] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [newPollType, setNewPollType] = useState<"MULTIPLE_CHOICE" | "WORD_CLOUD" | "RATING" | "QUIZ">("MULTIPLE_CHOICE");
+  const [newPollType, setNewPollType] = useState<"MULTIPLE_CHOICE" | "WORD_CLOUD" | "RATING" | "QUIZ" | "OPEN_TEXT">("MULTIPLE_CHOICE");
   const [newPollOptions, setNewPollOptions] = useState<string[]>(["Opsi 1", "Opsi 2"]);
   const [newQuizCorrectIndex, setNewQuizCorrectIndex] = useState<number>(0);
   const [newQuizTimer, setNewQuizTimer] = useState<number>(20);
@@ -1032,6 +1034,7 @@ export default function ModeratorPage() {
                             {poll.type === "WORD_CLOUD" && "Word Cloud"}
                             {poll.type === "RATING" && "Rating / Skala"}
                             {poll.type === "QUIZ" && "🏆 Kuis Live"}
+                            {poll.type === "OPEN_TEXT" && "💬 Teks Terbuka"}
                           </span>
                           {poll.isActive ? (
                             <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
@@ -1172,6 +1175,39 @@ export default function ModeratorPage() {
                         })}
                       </div>
                     )}
+
+                    {/* Open Text Responses Preview */}
+                    {poll.type === "OPEN_TEXT" && (
+                      <div className="pt-3 border-t border-slate-100 space-y-2">
+                        <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+                          <span className="flex items-center gap-1.5">
+                            <AlignLeft className="w-3.5 h-3.5 text-blue-600" />
+                            <span>Tanggapan Masuk ({poll.responses?.length || 0})</span>
+                          </span>
+                        </div>
+                        {(!poll.responses || poll.responses.length === 0) ? (
+                          <p className="text-xs text-slate-400 italic">Belum ada tanggapan teks yang masuk.</p>
+                        ) : (
+                          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                            {poll.responses.map((r, idx) => (
+                              <div key={r.id || idx} className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 mb-1">
+                                  <span className="font-bold text-slate-800">{r.participantName || "Anonim"}</span>
+                                  {r.createdAt && (
+                                    <span className="text-[10px] text-slate-400">
+                                      {new Date(r.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-slate-800 whitespace-pre-wrap break-words leading-relaxed font-normal">
+                                  {r.textResponse}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1282,7 +1318,7 @@ export default function ModeratorPage() {
             <form onSubmit={handleCreatePoll} className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1.5">Tipe Interaksi</label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                   <button
                     type="button"
                     onClick={() => setNewPollType("MULTIPLE_CHOICE")}
@@ -1304,6 +1340,18 @@ export default function ModeratorPage() {
                     }`}
                   >
                     🏆 Kuis Live
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewPollType("OPEN_TEXT")}
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1 ${
+                      newPollType === "OPEN_TEXT"
+                        ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    <AlignLeft className="w-3.5 h-3.5" />
+                    <span>Teks Terbuka</span>
                   </button>
                   <button
                     type="button"
@@ -1332,11 +1380,21 @@ export default function ModeratorPage() {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1.5">
-                  {newPollType === "QUIZ" ? "Pertanyaan Kuis *" : "Pertanyaan / Topik Polling *"}
+                  {newPollType === "QUIZ"
+                    ? "Pertanyaan Kuis *"
+                    : newPollType === "OPEN_TEXT"
+                    ? "Pertanyaan / Topik Teks Terbuka *"
+                    : "Pertanyaan / Topik Polling *"}
                 </label>
                 <input
                   type="text"
-                  placeholder={newPollType === "QUIZ" ? "Contoh: Manakah yang merupakan keunggulan arsitektur cloud serverless?" : "Contoh: Apa tantangan terbesar Anda saat ini?"}
+                  placeholder={
+                    newPollType === "QUIZ"
+                      ? "Contoh: Manakah yang merupakan keunggulan arsitektur cloud serverless?"
+                      : newPollType === "OPEN_TEXT"
+                      ? "Contoh: Bagaimana pendapat Anda mengenai penerapan sistem ini di unit kerja Anda?"
+                      : "Contoh: Apa tantangan terbesar Anda saat ini?"
+                  }
                   value={newPollTitle}
                   onChange={(e) => setNewPollTitle(e.target.value)}
                   required
@@ -1420,6 +1478,19 @@ export default function ModeratorPage() {
                       </button>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Open Text Information Helper */}
+              {newPollType === "OPEN_TEXT" && (
+                <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-2xl text-xs text-blue-900 leading-relaxed space-y-1">
+                  <p className="font-bold flex items-center gap-1.5 text-blue-800">
+                    <AlignLeft className="w-4 h-4 text-blue-600" />
+                    <span>Mode Teks Terbuka / Paragraf (Tanpa Opsi)</span>
+                  </p>
+                  <p className="text-blue-700 text-[11px]">
+                    Peserta akan diberikan kolom teks bebas (paragraf / multi-line) di ponsel mereka untuk mengetikkan jawaban panjang, opini, atau poin-poin secara langsung.
+                  </p>
                 </div>
               )}
 
