@@ -112,6 +112,8 @@ export default function ParticipantPage() {
   const [submitFeedback, setSubmitFeedback] = useState<string | null>(null);
 
   // Poll Submission Form
+  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
+  const [isSubmittingPoll, setIsSubmittingPoll] = useState(false);
   const [wordCloudInput, setWordCloudInput] = useState("");
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
 
@@ -939,68 +941,124 @@ export default function ParticipantPage() {
 
                 {/* Multiple Choice Poll */}
                 {activePoll.type === "MULTIPLE_CHOICE" && (
-                  <div className="space-y-3">
+                  <div>
                     {(() => {
                       const totalVotes = activePoll.responses?.length || 0;
                       const userResponse = activePoll.responses?.find(
                         (r) => r.participantToken === voterToken
                       );
+                      const hasVoted = !!userResponse;
 
-                      return activePoll.options.map((opt) => {
-                        const optCount =
-                          activePoll.responses?.filter((r) => r.optionId === opt.id).length || 0;
-                        const percentage = totalVotes > 0 ? Math.round((optCount / totalVotes) * 100) : 0;
-                        const isSelected = userResponse?.optionId === opt.id;
+                      return (
+                        <div className="space-y-3">
+                          {/* Options List */}
+                          <div className="space-y-2.5">
+                            {activePoll.options.map((opt) => {
+                              const optCount =
+                                activePoll.responses?.filter((r) => r.optionId === opt.id).length || 0;
+                              const percentage = totalVotes > 0 ? Math.round((optCount / totalVotes) * 100) : 0;
+                              const isSelected = hasVoted
+                                ? userResponse?.optionId === opt.id
+                                : selectedOptionId === opt.id;
 
-                        return (
-                          <button
-                            key={opt.id}
-                            onClick={() => handleVotePollOption(activePoll.id, opt.id)}
-                            className={`w-full relative text-left p-4 rounded-xl border transition-all overflow-hidden ${
-                              isSelected
-                                ? "border-indigo-600 bg-indigo-50/50 shadow-sm ring-1 ring-indigo-500"
-                                : "border-slate-200 hover:border-slate-300 bg-white"
-                            }`}
-                          >
-                            {/* Percentage Bar Background if showResults is on */}
-                            {activePoll.showResults && (
-                              <div
-                                className={`absolute left-0 top-0 bottom-0 transition-all duration-500 ${
-                                  isSelected ? "bg-indigo-100" : "bg-slate-100"
-                                }`}
-                                style={{ width: `${percentage}%` }}
-                              />
-                            )}
-
-                            <div className="relative flex items-center justify-between gap-3 z-10">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                                    isSelected
-                                      ? "bg-indigo-600 border-indigo-600 text-white"
-                                      : "border-slate-300"
+                              return (
+                                <button
+                                  key={opt.id}
+                                  type="button"
+                                  disabled={hasVoted || !!activePoll.isLocked}
+                                  onClick={() => setSelectedOptionId(opt.id)}
+                                  className={`w-full relative text-left p-3.5 sm:p-4 rounded-2xl border transition-all overflow-hidden ${
+                                    hasVoted
+                                      ? isSelected
+                                        ? "border-blue-600 bg-blue-50/40 shadow-xs ring-1 ring-blue-500"
+                                        : "border-slate-200 bg-slate-50/50 opacity-70"
+                                      : isSelected
+                                      ? "border-blue-600 bg-blue-50/60 shadow-sm ring-2 ring-blue-500/30 cursor-pointer"
+                                      : "border-slate-200 hover:border-slate-300 bg-white cursor-pointer"
                                   }`}
                                 >
-                                  {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                                  {/* Percentage Bar Background only visible AFTER voting (and if showResults is enabled) */}
+                                  {hasVoted && activePoll.showResults && (
+                                    <div
+                                      className={`absolute left-0 top-0 bottom-0 transition-all duration-500 ${
+                                        isSelected ? "bg-blue-100/70" : "bg-slate-100"
+                                      }`}
+                                      style={{ width: `${percentage}%` }}
+                                    />
+                                  )}
+
+                                  <div className="relative flex items-center justify-between gap-3 z-10">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                      <div
+                                        className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
+                                          isSelected
+                                            ? "bg-blue-600 border-blue-600 text-white"
+                                            : "border-slate-300 bg-white"
+                                        }`}
+                                      >
+                                        {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                                      </div>
+                                      <span
+                                        className={`text-sm truncate ${
+                                          isSelected ? "font-bold text-slate-950" : "font-medium text-slate-800"
+                                        }`}
+                                      >
+                                        {opt.optionText}
+                                      </span>
+                                    </div>
+
+                                    {/* Percentage text ONLY visible AFTER voting and if showResults is on */}
+                                    {hasVoted && activePoll.showResults && (
+                                      <span className="text-xs font-bold text-slate-700 shrink-0 bg-white/80 px-2 py-0.5 rounded-md border border-slate-200">
+                                        {percentage}%
+                                      </span>
+                                    )}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Action Button / Feedback Badge */}
+                          {!hasVoted ? (
+                            <div className="pt-2">
+                              {activePoll.isLocked ? (
+                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-center text-xs font-bold text-amber-800 flex items-center justify-center gap-2">
+                                  <Lock className="w-4 h-4 text-amber-600" />
+                                  <span>Polling telah dikunci oleh trainer.</span>
                                 </div>
-                                <span
-                                  className={`text-sm ${
-                                    isSelected ? "font-bold text-indigo-950" : "font-medium text-slate-800"
-                                  }`}
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={!selectedOptionId || isSubmittingPoll}
+                                  onClick={async () => {
+                                    if (!selectedOptionId) return;
+                                    setIsSubmittingPoll(true);
+                                    await handleVotePollOption(activePoll.id, selectedOptionId);
+                                    setIsSubmittingPoll(false);
+                                  }}
+                                  className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-bold text-sm shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2 cursor-pointer"
                                 >
-                                  {opt.optionText}
-                                </span>
-                              </div>
-
-                              {activePoll.showResults && (
-                                <span className="text-xs font-bold text-slate-700 shrink-0">
-                                  {percentage}%
-                                </span>
+                                  <span>{isSubmittingPoll ? "Mengirim Jawaban..." : "Kirim Jawaban"}</span>
+                                  <Send className="w-4 h-4" />
+                                </button>
                               )}
                             </div>
-                          </button>
-                        );
-                      });
+                          ) : (
+                            <div className="pt-2">
+                              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs font-bold text-emerald-800">
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                  <span>Jawaban Anda telah terkirim</span>
+                                </div>
+                                <span className="text-[11px] bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded-full font-black">
+                                  Terkunci 🔒
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
                     })()}
                   </div>
                 )}

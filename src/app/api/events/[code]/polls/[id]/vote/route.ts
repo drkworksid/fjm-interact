@@ -50,6 +50,12 @@ export async function POST(
     });
 
     if (existing) {
+      if (poll.type === "MULTIPLE_CHOICE" || poll.type === "QUIZ" || poll.type === "RATING") {
+        return NextResponse.json(
+          { success: false, error: "Jawaban telah dikirim dan tidak dapat diubah lagi." },
+          { status: 400 }
+        );
+      }
       // Update existing response
       await prisma.pollResponse.update({
         where: { id: existing.id },
