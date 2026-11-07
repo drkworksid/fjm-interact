@@ -11,6 +11,8 @@
   body {
     @apply bg-slate-50 text-slate-900 antialiased selection:bg-indigo-500 selection:text-white;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+    width: 100%;
   }
 }
 

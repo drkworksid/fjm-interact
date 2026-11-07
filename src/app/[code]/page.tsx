@@ -476,16 +476,15 @@ export default function ParticipantPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col max-w-lg mx-auto shadow-xl border-x border-slate-200">
+    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col w-full max-w-lg mx-auto shadow-xl border-x border-slate-200 overflow-x-hidden">
       {/* Top Header */}
-      <header className="bg-white text-slate-900 border-b border-slate-200 px-4 py-3 sticky top-0 z-30 shadow-xs">
+      <header className="bg-white text-slate-900 border-b border-slate-200 px-3.5 py-2.5 sticky top-0 z-30 shadow-xs w-full">
         <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2 overflow-hidden">
+          <div className="flex items-center gap-2 min-w-0">
             <img src="/fjm-logo.png" alt="FJM Logo" className="h-7 w-auto object-contain shrink-0" />
-            <span className="px-2 py-0.5 rounded-md bg-red-600 text-white font-mono text-xs font-black tracking-wider shrink-0">
-              #{event.code}
-            </span>
-            <h1 className="font-extrabold text-sm text-slate-900 truncate">{event.title}</h1>
+            <h1 className="font-extrabold text-sm text-slate-900 truncate">
+              Interactive Q&A - Polls
+            </h1>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             {isBrowserOnline && (isConnected || isServerReachable) ? (
@@ -502,9 +501,9 @@ export default function ParticipantPage() {
           </div>
         </div>
 
-        {/* User Profile Bar (Zero-Login / Name Switcher) */}
-        <div className="flex items-center justify-between text-xs text-slate-600 pt-1.5 border-t border-slate-100">
-          <div className="flex items-center gap-1.5">
+        {/* User Profile & Active Session Title */}
+        <div className="flex items-center justify-between text-xs text-slate-600 pt-1.5 border-t border-slate-100 gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             {isAnonymous ? (
               <div className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded-md text-slate-600 font-medium">
                 <EyeOff className="w-3 h-3 text-slate-500" />
@@ -513,21 +512,24 @@ export default function ParticipantPage() {
             ) : (
               <div className="flex items-center gap-1 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md text-blue-800 font-bold">
                 <User className="w-3 h-3 text-blue-600" />
-                <span className="truncate max-w-[140px]">{authorName}</span>
+                <span className="truncate max-w-[120px] sm:max-w-[150px]">{authorName}</span>
               </div>
             )}
             <button
               onClick={() => setIsEditingName(true)}
-              className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold underline decoration-dotted flex items-center gap-0.5 ml-1"
+              className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold underline decoration-dotted flex items-center gap-0.5 ml-0.5"
             >
               <Edit2 className="w-2.5 h-2.5" />
               <span>Ganti</span>
             </button>
           </div>
 
-          <span className="text-[11px] text-slate-500 font-medium">
-            {visibleQuestions.length} Pertanyaan
-          </span>
+          <div
+            className="flex items-center gap-1 text-[11px] font-semibold text-slate-700 truncate min-w-0 text-right justify-end"
+            title={event.title}
+          >
+            <span className="truncate max-w-[170px] sm:max-w-[240px]">{event.title}</span>
+          </div>
         </div>
       </header>
 
@@ -566,8 +568,8 @@ export default function ParticipantPage() {
       )}
 
       {/* Navigation Tabs (Q&A vs Polls) */}
-      <div className="bg-white border-b border-slate-200 px-4 flex items-center justify-between sticky top-[73px] z-20">
-        <div className="flex items-center gap-4">
+      <div className="bg-white border-b border-slate-200 px-3.5 sm:px-4 flex items-center justify-between sticky top-[69px] z-20 w-full">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={() => setActiveTab("qa")}
             className={`py-3 text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${
@@ -693,14 +695,14 @@ export default function ParticipantPage() {
             )}
 
             {/* Questions Header & Sorting */}
-            <div className="flex items-center justify-between mb-3 px-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            <div className="flex items-center justify-between mb-3 px-1 gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 shrink-0">
                 Pertanyaan Audiens
               </span>
-              <div className="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-lg text-xs">
+              <div className="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-lg text-xs shrink-0">
                 <button
                   onClick={() => setSortBy("top")}
-                  className={`px-2.5 py-1 rounded-md font-medium transition ${
+                  className={`px-2 sm:px-2.5 py-1 rounded-md font-medium transition text-[11px] sm:text-xs ${
                     sortBy === "top"
                       ? "bg-white text-indigo-700 shadow-sm"
                       : "text-slate-600 hover:text-slate-900"
@@ -713,7 +715,7 @@ export default function ParticipantPage() {
                 </button>
                 <button
                   onClick={() => setSortBy("recent")}
-                  className={`px-2.5 py-1 rounded-md font-medium transition ${
+                  className={`px-2 sm:px-2.5 py-1 rounded-md font-medium transition text-[11px] sm:text-xs ${
                     sortBy === "recent"
                       ? "bg-white text-indigo-700 shadow-sm"
                       : "text-slate-600 hover:text-slate-900"
@@ -761,9 +763,9 @@ export default function ParticipantPage() {
                         </div>
                       )}
 
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <p className="text-sm font-normal text-slate-800 leading-relaxed mb-2 select-text">
+                      <div className="flex items-start justify-between gap-2.5 sm:gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-normal text-slate-800 leading-relaxed mb-2 select-text break-words">
                             {q.content}
                           </p>
 
