@@ -104,7 +104,24 @@ export default function PresenterPage() {
   const [isControlsMinimized, setIsControlsMinimized] = useState(false);
   const [isPollListDropdownOpen, setIsPollListDropdownOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isEmbed, setIsEmbed] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const inIframe = window.self !== window.top;
+        if (urlParams.get("embed") === "true" || inIframe) {
+          setIsEmbed(true);
+          setIsControlsMinimized(true);
+        }
+      } catch (e) {
+        setIsEmbed(true);
+        setIsControlsMinimized(true);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("fjm_presenter_theme") as "indigo" | "light" | "oled";
@@ -425,13 +442,15 @@ export default function PresenterPage() {
 
   return (
     <div
-      className={
+      className={`min-h-screen flex flex-col justify-between p-3.5 sm:p-6 lg:p-10 select-none font-sans relative w-full max-w-full overflow-x-hidden ${
+        isEmbed ? "pb-6" : "pb-28"
+      } ${
         stageTheme === "light"
-          ? "min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between p-3.5 sm:p-6 lg:p-10 select-none font-sans relative pb-28 w-full max-w-full overflow-x-hidden"
+          ? "bg-slate-50 text-slate-900"
           : stageTheme === "oled"
-          ? "min-h-screen bg-black text-slate-100 flex flex-col justify-between p-3.5 sm:p-6 lg:p-10 select-none font-sans relative pb-28 w-full max-w-full overflow-x-hidden"
-          : "min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100 flex flex-col justify-between p-3.5 sm:p-6 lg:p-10 select-none font-sans relative pb-28 w-full max-w-full overflow-x-hidden"
-      }
+          ? "bg-black text-slate-100"
+          : "bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-slate-100"
+      }`}
     >
       {/* Top Bar for Presenter Mode */}
       <header
@@ -1230,26 +1249,28 @@ export default function PresenterPage() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer
-        className={`pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-center sm:text-left ${
-          stageTheme === "light" ? "border-slate-200 text-slate-500" : "border-slate-800/80 text-slate-500"
-        }`}
-      >
-        <div className="flex items-center justify-center sm:justify-start gap-2">
-          <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
-          <span className="font-bold text-slate-700">FJM InterAct</span>
-          <span>•</span>
-          <span>PT Fiqry Jaya Manunggal</span>
-        </div>
-        <Link
-          href={`/event/${event.code}/moderate`}
-          target="_blank"
-          className="text-blue-600 hover:underline font-bold"
+      {/* Footer (hidden in slide embed) */}
+      {!isEmbed && (
+        <footer
+          className={`pt-4 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-center sm:text-left ${
+            stageTheme === "light" ? "border-slate-200 text-slate-500" : "border-slate-800/80 text-slate-500"
+          }`}
         >
-          Buka Panel Kontrol Trainer (Tab Terpisah)
-        </Link>
-      </footer>
+          <div className="flex items-center justify-center sm:justify-start gap-2">
+            <span className="w-2 h-2 rounded-full bg-blue-600 shrink-0" />
+            <span className="font-bold text-slate-700">FJM InterAct</span>
+            <span>•</span>
+            <span>PT Fiqry Jaya Manunggal</span>
+          </div>
+          <Link
+            href={`/event/${event.code}/moderate`}
+            target="_blank"
+            className="text-blue-600 hover:underline font-bold"
+          >
+            Buka Panel Kontrol Trainer (Tab Terpisah)
+          </Link>
+        </footer>
+      )}
 
       {/* ======================================================== */}
       {/* 🌟 PRESENTER FLOATING NAVIGATION BAR (SLIDO-STYLE)      */}
