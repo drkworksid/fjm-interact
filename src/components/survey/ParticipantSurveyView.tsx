@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ClipboardList,
   CheckCircle2,
@@ -37,27 +37,45 @@ export default function ParticipantSurveyView({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Initialize existing answers if any
+  const hasLoadedInitialAnswers = useRef(false);
+
+  // Initialize existing answers from localStorage draft or server response on initial load only
   useEffect(() => {
-    if (existingResponse?.answers) {
-      const map: Record<string, string> = {};
+    if (hasLoadedInitialAnswers.current) return;
+
+    const draftKey = `fjm_survey_draft_${survey.id}_${voterToken}`;
+    let draftMap: Record<string, string> = {};
+
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        draftMap = JSON.parse(saved);
+      }
+    } catch (e) {}
+
+    // Merge with server answers if available
+    if (existingResponse?.answers && existingResponse.answers.length > 0) {
       for (const a of existingResponse.answers) {
-        if (a.value !== null && a.value !== undefined) {
-          map[a.questionId] = a.value;
+        if (a.value !== null && a.value !== undefined && draftMap[a.questionId] === undefined) {
+          draftMap[a.questionId] = a.value;
         }
       }
-      setAnswers(map);
     }
-  }, [existingResponse]);
+
+    if (Object.keys(draftMap).length > 0) {
+      setAnswers(draftMap);
+    }
+    hasLoadedInitialAnswers.current = true;
+  }, [survey.id, voterToken]);
 
   const questions = survey.questions || [];
   const currentQuestion: SurveyQuestion | undefined = questions[currentIndex];
   const progressPercent = questions.length > 0 ? Math.round(((currentIndex + 1) / questions.length) * 100) : 0;
 
   // Autosave progress to server
-  const saveProgress = async (status: "in_progress" | "completed") => {
+  const saveProgress = async (status: "in_progress" | "completed", answersToSave: Record<string, string> = answers) => {
     try {
-      const answersPayload = Object.entries(answers).map(([questionId, value]) => ({
+      const answersPayload = Object.entries(answersToSave).map(([questionId, value]) => ({
         questionId,
         value,
       }));
@@ -80,10 +98,16 @@ export default function ParticipantSurveyView({
 
   const handleAnswerChange = (questionId: string, val: string) => {
     if (isCompleted) return;
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: val,
-    }));
+    setAnswers((prev) => {
+      const updated = {
+        ...prev,
+        [questionId]: val,
+      };
+      try {
+        localStorage.setItem(`fjm_survey_draft_${survey.id}_${voterToken}`, JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
   };
 
   const handleNext = () => {
@@ -99,7 +123,7 @@ export default function ParticipantSurveyView({
     }
 
     setFeedback(null);
-    saveProgress("in_progress");
+    saveProgress("in_progress", answers);
 
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((prev) => prev + 1);
@@ -109,6 +133,7 @@ export default function ParticipantSurveyView({
   const handlePrev = () => {
     if (currentIndex > 0 && survey.allowBackNavigation) {
       setFeedback(null);
+      saveProgress("in_progress", answers);
       setCurrentIndex((prev) => prev - 1);
     }
   };
@@ -161,6 +186,9 @@ export default function ParticipantSurveyView({
         type: "success",
         text: "Terima kasih! Seluruh jawaban survei Anda berhasil dikirim dan tersimpan permanen.",
       });
+      try {
+        localStorage.removeItem(`fjm_survey_draft_${survey.id}_${voterToken}`);
+      } catch (e) {}
     } catch (e) {
       setFeedback({ type: "error", text: "Terjadi kesalahan koneksi." });
     } finally {
