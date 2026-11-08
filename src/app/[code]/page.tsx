@@ -470,6 +470,21 @@ export default function ParticipantPage() {
     }
   };
 
+  const activePoll = polls.find((p) => p.isActive);
+  const activeIdeasPoll = ideasPolls.find((p) => p.status === "active") || ideasPolls[0];
+  const activeRankingPoll = rankingPolls.find((p) => p.status === "active") || rankingPolls[0];
+  const activeSurvey = surveys.find((p) => p.status === "active") || surveys[0];
+
+  useEffect(() => {
+    if (activeIdeasPoll?.status === "active" && !activePoll) {
+      setInteractionSubTab("ideas");
+    } else if (activeRankingPoll?.status === "active" && !activePoll) {
+      setInteractionSubTab("ranking");
+    } else if (activeSurvey?.status === "active" && !activePoll) {
+      setInteractionSubTab("survey");
+    }
+  }, [activePoll, activeIdeasPoll?.status, activeRankingPoll?.status, activeSurvey?.status]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-6 text-center">
@@ -498,11 +513,6 @@ export default function ParticipantPage() {
     );
   }
 
-  const activePoll = polls.find((p) => p.isActive);
-  const activeIdeasPoll = ideasPolls.find((p) => p.status === "active") || ideasPolls[0];
-  const activeRankingPoll = rankingPolls.find((p) => p.status === "active") || rankingPolls[0];
-  const activeSurvey = surveys.find((p) => p.status === "active") || surveys[0];
-
   // Filter visible questions: approved or highlighted
   const visibleQuestions = questions.filter(
     (q) => q.status === "APPROVED" || q.status === "HIGHLIGHTED" || q.status === "ANSWERED"
@@ -519,16 +529,6 @@ export default function ParticipantPage() {
     }
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
-
-  useEffect(() => {
-    if (activeIdeasPoll?.status === "active" && !activePoll) {
-      setInteractionSubTab("ideas");
-    } else if (activeRankingPoll?.status === "active" && !activePoll) {
-      setInteractionSubTab("ranking");
-    } else if (activeSurvey?.status === "active" && !activePoll) {
-      setInteractionSubTab("survey");
-    }
-  }, [activePoll, activeIdeasPoll?.status, activeRankingPoll?.status, activeSurvey?.status]);
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col w-full max-w-lg mx-auto shadow-xl border-x border-slate-200 overflow-x-hidden">

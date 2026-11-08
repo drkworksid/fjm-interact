@@ -139,3 +139,4 @@ export interface Survey {
   questions: SurveyQuestion[];
   responses?: SurveyResponse[];
 }
+

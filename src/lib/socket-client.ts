@@ -8,6 +8,8 @@ export function getSocket(): Socket {
       path: "/socket.io",
       transports: ["websocket", "polling"],
       autoConnect: true,
+      reconnectionAttempts: 3,
+      timeout: 4000,
     });
   }
   return socket;
