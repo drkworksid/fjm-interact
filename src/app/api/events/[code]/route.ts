@@ -34,6 +34,43 @@ export async function GET(
             responses: true,
           },
         },
+        ideasPolls: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            ideas: {
+              orderBy: [{ isPinned: "desc" }, { reactionCount: "desc" }, { createdAt: "desc" }],
+              include: {
+                reactions: true,
+              },
+            },
+          },
+        },
+        rankingPolls: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            options: {
+              orderBy: { order: "asc" },
+            },
+            responses: {
+              include: {
+                answers: true,
+              },
+            },
+          },
+        },
+        surveys: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            questions: {
+              orderBy: { order: "asc" },
+            },
+            responses: {
+              include: {
+                answers: true,
+              },
+            },
+          },
+        },
       },
     });
 

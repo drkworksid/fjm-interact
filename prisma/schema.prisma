@@ -24,6 +24,9 @@ model Event {
 
   questions           Question[]
   polls               Poll[]
+  ideasPolls          IdeasPoll[]
+  rankingPolls        RankingPoll[]
+  surveys             Survey[]
 }
 
 model Question {
@@ -108,5 +111,208 @@ model SystemSetting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// FITUR 1: IDEAS (Gagasan Peserta)
+// ==========================================
+model IdeasPoll {
+  id                          String         @id @default(uuid())
+  eventId                     String
+  event                       Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  title                       String
+  question                    String
+  description                 String?
+  status                      String         @default("draft") // draft, active, paused, closed, archived
+  allowAnonymous              Boolean        @default(true)
+  allowReactions              Boolean        @default(true)
+  allowParticipantsToSeeIdeas Boolean        @default(true)
+  moderationEnabled           Boolean        @default(false)
+  maxIdeasPerParticipant      Int            @default(5)
+  createdBy                   String?
+  createdAt                   DateTime       @default(now())
+  updatedAt                   DateTime       @updatedAt
+
+  ideas                       Idea[]
+
+  @@index([eventId, status])
+}
+
+model Idea {
+  id            String         @id @default(uuid())
+  pollId        String
+  poll          IdeasPoll      @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  participantId String         // Token / fingerprint peserta
+  authorName    String?        @default("Peserta")
+  content       String
+  category      String?        // Kategori ide (opsional)
+  reactionCount Int            @default(0)
+  isPinned      Boolean        @default(false)
+  status        String         @default("published") // pending, published, rejected
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  reactions     IdeaReaction[]
+
+  @@index([pollId, status])
+  @@index([pollId, isPinned])
+}
+
+model IdeaReaction {
+  id            String   @id @default(uuid())
+  ideaId        String
+  idea          Idea     @relation(fields: [ideaId], references: [id], onDelete: Cascade)
+  participantId String
+  reactionType  String   @default("UPVOTE") // UPVOTE, LIKE, CLAP, etc.
+  createdAt     DateTime @default(now())
+
+  @@unique([ideaId, participantId])
+  @@index([ideaId])
+}
+
+// ==========================================
+// FITUR 2: RANKING POLL (Polling Peringkat)
+// ==========================================
+model RankingPoll {
+  id                         String            @id @default(uuid())
+  eventId                    String
+  event                      Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  title                      String
+  question                   String
+  description                String?
+  status                     String            @default("draft") // draft, active, paused, closed, archived
+  minRankItems               Int               @default(1)
+  maxRankItems               Int               @default(10)
+  restrictedRanking          Boolean           @default(false)
+  randomizeOptions           Boolean           @default(false)
+  showResultsToParticipants  Boolean           @default(true)
+  scoringMethod              String            @default("positional_average")
+  allowAnonymous             Boolean           @default(true)
+  createdBy                  String?
+  createdAt                  DateTime          @default(now())
+  updatedAt                  DateTime          @updatedAt
+
+  options                    RankingOption[]
+  responses                  RankingResponse[]
+
+  @@index([eventId, status])
+}
+
+model RankingOption {
+  id          String          @id @default(uuid())
+  pollId      String
+  poll        RankingPoll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  label       String
+  description String?
+  imageUrl    String?
+  order       Int             @default(0)
+
+  answers     RankingAnswer[]
+
+  @@index([pollId])
+}
+
+model RankingResponse {
+  id              String          @id @default(uuid())
+  pollId          String
+  poll            RankingPoll     @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  participantId   String
+  participantName String?
+  submittedAt     DateTime        @default(now())
+
+  answers         RankingAnswer[]
+
+  @@unique([pollId, participantId])
+  @@index([pollId])
+}
+
+model RankingAnswer {
+  id         String          @id @default(uuid())
+  responseId String
+  response   RankingResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  optionId   String
+  option     RankingOption   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  position   Int             // 1 = juara 1, 2 = peringkat 2, dst.
+  score      Float           // Positional score (e.g., 3, 2, 1)
+
+  @@index([responseId])
+  @@index([optionId])
+}
+
+// ==========================================
+// FITUR 3: SURVEY (Wadah Multi-Pertanyaan)
+// ==========================================
+model Survey {
+  id                     String           @id @default(uuid())
+  eventId                String
+  event                  Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  title                  String
+  description            String?
+  status                 String           @default("draft") // draft, active, paused, closed, archived
+  allowAnonymous         Boolean          @default(true)
+  showProgress           Boolean          @default(true)
+  allowBackNavigation    Boolean          @default(true)
+  startAt                DateTime?
+  endAt                  DateTime?
+  timeLimitSeconds       Int?
+  showResultsAfterSubmit Boolean          @default(false)
+  createdBy              String?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  questions              SurveyQuestion[]
+  responses              SurveyResponse[]
+
+  @@index([eventId, status])
+}
+
+model SurveyQuestion {
+  id          String         @id @default(uuid())
+  surveyId    String
+  survey      Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  type        String         // MULTIPLE_CHOICE, WORD_CLOUD, RATING, OPEN_TEXT, RANKING
+  question    String
+  description String?
+  order       Int            @default(0)
+  required    Boolean        @default(true)
+  options     String?        // JSON stringified array of options
+  settings    String?        // JSON stringified question settings
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  answers     SurveyAnswer[]
+
+  @@index([surveyId])
+}
+
+model SurveyResponse {
+  id               String         @id @default(uuid())
+  surveyId         String
+  survey           Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  participantId    String
+  participantName  String?
+  startedAt        DateTime       @default(now())
+  completedAt      DateTime?
+  completionStatus String         @default("in_progress") // in_progress, completed, abandoned
+
+  answers          SurveyAnswer[]
+
+  @@unique([surveyId, participantId])
+  @@index([surveyId])
+}
+
+model SurveyAnswer {
+  id         String         @id @default(uuid())
+  responseId String
+  response   SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  questionId String
+  question   SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  value      String?        // String jawaban atau stringified JSON
+  metadata   String?        // Metadata tambahan (ranking order, waktu, dll.)
+  createdAt  DateTime       @default(now())
+
+  @@unique([responseId, questionId])
+  @@index([responseId])
+  @@index([questionId])
 }
 

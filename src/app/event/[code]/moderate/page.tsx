@@ -38,10 +38,20 @@ import {
   X,
   ArrowLeft,
   Smartphone,
-  AlignLeft
+  AlignLeft,
+  Lightbulb,
+  Award,
+  ClipboardList
 } from "lucide-react";
 import Link from "next/link";
 import TrainerPinGate from "@/components/TrainerPinGate";
+import { IdeasPoll, RankingPoll, Survey } from "@/lib/types/interaction";
+import IdeasPollModal from "@/components/ideas/IdeasPollModal";
+import IdeasDashboard from "@/components/ideas/IdeasDashboard";
+import RankingPollModal from "@/components/ranking/RankingPollModal";
+import RankingDashboard from "@/components/ranking/RankingDashboard";
+import SurveyModal from "@/components/survey/SurveyModal";
+import SurveyDashboard from "@/components/survey/SurveyDashboard";
 
 interface Question {
   id: string;
@@ -105,6 +115,23 @@ export default function ModeratorPage() {
   const [event, setEvent] = useState<EventData | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [polls, setPolls] = useState<Poll[]>([]);
+  const [ideasPolls, setIdeasPolls] = useState<IdeasPoll[]>([]);
+  const [rankingPolls, setRankingPolls] = useState<RankingPoll[]>([]);
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+
+  // Sub-filter for Polls/Interactions tab
+  const [pollSubTab, setPollSubTab] = useState<"polls" | "ideas" | "ranking" | "surveys">("polls");
+
+  // Interaction Modals
+  const [isIdeasModalOpen, setIsIdeasModalOpen] = useState(false);
+  const [editingIdeasPoll, setEditingIdeasPoll] = useState<IdeasPoll | null>(null);
+
+  const [isRankingModalOpen, setIsRankingModalOpen] = useState(false);
+  const [editingRankingPoll, setEditingRankingPoll] = useState<RankingPoll | null>(null);
+
+  const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
+  const [editingSurvey, setEditingSurvey] = useState<Survey | null>(null);
+
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [joinUrl, setJoinUrl] = useState<string>("");
 
@@ -280,6 +307,9 @@ export default function ModeratorPage() {
         setEvent(dataEvent.event);
         setQuestions(dataEvent.event.questions || []);
         setPolls(dataEvent.event.polls || []);
+        setIdeasPolls(dataEvent.event.ideasPolls || []);
+        setRankingPolls(dataEvent.event.rankingPolls || []);
+        setSurveys(dataEvent.event.surveys || []);
       }
       if (dataQr.success) {
         setQrDataUrl(dataQr.qrDataUrl);
@@ -982,234 +1012,412 @@ export default function ModeratorPage() {
           </div>
         )}
 
-        {/* TAB 2: LIVE POLLS MANAGEMENT */}
+        {/* TAB 2: LIVE POLLS & INTERACTIONS MANAGEMENT */}
         {activeTab === "polls" && (
           <div>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-xl font-black text-slate-900">Daftar Polling & Kuis</h2>
+                <h2 className="text-xl font-black text-slate-900">Pusat Interaksi Peserta</h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Luncurkan satu polling dalam satu waktu untuk dijawab peserta langsung di ponsel mereka.
+                  Kelola sesi Polling, Curah Gagasan (Ideas), Polling Peringkat (Ranking), dan Survei secara real-time.
                 </p>
               </div>
 
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={() => setIsNewPollModalOpen(true)}
+                  className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-600/20 transition"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Buat Interaksi Baru</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Sub-navigation Tabs */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl w-fit mb-6 border border-slate-200 overflow-x-auto max-w-full">
               <button
-                onClick={() => setIsNewPollModalOpen(true)}
-                className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-600/20 transition"
+                type="button"
+                onClick={() => setPollSubTab("polls")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+                  pollSubTab === "polls"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
               >
-                <Plus className="w-4 h-4" />
-                <span>Buat Polling Baru</span>
+                <BarChart2 className="w-3.5 h-3.5 text-blue-600" />
+                <span>Polling Reguler ({polls.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPollSubTab("ideas")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+                  pollSubTab === "ideas"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+                <span>💡 Ide ({ideasPolls.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPollSubTab("ranking")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+                  pollSubTab === "ranking"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <Award className="w-3.5 h-3.5 text-blue-600" />
+                <span>🏆 Peringkat ({rankingPolls.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPollSubTab("surveys")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+                  pollSubTab === "surveys"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <ClipboardList className="w-3.5 h-3.5 text-indigo-600" />
+                <span>📋 Survei ({surveys.length})</span>
               </button>
             </div>
 
-            {/* Polls List */}
-            {polls.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-xs">
-                <BarChart2 className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                <p className="text-sm font-bold text-slate-700 mb-1">Belum Ada Polling</p>
-                <p className="text-xs text-slate-500 mb-4">Buat polling pilihan ganda, word cloud, atau skala rating.</p>
-                <button
-                  onClick={() => setIsNewPollModalOpen(true)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold"
-                >
-                  Buat Polling Pertama
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {polls.map((poll) => (
-                  <div
-                    key={poll.id}
-                    className={`p-5 rounded-2xl border transition shadow-xs ${
-                      poll.isActive
-                        ? "bg-white border-blue-600 ring-2 ring-blue-500/20 shadow-md"
-                        : "bg-white border-slate-200"
-                    }`}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
-                            {poll.type === "MULTIPLE_CHOICE" && "Pilihan Ganda"}
-                            {poll.type === "WORD_CLOUD" && "Word Cloud"}
-                            {poll.type === "RATING" && "Rating / Skala"}
-                            {poll.type === "QUIZ" && "🏆 Kuis Live"}
-                            {poll.type === "OPEN_TEXT" && "💬 Teks Terbuka"}
-                          </span>
-                          {poll.isActive ? (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-                              Sedang Aktif di Layar
-                            </span>
-                          ) : (
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">
-                              Non-aktif
-                            </span>
-                          )}
-                          <span className="text-xs text-slate-500 font-medium">
-                            • {poll.responses?.length || 0} suara masuk
-                          </span>
+            {/* SUB-TAB 1: POLLING REGULER */}
+            {pollSubTab === "polls" && (
+              <div>
+                {polls.length === 0 ? (
+                  <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-xs">
+                    <BarChart2 className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                    <p className="text-sm font-bold text-slate-700 mb-1">Belum Ada Polling Reguler</p>
+                    <p className="text-xs text-slate-500 mb-4">Buat polling pilihan ganda, kuis, word cloud, teks terbuka, atau rating.</p>
+                    <button
+                      onClick={() => setIsNewPollModalOpen(true)}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold"
+                    >
+                      Buat Polling Pertama
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {polls.map((poll) => (
+                      <div
+                        key={poll.id}
+                        className={`p-5 rounded-2xl border transition shadow-xs ${
+                          poll.isActive
+                            ? "bg-white border-blue-600 ring-2 ring-blue-500/20 shadow-md"
+                            : "bg-white border-slate-200"
+                        }`}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
+                                {poll.type === "MULTIPLE_CHOICE" && "Pilihan Ganda"}
+                                {poll.type === "WORD_CLOUD" && "Word Cloud"}
+                                {poll.type === "RATING" && "Rating / Skala"}
+                                {poll.type === "QUIZ" && "🏆 Kuis Live"}
+                                {poll.type === "OPEN_TEXT" && "💬 Teks Terbuka"}
+                              </span>
+                              {poll.isActive ? (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+                                  Sedang Aktif di Layar
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500">
+                                  Non-aktif
+                                </span>
+                              )}
+                              <span className="text-xs text-slate-500 font-medium">
+                                • {poll.responses?.length || 0} suara masuk
+                              </span>
+                            </div>
+
+                            <div className="flex items-start gap-3 mt-1.5 min-w-0">
+                              {poll.imageUrl && (
+                                <img
+                                  src={poll.imageUrl}
+                                  alt="Gambar Polling"
+                                  className="w-16 h-12 object-cover rounded-lg border border-slate-200 shrink-0 bg-slate-100 shadow-2xs"
+                                />
+                              )}
+                              <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug break-words flex-1">
+                                {poll.title}
+                              </h3>
+                            </div>
+                          </div>
+
+                          {/* Control buttons */}
+                          <div className="flex items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 w-full sm:w-auto">
+                            {poll.isActive ? (
+                              <button
+                                onClick={() => handleTogglePollActive(poll.id, true)}
+                                className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition"
+                              >
+                                <Square className="w-3.5 h-3.5" />
+                                <span>Hentikan Polling</span>
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleTogglePollActive(poll.id, false)}
+                                className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition"
+                              >
+                                <Play className="w-3.5 h-3.5 fill-current" />
+                                <span>Luncurkan</span>
+                              </button>
+                            )}
+
+                            <button
+                              onClick={() => handleTogglePollResults(poll.id, poll.showResults)}
+                              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition shrink-0"
+                              title={poll.showResults ? "Sembunyikan Hasil dari Peserta" : "Tampilkan Hasil ke Peserta"}
+                            >
+                              {poll.showResults ? <Eye className="w-4 h-4 text-blue-600" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
+                            </button>
+
+                            <button
+                              onClick={() => handleDeletePoll(poll.id)}
+                              className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 transition shrink-0"
+                              title="Hapus Polling"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
 
-                        <div className="flex items-start gap-3 mt-1.5 min-w-0">
-                          {poll.imageUrl && (
-                            <img
-                              src={poll.imageUrl}
-                              alt="Gambar Polling"
-                              className="w-16 h-12 object-cover rounded-lg border border-slate-200 shrink-0 bg-slate-100 shadow-2xs"
-                            />
-                          )}
-                          <h3 className="text-sm sm:text-base font-black text-slate-900 leading-snug break-words flex-1">
-                            {poll.title}
-                          </h3>
-                        </div>
-                      </div>
-
-                      {/* Control buttons */}
-                      <div className="flex items-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 w-full sm:w-auto">
-                        {poll.isActive ? (
-                          <button
-                            onClick={() => handleTogglePollActive(poll.id, true)}
-                            className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition"
-                          >
-                            <Square className="w-3.5 h-3.5" />
-                            <span>Hentikan Polling</span>
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleTogglePollActive(poll.id, false)}
-                            className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition"
-                          >
-                            <Play className="w-3.5 h-3.5 fill-current" />
-                            <span>Luncurkan</span>
-                          </button>
+                        {/* Quiz Stage Flow Controls */}
+                        {poll.type === "QUIZ" && poll.isActive && (
+                          <div className="mt-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-xs text-slate-800 font-bold flex items-center gap-1.5">
+                              <Trophy className="w-4 h-4 text-amber-500" />
+                              <span>Alur Panggung Kuis:</span>
+                            </span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <button
+                                onClick={() => handleUpdateQuizState(poll.id, "QUESTION")}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                                  (poll.quizState || "QUESTION") === "QUESTION"
+                                    ? "bg-blue-600 text-white shadow-xs"
+                                    : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+                                }`}
+                              >
+                                1. Tampil Soal & Hitung Mundur
+                              </button>
+                              <button
+                                onClick={() => handleUpdateQuizState(poll.id, "REVEALED")}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                                  poll.quizState === "REVEALED"
+                                    ? "bg-emerald-600 text-white shadow-xs"
+                                    : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+                                }`}
+                              >
+                                2. Buka Kunci Jawaban
+                              </button>
+                              <button
+                                onClick={() => handleUpdateQuizState(poll.id, "LEADERBOARD")}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-black transition ${
+                                  poll.quizState === "LEADERBOARD"
+                                    ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25"
+                                    : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
+                                }`}
+                              >
+                                3. Tampilkan Leaderboard 🏆
+                              </button>
+                            </div>
+                          </div>
                         )}
 
-                        <button
-                          onClick={() => handleTogglePollResults(poll.id, poll.showResults)}
-                          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition shrink-0"
-                          title={poll.showResults ? "Sembunyikan Hasil dari Peserta" : "Tampilkan Hasil ke Peserta"}
-                        >
-                          {poll.showResults ? <Eye className="w-4 h-4 text-blue-600" /> : <EyeOff className="w-4 h-4 text-slate-400" />}
-                        </button>
-
-                        <button
-                          onClick={() => handleDeletePoll(poll.id)}
-                          className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 transition shrink-0"
-                          title="Hapus Polling"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Quiz Stage Flow Controls */}
-                    {poll.type === "QUIZ" && poll.isActive && (
-                      <div className="mt-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-xs text-slate-800 font-bold flex items-center gap-1.5">
-                          <Trophy className="w-4 h-4 text-amber-500" />
-                          <span>Alur Panggung Kuis:</span>
-                        </span>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <button
-                            onClick={() => handleUpdateQuizState(poll.id, "QUESTION")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                              (poll.quizState || "QUESTION") === "QUESTION"
-                                ? "bg-blue-600 text-white shadow-xs"
-                                : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
-                            }`}
-                          >
-                            1. Tampil Soal & Hitung Mundur
-                          </button>
-                          <button
-                            onClick={() => handleUpdateQuizState(poll.id, "REVEALED")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-                              poll.quizState === "REVEALED"
-                                ? "bg-emerald-600 text-white shadow-xs"
-                                : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
-                            }`}
-                          >
-                            2. Buka Kunci Jawaban
-                          </button>
-                          <button
-                            onClick={() => handleUpdateQuizState(poll.id, "LEADERBOARD")}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-black transition ${
-                              poll.quizState === "LEADERBOARD"
-                                ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/25"
-                                : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
-                            }`}
-                          >
-                            3. Tampilkan Leaderboard 🏆
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Poll & Quiz Summary Preview */}
-                    {(poll.type === "MULTIPLE_CHOICE" || poll.type === "QUIZ") && (
-                      <div className="space-y-1.5 pt-3 border-t border-slate-100">
-                        {poll.options.map((opt) => {
-                          const votes = poll.responses?.filter((r) => r.optionId === opt.id).length || 0;
-                          const total = poll.responses?.length || 0;
-                          const pct = total > 0 ? Math.round((votes / total) * 100) : 0;
-                          return (
-                            <div
-                              key={opt.id}
-                              className={`flex items-center justify-between text-xs px-3 py-2 rounded-lg ${
-                                opt.isCorrect
-                                  ? "bg-emerald-50 text-emerald-900 border border-emerald-300 font-bold"
-                                  : "text-slate-700 bg-slate-50 border border-slate-100"
-                              }`}
-                            >
-                              <div className="flex items-center gap-2">
-                                <span>{opt.optionText}</span>
-                                {opt.isCorrect && (
-                                  <span className="text-[10px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded">
-                                    ✓ KUNCI BENAR
-                                  </span>
-                                )}
-                              </div>
-                              <span className="font-mono font-bold text-slate-900">{votes} suara ({pct}%)</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* Open Text Responses Preview */}
-                    {poll.type === "OPEN_TEXT" && (
-                      <div className="pt-3 border-t border-slate-100 space-y-2">
-                        <div className="flex items-center justify-between text-xs font-bold text-slate-600">
-                          <span className="flex items-center gap-1.5">
-                            <AlignLeft className="w-3.5 h-3.5 text-blue-600" />
-                            <span>Tanggapan Masuk ({poll.responses?.length || 0})</span>
-                          </span>
-                        </div>
-                        {(!poll.responses || poll.responses.length === 0) ? (
-                          <p className="text-xs text-slate-400 italic">Belum ada tanggapan teks yang masuk.</p>
-                        ) : (
-                          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                            {poll.responses.map((r, idx) => (
-                              <div key={r.id || idx} className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 mb-1">
-                                  <span className="font-bold text-slate-800">{r.participantName || "Anonim"}</span>
-                                  {r.createdAt && (
-                                    <span className="text-[10px] text-slate-400">
-                                      {new Date(r.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                    </span>
-                                  )}
+                        {/* Poll & Quiz Summary Preview */}
+                        {(poll.type === "MULTIPLE_CHOICE" || poll.type === "QUIZ") && (
+                          <div className="space-y-1.5 pt-3 border-t border-slate-100">
+                            {poll.options.map((opt) => {
+                              const votes = poll.responses?.filter((r) => r.optionId === opt.id).length || 0;
+                              const total = poll.responses?.length || 0;
+                              const pct = total > 0 ? Math.round((votes / total) * 100) : 0;
+                              return (
+                                <div
+                                  key={opt.id}
+                                  className={`flex items-center justify-between text-xs px-3 py-2 rounded-lg ${
+                                    opt.isCorrect
+                                      ? "bg-emerald-50 text-emerald-900 border border-emerald-300 font-bold"
+                                      : "text-slate-700 bg-slate-50 border border-slate-100"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span>{opt.optionText}</span>
+                                    {opt.isCorrect && (
+                                      <span className="text-[10px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded">
+                                        ✓ KUNCI BENAR
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="font-mono font-bold text-slate-900">{votes} suara ({pct}%)</span>
                                 </div>
-                                <p className="text-slate-800 whitespace-pre-wrap break-words leading-relaxed font-normal">
-                                  {r.textResponse}
-                                </p>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Open Text Responses Preview */}
+                        {poll.type === "OPEN_TEXT" && (
+                          <div className="pt-3 border-t border-slate-100 space-y-2">
+                            <div className="flex items-center justify-between text-xs font-bold text-slate-600">
+                              <span className="flex items-center gap-1.5">
+                                <AlignLeft className="w-3.5 h-3.5 text-blue-600" />
+                                <span>Tanggapan Masuk ({poll.responses?.length || 0})</span>
+                              </span>
+                            </div>
+                            {(!poll.responses || poll.responses.length === 0) ? (
+                              <p className="text-xs text-slate-400 italic">Belum ada tanggapan teks yang masuk.</p>
+                            ) : (
+                              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                                {poll.responses.map((r, idx) => (
+                                  <div key={r.id || idx} className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                                    <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 mb-1">
+                                      <span className="font-bold text-slate-800">{r.participantName || "Anonim"}</span>
+                                      {r.createdAt && (
+                                        <span className="text-[10px] text-slate-400">
+                                          {new Date(r.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-slate-800 whitespace-pre-wrap break-words leading-relaxed font-normal">
+                                      {r.textResponse}
+                                    </p>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
+                            )}
                           </div>
                         )}
                       </div>
-                    )}
+                    ))}
                   </div>
-                ))}
+                )}
+              </div>
+            )}
+
+            {/* SUB-TAB 2: IDEAS (CURAH GAGASAN) */}
+            {pollSubTab === "ideas" && (
+              <div>
+                {ideasPolls.length === 0 ? (
+                  <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-xs">
+                    <Lightbulb className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+                    <p className="text-sm font-bold text-slate-700 mb-1">Belum Ada Sesi Ide (Ideas)</p>
+                    <p className="text-xs text-slate-500 mb-4">
+                      Kumpulkan gagasan, saran inovasi, dan aspirasi dari peserta training.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setEditingIdeasPoll(null);
+                        setIsIdeasModalOpen(true);
+                      }}
+                      className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold"
+                    >
+                      Buat Sesi Ide Pertama
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {ideasPolls.map((iPoll) => (
+                      <IdeasDashboard
+                        key={iPoll.id}
+                        pollId={iPoll.id}
+                        eventCode={eventCode}
+                        onRefresh={fetchEventData}
+                        onEdit={(p) => {
+                          setEditingIdeasPoll(p);
+                          setIsIdeasModalOpen(true);
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SUB-TAB 3: RANKING POLL (PERINGKAT) */}
+            {pollSubTab === "ranking" && (
+              <div>
+                {rankingPolls.length === 0 ? (
+                  <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-xs">
+                    <Award className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                    <p className="text-sm font-bold text-slate-700 mb-1">Belum Ada Polling Peringkat</p>
+                    <p className="text-xs text-slate-500 mb-4">
+                      Minta peserta mengurutkan opsi berdasarkan skala prioritas atau preferensi.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setEditingRankingPoll(null);
+                        setIsRankingModalOpen(true);
+                      }}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold"
+                    >
+                      Buat Polling Peringkat Pertama
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {rankingPolls.map((rPoll) => (
+                      <RankingDashboard
+                        key={rPoll.id}
+                        pollId={rPoll.id}
+                        eventCode={eventCode}
+                        onRefresh={fetchEventData}
+                        onEdit={(p) => {
+                          setEditingRankingPoll(p);
+                          setIsRankingModalOpen(true);
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SUB-TAB 4: SURVEY (SURVEI MULTI-PERTANYAAN) */}
+            {pollSubTab === "surveys" && (
+              <div>
+                {surveys.length === 0 ? (
+                  <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-xs">
+                    <ClipboardList className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
+                    <p className="text-sm font-bold text-slate-700 mb-1">Belum Ada Survei</p>
+                    <p className="text-xs text-slate-500 mb-4">
+                      Buat survei evaluasi berisi rangkaian pertanyaan pilihan ganda, rating, teks, dan lainnya.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setEditingSurvey(null);
+                        setIsSurveyModalOpen(true);
+                      }}
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold"
+                    >
+                      Buat Survei Pertama
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {surveys.map((srv) => (
+                      <SurveyDashboard
+                        key={srv.id}
+                        surveyId={srv.id}
+                        eventCode={eventCode}
+                        onRefresh={fetchEventData}
+                        onEdit={(s) => {
+                          setEditingSurvey(s);
+                          setIsSurveyModalOpen(true);
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1318,7 +1526,7 @@ export default function ModeratorPage() {
             <form onSubmit={handleCreatePoll} className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1.5">Tipe Interaksi</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <button
                     type="button"
                     onClick={() => setNewPollType("MULTIPLE_CHOICE")}
@@ -1374,6 +1582,46 @@ export default function ModeratorPage() {
                     }`}
                   >
                     Rating (1-5)
+                  </button>
+
+                  {/* 3 FITUR BARU */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsNewPollModalOpen(false);
+                      setEditingIdeasPoll(null);
+                      setIsIdeasModalOpen(true);
+                    }}
+                    className="py-2 px-3 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black transition flex items-center justify-center gap-1.5 shadow-2xs"
+                  >
+                    <Lightbulb className="w-3.5 h-3.5 text-amber-600" />
+                    <span>💡 Ide</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsNewPollModalOpen(false);
+                      setEditingRankingPoll(null);
+                      setIsRankingModalOpen(true);
+                    }}
+                    className="py-2 px-3 rounded-xl border border-blue-300 bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-black transition flex items-center justify-center gap-1.5 shadow-2xs"
+                  >
+                    <Award className="w-3.5 h-3.5 text-blue-600" />
+                    <span>🏆 Polling Peringkat</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsNewPollModalOpen(false);
+                      setEditingSurvey(null);
+                      setIsSurveyModalOpen(true);
+                    }}
+                    className="py-2 px-3 rounded-xl border border-indigo-300 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-black transition flex items-center justify-center gap-1.5 shadow-2xs"
+                  >
+                    <ClipboardList className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>📋 Survei</span>
                   </button>
                 </div>
               </div>
@@ -1738,6 +1986,50 @@ export default function ModeratorPage() {
           </div>
         </div>
       )}
+      {/* MODAL 1: IDEAS POLL MODAL */}
+      <IdeasPollModal
+        isOpen={isIdeasModalOpen}
+        onClose={() => {
+          setIsIdeasModalOpen(false);
+          setEditingIdeasPoll(null);
+        }}
+        onSuccess={() => {
+          fetchEventData();
+          setPollSubTab("ideas");
+        }}
+        eventCode={eventCode}
+        initialData={editingIdeasPoll}
+      />
+
+      {/* MODAL 2: RANKING POLL MODAL */}
+      <RankingPollModal
+        isOpen={isRankingModalOpen}
+        onClose={() => {
+          setIsRankingModalOpen(false);
+          setEditingRankingPoll(null);
+        }}
+        onSuccess={() => {
+          fetchEventData();
+          setPollSubTab("ranking");
+        }}
+        eventCode={eventCode}
+        initialData={editingRankingPoll}
+      />
+
+      {/* MODAL 3: SURVEY MODAL */}
+      <SurveyModal
+        isOpen={isSurveyModalOpen}
+        onClose={() => {
+          setIsSurveyModalOpen(false);
+          setEditingSurvey(null);
+        }}
+        onSuccess={() => {
+          fetchEventData();
+          setPollSubTab("surveys");
+        }}
+        eventCode={eventCode}
+        initialData={editingSurvey}
+      />
       </div>
     </TrainerPinGate>
   );

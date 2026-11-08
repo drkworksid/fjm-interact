@@ -24,8 +24,15 @@ import {
   X,
   Lock,
   Tag,
-  AlignLeft
+  AlignLeft,
+  Lightbulb,
+  Award,
+  ClipboardList
 } from "lucide-react";
+import { IdeasPoll, RankingPoll, Survey } from "@/lib/types/interaction";
+import ParticipantIdeasView from "@/components/ideas/ParticipantIdeasView";
+import ParticipantRankingView from "@/components/ranking/ParticipantRankingView";
+import ParticipantSurveyView from "@/components/survey/ParticipantSurveyView";
 
 interface Question {
   id: string;
@@ -91,6 +98,10 @@ export default function ParticipantPage() {
   const [event, setEvent] = useState<EventData | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [polls, setPolls] = useState<Poll[]>([]);
+  const [ideasPolls, setIdeasPolls] = useState<IdeasPoll[]>([]);
+  const [rankingPolls, setRankingPolls] = useState<RankingPoll[]>([]);
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [interactionSubTab, setInteractionSubTab] = useState<"poll" | "ideas" | "ranking" | "survey">("poll");
   const [activeTab, setActiveTab] = useState<"qa" | "polls">("qa");
   const [sortBy, setSortBy] = useState<"top" | "recent">("top");
   const [isConnected, setIsConnected] = useState(false);
@@ -151,6 +162,9 @@ export default function ParticipantPage() {
       setEvent(data.event);
       setQuestions(data.event.questions || []);
       setPolls(data.event.polls || []);
+      setIdeasPolls(data.event.ideasPolls || []);
+      setRankingPolls(data.event.rankingPolls || []);
+      setSurveys(data.event.surveys || []);
       if (data.event.announcement !== announcement) {
         setAnnouncement(data.event.announcement || null);
         if (data.event.announcement) {
@@ -485,6 +499,9 @@ export default function ParticipantPage() {
   }
 
   const activePoll = polls.find((p) => p.isActive);
+  const activeIdeasPoll = ideasPolls.find((p) => p.status === "active") || ideasPolls[0];
+  const activeRankingPoll = rankingPolls.find((p) => p.status === "active") || rankingPolls[0];
+  const activeSurvey = surveys.find((p) => p.status === "active") || surveys[0];
 
   // Filter visible questions: approved or highlighted
   const visibleQuestions = questions.filter(
@@ -502,6 +519,16 @@ export default function ParticipantPage() {
     }
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
+
+  useEffect(() => {
+    if (activeIdeasPoll?.status === "active" && !activePoll) {
+      setInteractionSubTab("ideas");
+    } else if (activeRankingPoll?.status === "active" && !activePoll) {
+      setInteractionSubTab("ranking");
+    } else if (activeSurvey?.status === "active" && !activePoll) {
+      setInteractionSubTab("survey");
+    }
+  }, [activePoll, activeIdeasPoll?.status, activeRankingPoll?.status, activeSurvey?.status]);
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col w-full max-w-lg mx-auto shadow-xl border-x border-slate-200 overflow-x-hidden">
@@ -859,9 +886,133 @@ export default function ParticipantPage() {
             )}
           </div>
         ) : (
-          /* Live Polls Tab */
-          <div>
-            {!activePoll ? (
+          /* Live Polls & Interactions Container */
+          <div className="space-y-4">
+            {/* Interaction Sub-tabs switcher */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-200/80 rounded-xl overflow-x-auto text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setInteractionSubTab("poll")}
+                className={`flex-1 min-w-[70px] py-1.5 px-2.5 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  interactionSubTab === "poll"
+                    ? "bg-white text-blue-700 shadow-xs font-bold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <span>Polling</span>
+                {activePoll && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setInteractionSubTab("ideas")}
+                className={`flex-1 min-w-[70px] py-1.5 px-2.5 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  interactionSubTab === "ideas"
+                    ? "bg-white text-amber-700 shadow-xs font-bold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <span>💡 Ide</span>
+                {activeIdeasPoll?.status === "active" && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setInteractionSubTab("ranking")}
+                className={`flex-1 min-w-[70px] py-1.5 px-2.5 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  interactionSubTab === "ranking"
+                    ? "bg-white text-purple-700 shadow-xs font-bold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <span>🏆 Peringkat</span>
+                {activeRankingPoll?.status === "active" && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setInteractionSubTab("survey")}
+                className={`flex-1 min-w-[70px] py-1.5 px-2.5 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  interactionSubTab === "survey"
+                    ? "bg-white text-teal-700 shadow-xs font-bold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <span>📋 Survei</span>
+                {activeSurvey?.status === "active" && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                )}
+              </button>
+            </div>
+
+            {/* Sub-tab content */}
+            {interactionSubTab === "ideas" ? (
+              activeIdeasPoll ? (
+                <ParticipantIdeasView
+                  poll={activeIdeasPoll}
+                  voterToken={voterToken}
+                  participantName={authorName}
+                  isAnonymousDefault={isAnonymous}
+                />
+              ) : (
+                <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
+                  <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4 text-2xl">
+                    💡
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base mb-1">Belum Ada Sesi Ide Aktif</h3>
+                  <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+                    Trainer belum meluncurkan sesi pengumpulan ide. Halaman ini akan diperbarui ketika sesi dimulai.
+                  </p>
+                </div>
+              )
+            ) : interactionSubTab === "ranking" ? (
+              activeRankingPoll ? (
+                <ParticipantRankingView
+                  poll={activeRankingPoll}
+                  voterToken={voterToken}
+                  participantName={authorName}
+                  isAnonymousDefault={isAnonymous}
+                />
+              ) : (
+                <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
+                  <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4 text-2xl">
+                    🏆
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base mb-1">Belum Ada Polling Peringkat</h3>
+                  <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+                    Trainer belum membuka polling urutan/peringkat pilihan. Layar akan otomatis menyesuaikan saat dibuka.
+                  </p>
+                </div>
+              )
+            ) : interactionSubTab === "survey" ? (
+              activeSurvey ? (
+                <ParticipantSurveyView
+                  survey={activeSurvey}
+                  voterToken={voterToken}
+                  participantName={authorName}
+                  isAnonymousDefault={isAnonymous}
+                />
+              ) : (
+                <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
+                  <div className="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center mx-auto mb-4 text-2xl">
+                    📋
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base mb-1">Belum Ada Survei Aktif</h3>
+                  <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+                    Trainer belum meluncurkan kuesioner survei. Silakan tunggu aba-aba dari trainer.
+                  </p>
+                </div>
+              )
+            ) : (
+              /* Regular Poll Tab */
+              <div>
+                {!activePoll ? (
               <div className="text-center py-16 px-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
                 <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-4">
                   <BarChart2 className="w-7 h-7" />
@@ -1416,6 +1567,8 @@ export default function ParticipantPage() {
                   </div>
                 )}
               </div>
+            )}
+          </div>
             )}
           </div>
         )}
