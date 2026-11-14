@@ -102,7 +102,7 @@ export default function ParticipantPage() {
   const [rankingPolls, setRankingPolls] = useState<RankingPoll[]>([]);
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [interactionSubTab, setInteractionSubTab] = useState<"poll" | "ideas" | "ranking" | "survey">("poll");
-  const [activeTab, setActiveTab] = useState<"qa" | "polls">("qa");
+  const [activeTab, setActiveTab] = useState<"qa" | "polls">("polls");
   const [sortBy, setSortBy] = useState<"top" | "recent">("top");
   const [isConnected, setIsConnected] = useState(false);
   const [isServerReachable, setIsServerReachable] = useState(true);
