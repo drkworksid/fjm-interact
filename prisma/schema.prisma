@@ -70,6 +70,7 @@ model Poll {
   quizState            String         @default("QUESTION") // QUESTION, REVEALED, LEADERBOARD
   timerSeconds         Int            @default(0)
   orderIndex           Int            @default(0)
+  hasCorrectAnswer     Boolean        @default(false)
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
 
@@ -84,7 +85,8 @@ model PollOption {
   pollId      String
   poll        Poll           @relation(fields: [pollId], references: [id], onDelete: Cascade)
   optionText  String
-  isCorrect   Boolean        @default(false) // For quiz
+  isCorrect   Boolean        @default(false) // For quiz and quantitative multiple choice
+  pointValue  Int            @default(0)     // Custom quantitative score/points per option
   orderIndex  Int            @default(0)
 
   responses   PollResponse[]

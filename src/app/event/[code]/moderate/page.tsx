@@ -41,7 +41,8 @@ import {
   AlignLeft,
   Lightbulb,
   Award,
-  ClipboardList
+  ClipboardList,
+  Pencil
 } from "lucide-react";
 import Link from "next/link";
 import TrainerPinGate from "@/components/TrainerPinGate";
@@ -67,6 +68,7 @@ interface PollOption {
   id: string;
   optionText: string;
   isCorrect?: boolean;
+  pointValue?: number;
   orderIndex: number;
   _count?: { responses: number };
 }
@@ -88,6 +90,7 @@ interface Poll {
   type: string;
   isActive: boolean;
   showResults: boolean;
+  hasCorrectAnswer?: boolean;
   quizState?: string; // QUESTION, REVEALED, LEADERBOARD
   timerSeconds?: number;
   options: PollOption[];
@@ -139,13 +142,18 @@ export default function ModeratorPage() {
   const [qaFilter, setQaFilter] = useState<"all" | "pending" | "approved" | "answered">("all");
   const [isLoading, setIsLoading] = useState(true);
 
-  // New Poll Modal Form
+  // New / Edit Poll Modal Form
   const [isNewPollModalOpen, setIsNewPollModalOpen] = useState(false);
+  const [editingPoll, setEditingPoll] = useState<Poll | null>(null);
   const [newPollTitle, setNewPollTitle] = useState("");
   const [newPollImageUrl, setNewPollImageUrl] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [newPollType, setNewPollType] = useState<"MULTIPLE_CHOICE" | "WORD_CLOUD" | "RATING" | "QUIZ" | "OPEN_TEXT">("MULTIPLE_CHOICE");
-  const [newPollOptions, setNewPollOptions] = useState<string[]>(["Opsi 1", "Opsi 2"]);
+  const [newPollHasCorrectAnswer, setNewPollHasCorrectAnswer] = useState(false);
+  const [newPollOptions, setNewPollOptions] = useState<{ id?: string; text: string; isCorrect: boolean; pointValue: number }[]>([
+    { text: "Opsi 1", isCorrect: false, pointValue: 10 },
+    { text: "Opsi 2", isCorrect: false, pointValue: 0 },
+  ]);
   const [newQuizCorrectIndex, setNewQuizCorrectIndex] = useState<number>(0);
   const [newQuizTimer, setNewQuizTimer] = useState<number>(20);
 
@@ -496,43 +504,126 @@ export default function ModeratorPage() {
     }
   };
 
-  const handleCreatePoll = async (e: React.FormEvent) => {
+  const handleOpenCreatePoll = () => {
+    setEditingPoll(null);
+    setNewPollTitle("");
+    setNewPollImageUrl("");
+    setNewPollType("MULTIPLE_CHOICE");
+    setNewPollHasCorrectAnswer(false);
+    setNewQuizTimer(20);
+    setNewPollOptions([
+      { text: "Opsi 1", isCorrect: false, pointValue: 10 },
+      { text: "Opsi 2", isCorrect: false, pointValue: 0 },
+    ]);
+    setNewQuizCorrectIndex(0);
+    setIsNewPollModalOpen(true);
+  };
+
+  const handleOpenEditPoll = (poll: Poll) => {
+    setEditingPoll(poll);
+    setNewPollTitle(poll.title);
+    setNewPollImageUrl(poll.imageUrl || "");
+    setNewPollType(poll.type as any);
+    const hasAnyCorrect = Boolean(
+      poll.hasCorrectAnswer ||
+      (poll.options && poll.options.some((o) => o.isCorrect))
+    );
+    setNewPollHasCorrectAnswer(hasAnyCorrect);
+    setNewQuizTimer(poll.timerSeconds || 20);
+
+    if (poll.options && poll.options.length > 0) {
+      setNewPollOptions(
+        poll.options.map((o) => ({
+          id: o.id,
+          text: o.optionText,
+          isCorrect: Boolean(o.isCorrect),
+          pointValue: o.pointValue ?? (o.isCorrect ? 10 : 0),
+        }))
+      );
+      const correctIdx = poll.options.findIndex((o) => o.isCorrect);
+      setNewQuizCorrectIndex(correctIdx >= 0 ? correctIdx : 0);
+    } else {
+      setNewPollOptions([
+        { text: "Opsi 1", isCorrect: false, pointValue: 10 },
+        { text: "Opsi 2", isCorrect: false, pointValue: 0 },
+      ]);
+      setNewQuizCorrectIndex(0);
+    }
+
+    setIsNewPollModalOpen(true);
+  };
+
+  const handleSavePoll = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPollTitle.trim()) return;
 
     try {
+      const isQuant =
+        newPollType === "QUIZ" ||
+        (newPollType === "MULTIPLE_CHOICE" && newPollHasCorrectAnswer);
+
       let preparedOptions: any[] = [];
-      if (newPollType === "MULTIPLE_CHOICE") {
-        preparedOptions = newPollOptions.filter((o) => o.trim());
-      } else if (newPollType === "QUIZ") {
+      if (newPollType === "MULTIPLE_CHOICE" || newPollType === "QUIZ") {
         preparedOptions = newPollOptions
-          .filter((o) => o.trim())
-          .map((text, idx) => ({
-            text,
-            isCorrect: idx === newQuizCorrectIndex,
-          }));
+          .filter((o) => o.text.trim())
+          .map((o, idx) => {
+            const isCorrect =
+              newPollType === "QUIZ"
+                ? idx === newQuizCorrectIndex
+                : isQuant
+                ? Boolean(o.isCorrect)
+                : false;
+            const pointValue = isQuant
+              ? newPollType === "QUIZ"
+                ? idx === newQuizCorrectIndex
+                  ? 100
+                  : 0
+                : isCorrect
+                ? Number(o.pointValue) || 10
+                : 0
+              : 0;
+
+            return {
+              id: o.id,
+              text: o.text.trim(),
+              isCorrect,
+              pointValue,
+            };
+          });
       }
 
-      const res = await fetch(`/api/events/${eventCode}/polls`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newPollTitle.trim(),
-          imageUrl: newPollImageUrl.trim() || undefined,
-          type: newPollType,
-          options: preparedOptions,
-          timerSeconds: newPollType === "QUIZ" ? newQuizTimer : 0,
-          isActive: false,
-        }),
-      });
+      const payload = {
+        title: newPollTitle.trim(),
+        imageUrl: newPollImageUrl.trim() || undefined,
+        type: newPollType,
+        hasCorrectAnswer: isQuant,
+        options: preparedOptions,
+        timerSeconds: newPollType === "QUIZ" ? newQuizTimer : 0,
+      };
 
-      const data = await res.json();
-      if (data.success) {
-        setIsNewPollModalOpen(false);
-        setNewPollTitle("");
-        setNewPollImageUrl("");
-        setNewPollOptions(["Opsi 1", "Opsi 2"]);
-        setNewQuizCorrectIndex(0);
+      if (editingPoll) {
+        const res = await fetch(`/api/events/${eventCode}/polls/${editingPoll.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setIsNewPollModalOpen(false);
+          setEditingPoll(null);
+          fetchEventData();
+        }
+      } else {
+        const res = await fetch(`/api/events/${eventCode}/polls`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...payload, isActive: false }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setIsNewPollModalOpen(false);
+          fetchEventData();
+        }
       }
     } catch (e) {
       console.error(e);
@@ -1025,7 +1116,7 @@ export default function ModeratorPage() {
 
               <div className="flex items-center gap-2 flex-wrap">
                 <button
-                  onClick={() => setIsNewPollModalOpen(true)}
+                  onClick={handleOpenCreatePoll}
                   className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-600/20 transition"
                 >
                   <Plus className="w-4 h-4" />
@@ -1098,7 +1189,7 @@ export default function ModeratorPage() {
                     <p className="text-sm font-bold text-slate-700 mb-1">Belum Ada Polling Reguler</p>
                     <p className="text-xs text-slate-500 mb-4">Buat polling pilihan ganda, kuis, word cloud, teks terbuka, atau rating.</p>
                     <button
-                      onClick={() => setIsNewPollModalOpen(true)}
+                      onClick={handleOpenCreatePoll}
                       className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold"
                     >
                       Buat Polling Pertama
@@ -1183,6 +1274,14 @@ export default function ModeratorPage() {
                             </button>
 
                             <button
+                              onClick={() => handleOpenEditPoll(poll)}
+                              className="p-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-500 hover:text-blue-600 border border-slate-200 transition shrink-0"
+                              title="Edit Polling"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+
+                            <button
                               onClick={() => handleDeletePoll(poll.id)}
                               className="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 transition shrink-0"
                               title="Hapus Polling"
@@ -1254,7 +1353,7 @@ export default function ModeratorPage() {
                                     <span>{opt.optionText}</span>
                                     {opt.isCorrect && (
                                       <span className="text-[10px] font-black bg-emerald-600 text-white px-1.5 py-0.5 rounded">
-                                        ✓ KUNCI BENAR
+                                        ✓ KUNCI BENAR {opt.pointValue ? `(+${opt.pointValue} Poin)` : ""}
                                       </span>
                                     )}
                                   </div>
@@ -1514,16 +1613,32 @@ export default function ModeratorPage() {
         )}
       </main>
 
-      {/* CREATE NEW POLL MODAL */}
+      {/* CREATE / EDIT POLL MODAL */}
       {isNewPollModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-slate-200 rounded-3xl p-6 w-full max-w-lg shadow-2xl text-slate-900 max-h-[92vh] overflow-y-auto">
-            <h3 className="text-lg font-black text-slate-900 mb-1">Buat Polling Baru</h3>
-            <p className="text-xs text-slate-500 mb-5">
-              Pilih tipe interaksi yang diinginkan untuk peserta training.
+            <div className="flex items-center justify-between mb-1 pb-2 border-b border-slate-100">
+              <h3 className="text-lg font-black text-slate-900">
+                {editingPoll ? "Edit Polling" : "Buat Polling Baru"}
+              </h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsNewPollModalOpen(false);
+                  setEditingPoll(null);
+                }}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-xs text-slate-500 mb-4">
+              {editingPoll
+                ? "Sesuaikan pertanyaan, opsi, kunci jawaban, dan bobot nilai polling ini."
+                : "Pilih tipe interaksi yang diinginkan untuk peserta training."}
             </p>
 
-            <form onSubmit={handleCreatePoll} className="space-y-4">
+            <form onSubmit={handleSavePoll} className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1.5">Tipe Interaksi</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -1625,6 +1740,37 @@ export default function ModeratorPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Mode Kuantitatif (Kunci Jawaban & Bobot Nilai) */}
+              {newPollType === "MULTIPLE_CHOICE" && (
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="text-xs font-bold text-slate-800 flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newPollHasCorrectAnswer}
+                          onChange={(e) => setNewPollHasCorrectAnswer(e.target.checked)}
+                          className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                        <span>Tandai Kunci Jawaban & Bobot Nilai (Kuantitatif)</span>
+                      </label>
+                      <p className="text-[11px] text-slate-500 mt-1 pl-6">
+                        {newPollHasCorrectAnswer
+                          ? "Opsi jawaban akan dinilai benar/salah dan memiliki poin skor (Kuis/Evaluasi)."
+                          : "Polling bersifat jajak pendapat biasa tanpa penilaian benar/salah (Kualitatif)."}
+                      </p>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase shrink-0 ${
+                      newPollHasCorrectAnswer
+                        ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                        : "bg-slate-200 text-slate-600"
+                    }`}>
+                      {newPollHasCorrectAnswer ? "Kuantitatif" : "Kualitatif"}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1.5">
@@ -1745,64 +1891,130 @@ export default function ModeratorPage() {
               {/* Options for Multiple Choice or Quiz */}
               {(newPollType === "MULTIPLE_CHOICE" || newPollType === "QUIZ") && (
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-bold text-slate-700">
-                      {newPollType === "QUIZ" ? "Pilihan Jawaban (Pilih radio sebagai Kunci Benar):" : "Pilihan Opsi Jawaban"}
+                      {newPollType === "QUIZ"
+                        ? "Pilihan Jawaban (Pilih Kunci Benar):"
+                        : newPollHasCorrectAnswer
+                        ? "Pilihan Jawaban (Tentukan Kunci Benar & Poin):"
+                        : "Pilihan Opsi Jawaban:"}
                     </label>
-                    {newPollType === "QUIZ" && (
-                      <span className="text-[11px] text-blue-600 font-bold">Kunci Benar</span>
+                    {(newPollType === "QUIZ" || newPollHasCorrectAnswer) && (
+                      <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
+                        <Check className="w-3 h-3 stroke-[3]" /> Penilaian Aktif
+                      </span>
                     )}
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     {newPollOptions.map((opt, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        {newPollType === "QUIZ" && (
+                      <div
+                        key={idx}
+                        className={`p-2.5 rounded-2xl border transition ${
+                          (newPollType === "QUIZ" ? newQuizCorrectIndex === idx : (newPollHasCorrectAnswer && opt.isCorrect))
+                            ? "border-emerald-300 bg-emerald-50/40"
+                            : "border-slate-200 bg-slate-50/60"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-lg bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
+                            {String.fromCharCode(65 + idx)}
+                          </span>
                           <input
-                            type="radio"
-                            name="quizCorrectOption"
-                            checked={newQuizCorrectIndex === idx}
-                            onChange={() => setNewQuizCorrectIndex(idx)}
-                            className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                            title="Tandai sebagai jawaban benar"
-                          />
-                        )}
-                        <input
-                          type="text"
-                          value={opt}
-                          onChange={(e) => {
-                            const updated = [...newPollOptions];
-                            updated[idx] = e.target.value;
-                            setNewPollOptions(updated);
-                          }}
-                          placeholder={`Opsi ${idx + 1}`}
-                          className={`flex-1 px-3 py-2 rounded-xl bg-slate-50 border text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:outline-none focus:ring-2 focus:text-slate-900 ${
-                            newPollType === "QUIZ" && newQuizCorrectIndex === idx
-                              ? "border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/40 font-bold text-slate-900"
-                              : "border-slate-300 focus:ring-blue-500 focus:bg-white focus:text-slate-900"
-                          }`}
-                        />
-                        {newPollOptions.length > 2 && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setNewPollOptions(newPollOptions.filter((_, i) => i !== idx));
-                              if (newQuizCorrectIndex >= idx && newQuizCorrectIndex > 0) {
-                                setNewQuizCorrectIndex(newQuizCorrectIndex - 1);
-                              }
+                            type="text"
+                            value={opt.text}
+                            onChange={(e) => {
+                              const updated = [...newPollOptions];
+                              updated[idx] = { ...updated[idx], text: e.target.value };
+                              setNewPollOptions(updated);
                             }}
-                            className="px-2 text-slate-400 hover:text-red-600 text-xs font-bold"
-                          >
-                            ✕
-                          </button>
+                            placeholder={`Opsi ${idx + 1}`}
+                            className="flex-1 px-3 py-1.5 rounded-xl bg-white border border-slate-300 text-slate-900 placeholder:text-slate-400 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                          {newPollOptions.length > 2 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNewPollOptions(newPollOptions.filter((_, i) => i !== idx));
+                                if (newQuizCorrectIndex >= idx && newQuizCorrectIndex > 0) {
+                                  setNewQuizCorrectIndex(newQuizCorrectIndex - 1);
+                                }
+                              }}
+                              className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg text-xs font-bold transition"
+                              title="Hapus opsi"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        {(newPollType === "QUIZ" || newPollHasCorrectAnswer) && (
+                          <div className="flex items-center justify-between pl-8 pr-1 pt-2 mt-2 border-t border-slate-200/60 text-xs">
+                            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                              <input
+                                type={newPollType === "QUIZ" ? "radio" : "checkbox"}
+                                name="quizCorrectOptionRadio"
+                                checked={newPollType === "QUIZ" ? newQuizCorrectIndex === idx : opt.isCorrect}
+                                onChange={(e) => {
+                                  if (newPollType === "QUIZ") {
+                                    setNewQuizCorrectIndex(idx);
+                                    const updated = newPollOptions.map((item, i) => ({
+                                      ...item,
+                                      isCorrect: i === idx,
+                                    }));
+                                    setNewPollOptions(updated);
+                                  } else {
+                                    const updated = [...newPollOptions];
+                                    updated[idx] = { ...updated[idx], isCorrect: e.target.checked };
+                                    setNewPollOptions(updated);
+                                  }
+                                }}
+                                className="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer rounded"
+                              />
+                              <span className={`text-[11px] font-bold ${
+                                (newPollType === "QUIZ" ? newQuizCorrectIndex === idx : opt.isCorrect)
+                                  ? "text-emerald-700"
+                                  : "text-slate-500"
+                              }`}>
+                                {(newPollType === "QUIZ" ? newQuizCorrectIndex === idx : opt.isCorrect)
+                                  ? "✓ Kunci Jawaban Benar"
+                                  : "Tandai Kunci Jawaban"}
+                              </span>
+                            </label>
+
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[11px] text-slate-500 font-medium">Poin:</span>
+                              <input
+                                type="number"
+                                min="0"
+                                max="1000"
+                                step="5"
+                                value={opt.pointValue}
+                                onChange={(e) => {
+                                  const val = parseInt(e.target.value, 10) || 0;
+                                  const updated = [...newPollOptions];
+                                  updated[idx] = { ...updated[idx], pointValue: val };
+                                  setNewPollOptions(updated);
+                                }}
+                                className="w-16 px-2 py-0.5 rounded-lg border border-slate-300 bg-white text-xs font-mono font-bold text-right focus:outline-none focus:ring-1 focus:ring-blue-500"
+                              />
+                            </div>
+                          </div>
                         )}
                       </div>
                     ))}
+
                     <button
                       type="button"
-                      onClick={() => setNewPollOptions([...newPollOptions, `Opsi ${newPollOptions.length + 1}`])}
-                      className="text-xs text-blue-600 hover:underline font-bold"
+                      onClick={() =>
+                        setNewPollOptions([
+                          ...newPollOptions,
+                          { text: `Opsi ${newPollOptions.length + 1}`, isCorrect: false, pointValue: 10 },
+                        ])
+                      }
+                      className="text-xs text-blue-600 hover:text-blue-700 hover:underline font-bold flex items-center gap-1 mt-1 cursor-pointer"
                     >
-                      + Tambah Opsi Lain
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Tambah Opsi Lain</span>
                     </button>
                   </div>
                 </div>
@@ -1811,16 +2023,19 @@ export default function ModeratorPage() {
               <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setIsNewPollModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
+                  onClick={() => {
+                    setIsNewPollModalOpen(false);
+                    setEditingPoll(null);
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/25 transition"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-600/25 transition cursor-pointer"
                 >
-                  Simpan Polling
+                  {editingPoll ? "Perbarui Polling" : "Simpan Polling"}
                 </button>
               </div>
             </form>

@@ -66,6 +66,11 @@ export async function POST(
       });
     }
 
+    const hasAnyCorrect = Boolean(
+      body.hasCorrectAnswer ||
+      (options || []).some((o: any) => typeof o === "object" && o !== null && Boolean(o.isCorrect))
+    );
+
     const poll = await prisma.poll.create({
       data: {
         eventId: event.id,
@@ -74,14 +79,20 @@ export async function POST(
         type: type || "MULTIPLE_CHOICE",
         isActive: Boolean(isActive),
         timerSeconds: timerSeconds ? parseInt(timerSeconds, 10) : 0,
+        hasCorrectAnswer: hasAnyCorrect,
         quizState: "QUESTION",
         orderIndex: pollCount,
         options: {
           create: (options || []).map((opt: any, idx: number) => {
             const isObj = typeof opt === "object" && opt !== null;
+            const isCorrect = isObj ? Boolean(opt.isCorrect) : false;
+            const pointValue = isObj && opt.pointValue !== undefined
+              ? parseInt(String(opt.pointValue), 10)
+              : (isCorrect ? 10 : 0);
             return {
               optionText: isObj ? opt.text : String(opt),
-              isCorrect: isObj ? Boolean(opt.isCorrect) : false,
+              isCorrect,
+              pointValue,
               orderIndex: idx,
             };
           }),

@@ -57,6 +57,7 @@ interface PollOption {
   id: string;
   optionText: string;
   isCorrect?: boolean;
+  pointValue?: number;
   orderIndex: number;
   _count?: { responses: number };
 }
@@ -79,6 +80,7 @@ interface Poll {
   isActive: boolean;
   isLocked?: boolean;
   showResults: boolean;
+  hasCorrectAnswer?: boolean;
   quizState?: string; // QUESTION, REVEALED, LEADERBOARD
   timerSeconds?: number;
   options: PollOption[];
@@ -1064,18 +1066,28 @@ export default function PresenterPage() {
                 {/* Multiple Choice Chart */}
                 {activePoll.type === "MULTIPLE_CHOICE" && (
                   <div className="space-y-4">
+                    {activePoll.hasCorrectAnswer && activePoll.showResults && (
+                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-black mb-1">
+                        <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
+                        <span>KUNCI JAWABAN RESMI DITAMPILKAN</span>
+                      </div>
+                    )}
+
                     {(() => {
                       const total = activePoll.responses?.length || 0;
                       return activePoll.options.map((opt, idx) => {
                         const optVotes =
                           activePoll.responses?.filter((r) => r.optionId === opt.id).length || 0;
                         const percent = total > 0 ? Math.round((optVotes / total) * 100) : 0;
+                        const isCorrectKey = Boolean(activePoll.hasCorrectAnswer && opt.isCorrect);
 
                         return (
                           <div key={opt.id} className="relative">
                             <div
-                              className={`h-16 lg:h-20 rounded-2xl overflow-hidden relative border flex items-center px-6 ${
-                                stageTheme === "light"
+                              className={`h-16 lg:h-20 rounded-2xl overflow-hidden relative border transition-all flex items-center px-6 ${
+                                isCorrectKey && activePoll.showResults
+                                  ? "border-emerald-500 ring-2 ring-emerald-500/30"
+                                  : stageTheme === "light"
                                   ? "bg-slate-100 border-slate-200"
                                   : "bg-slate-800/80 border-slate-700/60"
                               }`}
@@ -1084,22 +1096,36 @@ export default function PresenterPage() {
                               {activePoll.showResults && (
                                 <div
                                   className={`absolute left-0 top-0 bottom-0 transition-all duration-700 rounded-2xl ${
-                                    stageTheme === "light" ? "bg-blue-600" : "bg-gradient-to-r from-indigo-600 to-indigo-500"
+                                    isCorrectKey
+                                      ? "bg-emerald-600"
+                                      : stageTheme === "light"
+                                      ? "bg-blue-600"
+                                      : "bg-gradient-to-r from-indigo-600 to-indigo-500"
                                   }`}
                                   style={{ width: `${percent}%` }}
                                 />
                               )}
 
                               <div className="relative z-10 w-full flex items-center justify-between">
-                                <span
-                                  className={`text-lg lg:text-xl font-black ${
-                                    stageTheme === "light" && (!activePoll.showResults || percent < 40)
-                                      ? "text-slate-900"
-                                      : "text-white drop-shadow"
-                                  }`}
-                                >
-                                  {opt.optionText}
-                                </span>
+                                <div className="flex items-center gap-3">
+                                  <span
+                                    className={`text-lg lg:text-xl font-black ${
+                                      stageTheme === "light" && (!activePoll.showResults || percent < 40)
+                                        ? "text-slate-900"
+                                        : "text-white drop-shadow"
+                                    }`}
+                                  >
+                                    {opt.optionText}
+                                  </span>
+
+                                  {isCorrectKey && activePoll.showResults && (
+                                    <span className="px-2.5 py-1 rounded-lg bg-emerald-500 text-white font-black text-xs flex items-center gap-1 shadow-md">
+                                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                      <span>BENAR {opt.pointValue ? `(+${opt.pointValue} Poin)` : ""}</span>
+                                    </span>
+                                  )}
+                                </div>
+
                                 {activePoll.showResults ? (
                                   <div className="flex items-center gap-3">
                                     <span

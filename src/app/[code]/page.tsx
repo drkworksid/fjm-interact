@@ -49,6 +49,7 @@ interface PollOption {
   id: string;
   optionText: string;
   isCorrect?: boolean;
+  pointValue?: number;
   orderIndex: number;
   _count?: { responses: number };
 }
@@ -71,6 +72,7 @@ interface Poll {
   isActive: boolean;
   isLocked?: boolean;
   showResults: boolean;
+  hasCorrectAnswer?: boolean;
   quizState?: string;
   timerSeconds?: number;
   options: PollOption[];
@@ -1169,6 +1171,45 @@ export default function ParticipantPage() {
 
                       return (
                         <div className="space-y-3">
+                          {/* Quantitative Feedback Banner */}
+                          {hasVoted && activePoll.hasCorrectAnswer && (() => {
+                            const userOption = activePoll.options.find((o) => o.id === userResponse?.optionId);
+                            const correctOption = activePoll.options.find((o) => o.isCorrect);
+                            const isCorrect = Boolean(userOption?.isCorrect);
+                            const points = userOption?.pointValue ?? (isCorrect ? 10 : 0);
+
+                            return (
+                              <div
+                                className={`p-4 rounded-2xl border flex items-start gap-3 shadow-xs ${
+                                  isCorrect
+                                    ? "bg-emerald-50 border-emerald-300 text-emerald-950"
+                                    : "bg-rose-50 border-rose-300 text-rose-950"
+                                }`}
+                              >
+                                <span className="text-2xl shrink-0 mt-0.5">{isCorrect ? "🎉" : "💡"}</span>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between gap-2 mb-1">
+                                    <h4 className="text-sm font-black">
+                                      {isCorrect ? "Hore! Jawaban Anda Benar" : "Jawaban Kurang Tepat"}
+                                    </h4>
+                                    {points > 0 && (
+                                      <span className="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-mono text-[11px] font-black shrink-0 shadow-2xs">
+                                        +{points} Poin
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-slate-700 leading-relaxed">
+                                    {isCorrect
+                                      ? "Pilihan Anda tepat sesuai dengan kunci jawaban yang ditentukan."
+                                      : correctOption
+                                      ? `Kunci jawaban yang benar adalah: "${correctOption.optionText}"`
+                                      : "Pilihan Anda belum sesuai kunci jawaban."}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })()}
+
                           {/* Options List */}
                           <div className="space-y-2.5">
                             {activePoll.options.map((opt) => {
@@ -1178,6 +1219,8 @@ export default function ParticipantPage() {
                               const isSelected = hasVoted
                                 ? userResponse?.optionId === opt.id
                                 : selectedOptionId === opt.id;
+                              const isCorrectKey = Boolean(activePoll.hasCorrectAnswer && opt.isCorrect);
+                              const isUserWrongChoice = Boolean(activePoll.hasCorrectAnswer && isSelected && !opt.isCorrect);
 
                               return (
                                 <button
@@ -1187,9 +1230,13 @@ export default function ParticipantPage() {
                                   onClick={() => setSelectedOptionId(opt.id)}
                                   className={`w-full relative text-left p-3.5 sm:p-4 rounded-2xl border transition-all overflow-hidden ${
                                     hasVoted
-                                      ? isSelected
-                                        ? "border-blue-600 bg-blue-50/40 shadow-xs ring-1 ring-blue-500"
-                                        : "border-slate-200 bg-slate-50/50 opacity-70"
+                                      ? isCorrectKey
+                                        ? "border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-500/20 font-bold"
+                                        : isUserWrongChoice
+                                        ? "border-rose-400 bg-rose-50/40 ring-1 ring-rose-300"
+                                        : isSelected
+                                        ? "border-blue-600 bg-blue-50/40 ring-1 ring-blue-500"
+                                        : "border-slate-200 bg-slate-50/40 opacity-70"
                                       : isSelected
                                       ? "border-blue-600 bg-blue-50/60 shadow-sm ring-2 ring-blue-500/30 cursor-pointer"
                                       : "border-slate-200 hover:border-slate-300 bg-white cursor-pointer"
@@ -1199,7 +1246,11 @@ export default function ParticipantPage() {
                                   {hasVoted && activePoll.showResults && (
                                     <div
                                       className={`absolute left-0 top-0 bottom-0 transition-all duration-500 ${
-                                        isSelected ? "bg-blue-100/70" : "bg-slate-100"
+                                        isCorrectKey
+                                          ? "bg-emerald-100/70"
+                                          : isSelected
+                                          ? "bg-blue-100/70"
+                                          : "bg-slate-100"
                                       }`}
                                       style={{ width: `${percentage}%` }}
                                     />
@@ -1209,28 +1260,42 @@ export default function ParticipantPage() {
                                     <div className="flex items-center gap-3 min-w-0">
                                       <div
                                         className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
-                                          isSelected
+                                          isCorrectKey
+                                            ? "bg-emerald-600 border-emerald-600 text-white"
+                                            : isSelected
                                             ? "bg-blue-600 border-blue-600 text-white"
                                             : "border-slate-300 bg-white"
                                         }`}
                                       >
-                                        {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
+                                        {(isSelected || isCorrectKey) && <Check className="w-3 h-3 stroke-[3]" />}
                                       </div>
                                       <span
                                         className={`text-sm truncate ${
-                                          isSelected ? "font-bold text-slate-950" : "font-medium text-slate-800"
+                                          isCorrectKey
+                                            ? "font-black text-emerald-950"
+                                            : isSelected
+                                            ? "font-bold text-slate-950"
+                                            : "font-medium text-slate-800"
                                         }`}
                                       >
                                         {opt.optionText}
                                       </span>
                                     </div>
 
-                                    {/* Percentage text ONLY visible AFTER voting and if showResults is on */}
-                                    {hasVoted && activePoll.showResults && (
-                                      <span className="text-xs font-bold text-slate-700 shrink-0 bg-white/80 px-2 py-0.5 rounded-md border border-slate-200">
-                                        {percentage}%
-                                      </span>
-                                    )}
+                                    {/* Right side items: Kunci Benar badge and/or percentage */}
+                                    <div className="flex items-center gap-2 shrink-0">
+                                      {hasVoted && activePoll.hasCorrectAnswer && opt.isCorrect && (
+                                        <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10px] font-black flex items-center gap-1 shadow-2xs">
+                                          <Check className="w-3 h-3 stroke-[3]" /> KUNCI BENAR
+                                          {opt.pointValue ? ` (+${opt.pointValue})` : ""}
+                                        </span>
+                                      )}
+                                      {hasVoted && activePoll.showResults && (
+                                        <span className="text-xs font-bold text-slate-700 bg-white/90 px-2 py-0.5 rounded-md border border-slate-200">
+                                          {percentage}%
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 </button>
                               );
