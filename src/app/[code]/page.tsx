@@ -150,10 +150,19 @@ export default function ParticipantPage() {
     setIsAnonymous(savedAnon);
   }, []);
 
-  // Fetch Event Data
+  const isFetchingRef = useRef(false);
+
+  // Fetch Event Data (lightweight participant view)
   const fetchEventData = async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     try {
-      const res = await fetch(`/api/events/${eventCode}`);
+      const token =
+        voterToken ||
+        (typeof window !== "undefined" ? localStorage.getItem("slido_voter_token") || "" : "");
+      const res = await fetch(
+        `/api/events/${eventCode}?view=participant${token ? `&voterToken=${encodeURIComponent(token)}` : ""}`
+      );
       const data = await res.json();
       if (!data.success) {
         setError(data.error || "Event tidak ditemukan");
@@ -181,6 +190,8 @@ export default function ParticipantPage() {
         setError("Gagal memuat event. Periksa koneksi Anda.");
         setIsLoading(false);
       }
+    } finally {
+      isFetchingRef.current = false;
     }
   };
 
@@ -285,10 +296,17 @@ export default function ParticipantPage() {
       setIsAnnouncementDismissed(false);
     });
 
-    // Auto-sync fallback (guarantees updates in Serverless / Vercel environments)
+    // Auto-sync fallback: smart interval (20s if socket connected, 5s if serverless polling), skip hidden tabs
     const fallbackSync = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (socket.connected) return;
       fetchEventData();
-    }, 3000);
+    }, 5000);
+
+    const safetySync = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (socket.connected) fetchEventData();
+    }, 20000);
 
     return () => {
       if (typeof window !== "undefined") {
@@ -296,6 +314,7 @@ export default function ParticipantPage() {
         window.removeEventListener("offline", handleOffline);
       }
       clearInterval(fallbackSync);
+      clearInterval(safetySync);
       socket.emit("leave_event", eventCode);
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);

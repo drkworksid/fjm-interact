@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import QRCode from "qrcode";
 import { getSocket } from "@/lib/socket-client";
 import {
   MessageSquare,
@@ -301,15 +302,30 @@ export default function ModeratorPage() {
     }
   };
 
-  // Fetch Event Data & QR
+  const isFetchingRef = useRef(false);
+
+  // Generate QR Code instantly on client-side
+  useEffect(() => {
+    if (!eventCode || typeof window === "undefined") return;
+    const url = `${window.location.origin}/${eventCode}`;
+    setJoinUrl(url);
+    QRCode.toDataURL(url, {
+      width: 400,
+      margin: 2,
+      color: { dark: "#1e1b4b", light: "#ffffff" },
+      errorCorrectionLevel: "M",
+    })
+      .then((dataUrl) => setQrDataUrl(dataUrl))
+      .catch((err) => console.error("QR generate error:", err));
+  }, [eventCode]);
+
+  // Fetch Event Data (lightweight moderate view)
   const fetchEventData = async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     try {
-      const [resEvent, resQr] = await Promise.all([
-        fetch(`/api/events/${eventCode}`),
-        fetch(`/api/events/${eventCode}/qr`),
-      ]);
+      const resEvent = await fetch(`/api/events/${eventCode}?view=moderate`);
       const dataEvent = await resEvent.json();
-      const dataQr = await resQr.json();
 
       if (dataEvent.success) {
         setEvent(dataEvent.event);
@@ -319,14 +335,12 @@ export default function ModeratorPage() {
         setRankingPolls(dataEvent.event.rankingPolls || []);
         setSurveys(dataEvent.event.surveys || []);
       }
-      if (dataQr.success) {
-        setQrDataUrl(dataQr.qrDataUrl);
-        setJoinUrl(dataQr.joinUrl);
-      }
       setIsLoading(false);
     } catch (err) {
       console.error(err);
       setIsLoading(false);
+    } finally {
+      isFetchingRef.current = false;
     }
   };
 
@@ -399,13 +413,21 @@ export default function ModeratorPage() {
       setPolls((prev) => prev.map((p) => (p.id === updatedPoll.id ? updatedPoll : p)));
     });
 
-    // Auto-sync fallback for Vercel Serverless
+    // Auto-sync fallback: smart interval (20s if socket connected, 5s if serverless polling), skip hidden tabs
     const fallbackSync = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (socket.connected) return;
       fetchEventData();
-    }, 3000);
+    }, 5000);
+
+    const safetySync = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      if (socket.connected) fetchEventData();
+    }, 20000);
 
     return () => {
       clearInterval(fallbackSync);
+      clearInterval(safetySync);
       socket.emit("leave_event", eventCode);
       socket.off("connect", onConnect);
       socket.off("question:created");
