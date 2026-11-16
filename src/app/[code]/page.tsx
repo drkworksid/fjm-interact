@@ -1168,47 +1168,65 @@ export default function ParticipantPage() {
                         (r) => r.participantToken === voterToken
                       );
                       const hasVoted = !!userResponse;
+                      // Kunci jawaban HANYA boleh dibuka jika peserta SUDAH memilih DAN trainer SUDAH membuka hasil (showResults)
+                      const shouldRevealAnswerKey = Boolean(
+                        hasVoted && activePoll.showResults && activePoll.hasCorrectAnswer
+                      );
 
                       return (
                         <div className="space-y-3">
                           {/* Quantitative Feedback Banner */}
-                          {hasVoted && activePoll.hasCorrectAnswer && (() => {
-                            const userOption = activePoll.options.find((o) => o.id === userResponse?.optionId);
-                            const correctOption = activePoll.options.find((o) => o.isCorrect);
-                            const isCorrect = Boolean(userOption?.isCorrect);
-                            const points = userOption?.pointValue ?? (isCorrect ? 10 : 0);
+                          {hasVoted && activePoll.hasCorrectAnswer && (
+                            shouldRevealAnswerKey ? (
+                              (() => {
+                                const userOption = activePoll.options.find((o) => o.id === userResponse?.optionId);
+                                const correctOption = activePoll.options.find((o) => o.isCorrect);
+                                const isCorrect = Boolean(userOption?.isCorrect);
+                                const points = userOption?.pointValue ?? (isCorrect ? 10 : 0);
 
-                            return (
-                              <div
-                                className={`p-4 rounded-2xl border flex items-start gap-3 shadow-xs ${
-                                  isCorrect
-                                    ? "bg-emerald-50 border-emerald-300 text-emerald-950"
-                                    : "bg-rose-50 border-rose-300 text-rose-950"
-                                }`}
-                              >
-                                <span className="text-2xl shrink-0 mt-0.5">{isCorrect ? "🎉" : "💡"}</span>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between gap-2 mb-1">
-                                    <h4 className="text-sm font-black">
-                                      {isCorrect ? "Hore! Jawaban Anda Benar" : "Jawaban Kurang Tepat"}
-                                    </h4>
-                                    {points > 0 && (
-                                      <span className="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-mono text-[11px] font-black shrink-0 shadow-2xs">
-                                        +{points} Poin
-                                      </span>
-                                    )}
+                                return (
+                                  <div
+                                    className={`p-4 rounded-2xl border flex items-start gap-3 shadow-xs ${
+                                      isCorrect
+                                        ? "bg-emerald-50 border-emerald-300 text-emerald-950"
+                                        : "bg-rose-50 border-rose-300 text-rose-950"
+                                    }`}
+                                  >
+                                    <span className="text-2xl shrink-0 mt-0.5">{isCorrect ? "🎉" : "💡"}</span>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center justify-between gap-2 mb-1">
+                                        <h4 className="text-sm font-black">
+                                          {isCorrect ? "Hore! Jawaban Anda Benar" : "Jawaban Kurang Tepat"}
+                                        </h4>
+                                        {points > 0 && (
+                                          <span className="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-mono text-[11px] font-black shrink-0 shadow-2xs">
+                                            +{points} Poin
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className="text-xs text-slate-700 leading-relaxed">
+                                        {isCorrect
+                                          ? "Pilihan Anda tepat sesuai dengan kunci jawaban yang ditentukan."
+                                          : correctOption
+                                          ? `Kunci jawaban yang benar adalah: "${correctOption.optionText}"`
+                                          : "Pilihan Anda belum sesuai kunci jawaban."}
+                                      </p>
+                                    </div>
                                   </div>
-                                  <p className="text-xs text-slate-700 leading-relaxed">
-                                    {isCorrect
-                                      ? "Pilihan Anda tepat sesuai dengan kunci jawaban yang ditentukan."
-                                      : correctOption
-                                      ? `Kunci jawaban yang benar adalah: "${correctOption.optionText}"`
-                                      : "Pilihan Anda belum sesuai kunci jawaban."}
-                                  </p>
+                                );
+                              })()
+                            ) : (
+                              <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl flex items-center justify-between text-xs text-blue-900">
+                                <div className="flex items-center gap-2">
+                                  <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                                  <span>Jawaban Anda tersimpan. Menunggu trainer membuka hasil evaluasi...</span>
                                 </div>
+                                <span className="text-[10px] bg-blue-200/80 text-blue-900 font-bold px-2 py-0.5 rounded-full shrink-0">
+                                  Terkunci 🔒
+                                </span>
                               </div>
-                            );
-                          })()}
+                            )
+                          )}
 
                           {/* Options List */}
                           <div className="space-y-2.5">
@@ -1219,8 +1237,8 @@ export default function ParticipantPage() {
                               const isSelected = hasVoted
                                 ? userResponse?.optionId === opt.id
                                 : selectedOptionId === opt.id;
-                              const isCorrectKey = Boolean(activePoll.hasCorrectAnswer && opt.isCorrect);
-                              const isUserWrongChoice = Boolean(activePoll.hasCorrectAnswer && isSelected && !opt.isCorrect);
+                              const isCorrectKey = shouldRevealAnswerKey && Boolean(opt.isCorrect);
+                              const isUserWrongChoice = shouldRevealAnswerKey && isSelected && !opt.isCorrect;
 
                               return (
                                 <button
@@ -1235,7 +1253,7 @@ export default function ParticipantPage() {
                                         : isUserWrongChoice
                                         ? "border-rose-400 bg-rose-50/40 ring-1 ring-rose-300"
                                         : isSelected
-                                        ? "border-blue-600 bg-blue-50/40 ring-1 ring-blue-500"
+                                        ? "border-blue-600 bg-blue-50/40 ring-1 ring-blue-500 font-bold"
                                         : "border-slate-200 bg-slate-50/40 opacity-70"
                                       : isSelected
                                       ? "border-blue-600 bg-blue-50/60 shadow-sm ring-2 ring-blue-500/30 cursor-pointer"
@@ -1282,12 +1300,17 @@ export default function ParticipantPage() {
                                       </span>
                                     </div>
 
-                                    {/* Right side items: Kunci Benar badge and/or percentage */}
+                                    {/* Right side items: Kunci Benar badge, Pilihan Anda badge, and/or percentage */}
                                     <div className="flex items-center gap-2 shrink-0">
-                                      {hasVoted && activePoll.hasCorrectAnswer && opt.isCorrect && (
+                                      {isCorrectKey && (
                                         <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10px] font-black flex items-center gap-1 shadow-2xs">
                                           <Check className="w-3 h-3 stroke-[3]" /> KUNCI BENAR
                                           {opt.pointValue ? ` (+${opt.pointValue})` : ""}
+                                        </span>
+                                      )}
+                                      {hasVoted && !shouldRevealAnswerKey && isSelected && (
+                                        <span className="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 text-[10px] font-bold">
+                                          Pilihan Anda 🔒
                                         </span>
                                       )}
                                       {hasVoted && activePoll.showResults && (
