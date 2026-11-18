@@ -43,9 +43,11 @@ import {
   Lightbulb,
   Award,
   ClipboardList,
-  Pencil
+  Pencil,
+  FileText
 } from "lucide-react";
 import Link from "next/link";
+import { exportQAToPDF, exportPollsToPDF } from "@/lib/export-pdf";
 import TrainerPinGate from "@/components/TrainerPinGate";
 import { IdeasPoll, RankingPoll, Survey } from "@/lib/types/interaction";
 import IdeasPollModal from "@/components/ideas/IdeasPollModal";
@@ -142,6 +144,30 @@ export default function ModeratorPage() {
   const [activeTab, setActiveTab] = useState<"qa" | "polls" | "settings">("qa");
   const [qaFilter, setQaFilter] = useState<"all" | "pending" | "approved" | "answered">("all");
   const [isLoading, setIsLoading] = useState(true);
+  const [isExportingPdf, setIsExportingPdf] = useState<"qa" | "polls" | null>(null);
+
+  const handleExportPdf = async (type: "qa" | "polls") => {
+    if (!event || isExportingPdf) return;
+    setIsExportingPdf(type);
+    try {
+      const res = await fetch(`/api/events/${event.code}/export?type=${type}&format=json`);
+      const data = await res.json();
+      if (!data.success || !data.event) {
+        alert(data.error || "Gagal mengambil data untuk ekspor PDF.");
+        return;
+      }
+      if (type === "qa") {
+        exportQAToPDF(data.event);
+      } else {
+        exportPollsToPDF(data.event);
+      }
+    } catch (err) {
+      console.error("PDF export error:", err);
+      alert("Terjadi kesalahan saat membuat file PDF.");
+    } finally {
+      setIsExportingPdf(null);
+    }
+  };
 
   // New / Edit Poll Modal Form
   const [isNewPollModalOpen, setIsNewPollModalOpen] = useState(false);
@@ -766,23 +792,25 @@ export default function ModeratorPage() {
                 PT Fiqry Jaya Manunggal • Panel Moderasi Sesi
               </span>
               <div className="flex items-center gap-1.5 w-full md:w-auto justify-end">
-                <span className="text-[11px] font-bold text-slate-400 mr-1 hidden xs:inline shrink-0">Ekspor Rekap:</span>
-                <a
-                  href={`/api/events/${event.code}/export?type=qa`}
-                  download
-                  className="flex-1 md:flex-initial text-center justify-center px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center gap-1 border border-slate-200 transition truncate"
+                <span className="text-[11px] font-bold text-slate-400 mr-1 hidden xs:inline shrink-0">Ekspor PDF:</span>
+                <button
+                  type="button"
+                  onClick={() => handleExportPdf("qa")}
+                  disabled={isExportingPdf !== null}
+                  className="flex-1 md:flex-initial text-center justify-center px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:border-blue-200 text-slate-700 font-bold text-[11px] flex items-center gap-1 border border-slate-200 transition truncate cursor-pointer disabled:opacity-50"
                 >
-                  <Download className="w-3 h-3 text-blue-600 shrink-0" />
-                  <span>Ekspor Q&A</span>
-                </a>
-                <a
-                  href={`/api/events/${event.code}/export?type=polls`}
-                  download
-                  className="flex-1 md:flex-initial text-center justify-center px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center gap-1 border border-slate-200 transition truncate"
+                  <FileText className="w-3 h-3 text-blue-600 shrink-0" />
+                  <span>{isExportingPdf === "qa" ? "Membuat PDF..." : "Ekspor Q&A (PDF)"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleExportPdf("polls")}
+                  disabled={isExportingPdf !== null}
+                  className="flex-1 md:flex-initial text-center justify-center px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-red-50 hover:border-red-200 text-slate-700 font-bold text-[11px] flex items-center gap-1 border border-slate-200 transition truncate cursor-pointer disabled:opacity-50"
                 >
-                  <Download className="w-3 h-3 text-red-600 shrink-0" />
-                  <span>Ekspor Polling</span>
-                </a>
+                  <FileText className="w-3 h-3 text-red-600 shrink-0" />
+                  <span>{isExportingPdf === "polls" ? "Membuat PDF..." : "Ekspor Polling (PDF)"}</span>
+                </button>
               </div>
             </div>
           </div>

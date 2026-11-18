@@ -11,6 +11,7 @@ export async function GET(
     const code = params.code.toUpperCase();
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") || "qa"; // "qa" or "polls"
+    const format = searchParams.get("format") || "csv"; // "json" or "csv"
 
     const event = await prisma.event.findUnique({
       where: { code },
@@ -27,7 +28,9 @@ export async function GET(
                 _count: { select: { responses: true } },
               },
             },
-            responses: true,
+            responses: {
+              orderBy: { createdAt: "asc" },
+            },
           },
         },
       },
@@ -35,6 +38,10 @@ export async function GET(
 
     if (!event) {
       return NextResponse.json({ success: false, error: "Event tidak ditemukan" }, { status: 404 });
+    }
+
+    if (format === "json") {
+      return NextResponse.json({ success: true, event });
     }
 
     // CSV UTF-8 BOM so Excel opens accurately with UTF-8 encoding
